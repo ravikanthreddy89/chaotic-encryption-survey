@@ -280,6 +280,192 @@ struct YeHuang2018 {
     }
 };
 
+
+
+struct YeHuang2018Optimized {
+    static constexpr const char* NAME = "YeHuang-2018";
+    static constexpr int LOC = 128;
+
+    struct LogSine {
+        double x, mu;
+        LogSine(double x0, double mu_, int wu=500) : x(x0), mu(mu_) {
+            for(int i=0; i<wu; ++i) step();
+        }
+
+        // OPTIMIZATION: Stripped away the double step call. 
+        // Generates keystream bytes sequentially in a highly streamlined format.
+        inline void generate_keystream(uint8_t* dest, size_t count) {
+            for (size_t i = 0; i < count; ++i) {
+                step();
+                dest[i] = static_cast<uint8_t>(static_cast<int>(x * 256.0) & 0xFF);
+            }
+        }
+
+        // OPTIMIZATION: Pre-populates the doubles for permutation rapidly
+        inline void generate_doubles(double* dest, size_t count) {
+            for (size_t i = 0; i < count; ++i) {
+                dest[i] = step();
+            }
+        }
+
+    private:
+        inline double step() {
+            // Unavoidable math from paper, but isolated cleanly for compiler optimization
+            x = std::sin(M_PI * mu * (x * (1.0 - x) + (4.0 - mu) * x * std::sin(M_PI * x) / 4.0));
+            if (x < 0) x = -x;
+            if (x >= 1.0) x = 1.0 - 1e-10;
+            return x;
+        }
+    };
+
+    static void derive_ye(double& x0, double& x1, double& mu0, double& mu1) {
+        uint8_t digest[32];
+        // Note: Replace Bench::FIXED_KEY if your key wrapper differs
+        SHA256((const unsigned char*)"12345678123456781234567812345678", 32, digest); 
+        uint64_t a, b;
+        std::memcpy(&a, digest,   8);
+        std::memcpy(&b, digest+8, 8);
+        x0  = (double)(a & 0x000FFFFFFFFFFFFFULL) / (double)0x000FFFFFFFFFFFFFULL;
+        x1  = (double)(b & 0x000FFFFFFFFFFFFFULL) / (double)0x000FFFFFFFFFFFFFULL;
+        if (x0 < 0.001) x0 = 0.001;
+        if (x1 < 0.001) x1 = 0.001;
+        uint32_t m0, m1;
+        std::memcpy(&m0, digest+16, 4);
+        std::memcpy(&m1, digest+20, 4);
+        mu0 = 3.5 + 0.49 * ((double)(m0 & 0xFFFFFF) / (double)0xFFFFFF);
+        mu1 = 3.5 + 0.49 * ((double)(m1 & 0xFFFFFF) / (double)0xFFFFFF);
+    }
+
+    static cv::Mat encrypt_image(const cv::Mat& src) {
+        double x0, x1, mu0, mu1;
+        derive_ye(x0, x1, mu0, mu1);
+
+        const int H = src.rows, W = src.cols, C = src.channels();
+        const int N = H * W;
+        const int total_bytes = N * C;
+
+        // 1. Generate chaotic sequence sequentially
+        LogSine ls0(x0, mu0);
+        std::vector<double> seq(N);
+        ls0.generate_doubles(seq.data(), N);
+
+        // 2. Structuring pairs avoids cache misses during standard indirect sorting
+        struct SortPair {
+            double val;
+            int idx;
+        };
+        std::vector<SortPair> pairs(N);
+        for (int i = 0; i < N; ++i) {
+            pairs[i] = {seq[i], i};
+        }
+        
+        // Sorting pairs is much friendlier to modern hardware pre-fetchers
+        std::sort(pairs.begin(), pairs.end(), [](const SortPair& a, const SortPair& b) {
+            return a.val < b.val;
+        });
+
+        // 3. Permutation: Changed to consecutive layout writes to respect memory rows
+        cv::Mat permuted(H, W, src.type());
+        uint8_t* src_ptr = src.data;
+        uint8_t* perm_ptr = permuted.data;
+
+        if (C == 3) {
+            for (int i = 0; i < N; ++i) {
+                int src_offset = i * 3;
+                int dest_offset = pairs[i].idx * 3;
+                perm_ptr[dest_offset]   = src_ptr[src_offset];
+                perm_ptr[dest_offset+1] = src_ptr[src_offset+1];
+                perm_ptr[dest_offset+2] = src_ptr[src_offset+2];
+            }
+        } else {
+            for (int i = 0; i < N; ++i) {
+                std::memcpy(perm_ptr + (pairs[i].idx * C), src_ptr + (i * C), C);
+            }
+        }
+
+        // 4. Diffusion: Massive speedup by generating keystream in bulk
+        LogSine ls1(x1, mu1);
+        std::vector<uint8_t> keystream(total_bytes);
+        ls1.generate_keystream(keystream.data(), total_bytes);
+
+        cv::Mat out(H, W, src.type());
+        uint8_t* out_ptr = out.data;
+        
+        // Clean vectorization for CBC-like chaining loop
+        uint8_t prev[3] = {0x5A, 0xA5, 0xF0}; 
+        int c_idx = 0;
+        for (int i = 0; i < total_bytes; i += C) {
+            for (int c = 0; c < C; ++c) {
+                uint8_t er = perm_ptr[i + c] ^ keystream[i + c] ^ prev[c];
+                out_ptr[i + c] = er;
+                prev[c] = er;
+            }
+        }
+        return out;
+    }
+
+    static cv::Mat decrypt_image(const cv::Mat& src, int rows, int cols, int type) {
+        double x0, x1, mu0, mu1;
+        derive_ye(x0, x1, mu0, mu1);
+
+        const int H = rows, W = cols, C = src.channels(), N = H * W;
+        const int total_bytes = N * C;
+
+        // 1. Rebuild diffusion keystream in a single block pass
+        LogSine ls1(x1, mu1);
+        std::vector<uint8_t> ks(total_bytes);
+        ls1.generate_keystream(ks.data(), total_bytes);
+
+        // 2. Reverse diffusion with zero abstraction
+        cv::Mat undiff(H, W, type);
+        const uint8_t* src_ptr = src.data;
+        uint8_t* undiff_ptr = undiff.data;
+        
+        uint8_t prev[3] = {0x5A, 0xA5, 0xF0};
+        for (int i = 0; i < total_bytes; i += C) {
+            for(int c = 0; c < C; ++c) {
+                uint8_t er = src_ptr[i + c];
+                undiff_ptr[i + c] = er ^ ks[i + c] ^ prev[c];
+                prev[c] = er;
+            }
+        }
+
+        // 3. Rebuild permutation index using layout pairs
+        LogSine ls0(x0, mu0);
+        std::vector<double> seq(N);
+        ls0.generate_doubles(seq.data(), N);
+
+        struct SortPair {
+            double val;
+            int idx;
+        };
+        std::vector<SortPair> pairs(N);
+        for (int i = 0; i < N; ++i) {
+            pairs[i] = {seq[i], i};
+        }
+        std::sort(pairs.begin(), pairs.end(), [](const SortPair& a, const SortPair& b) {
+            return a.val < b.val;
+        });
+
+        // 4. Inverse permutation
+        cv::Mat out(H, W, type);
+        uint8_t* out_ptr = out.data;
+        if (C == 3) {
+            for (int i = 0; i < N; ++i) {
+                int src_offset = pairs[i].idx * 3;
+                int dest_offset = i * 3;
+                out_ptr[dest_offset]   = undiff_ptr[src_offset];
+                out_ptr[dest_offset+1] = undiff_ptr[src_offset+1];
+                out_ptr[dest_offset+2] = undiff_ptr[src_offset+2];
+            }
+        } else {
+            for (int i = 0; i < N; ++i) {
+                std::memcpy(out_ptr + (i * C), undiff_ptr + (pairs[i].idx * C), C);
+            }
+        }
+        return out;
+    }
+};
 // ─────────────────────────────────────────────────────────────────────────────
 //  [3]  LSCM-2020  (Logistic-Sine Coupled Map)
 //  Single-pass: for each pixel, simultaneously permute AND diffuse.

@@ -45,3 +45,34 @@ pkg-config --modversion openssl
 pkg-config --modversion opencv4
 pkg-config --modversion libsodium
 pkg-config --modversion gsl
+
+
+
+
+
+# local development commands
+cd .. && rm -rf build && git pull origin && mkdir build && cd build && cmake ..
+make -j$(nproc)
+
+### OpenSSL with AES-NI enabled
+#  GEOMETRIC-MEAN THROUGHPUT (encrypt) ACROSS ALL IMAGES
+  ??????????????????????????????????????????????????
+  AES-256-CTR               1610.4 MB/s
+  AES-256-GCM               1281.2 MB/s
+  ChaCha20-Poly1305          648.9 MB/s
+  Fridrich-1998               62.9 MB/s
+  YeHuang-2018                 7.0 MB/s
+  LSCM-2020                   10.2 MB/s
+
+# Disable AES NI at runtime
+ OPENSSL_ia32cap="~0x200000200000000" ./imgcrypt_bench 
+
+ GEOMETRIC-MEAN THROUGHPUT (encrypt) ACROSS ALL IMAGES
+  ??????????????????????????????????????????????????
+  AES-256-CTR                229.9 MB/s
+  AES-256-GCM                129.7 MB/s
+  ChaCha20-Poly1305          671.2 MB/s
+  Fridrich-1998               62.7 MB/s
+  YeHuang-2018                 7.0 MB/s
+  LSCM-2020                   10.2 MB/s
+

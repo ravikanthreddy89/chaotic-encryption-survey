@@ -325,6 +325,20 @@ int main(int argc, char* argv[]) {
             all_records.push_back(rec);
         }
 
+        // YeHuang-2018-Optimized
+        {
+            auto rec = run_cipher<Ciphers::YeHuang2018Optimized>(
+                spec,
+                [](const cv::Mat& s) { return Ciphers::YeHuang2018Optimized::encrypt_image(s); },
+                [](const cv::Mat& s, int r, int c, int t) {
+                    return Ciphers::YeHuang2018Optimized::decrypt_image(s, r, c, t);
+                },
+                Ciphers::YeHuang2018Optimized::LOC);
+            print_row(rec);
+            csv << Bench::to_csv(rec);
+            all_records.push_back(rec);
+        }
+
         // LSCM-2020
         {
             auto rec = run_cipher<Ciphers::LSCM2020>(
@@ -350,7 +364,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> cipher_names = {
         "AES-256-CTR","AES-256-GCM","ChaCha20-Poly1305",
-        "Fridrich-1998","YeHuang-2018","LSCM-2020"
+        "Fridrich-1998","YeHuang-2018","YeHuang2018Optimized", "LSCM-2020"
     };
     for (const auto& name : cipher_names) {
         double log_sum = 0; int cnt = 0;

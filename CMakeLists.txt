@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ── Build type ─────────────────────────────────────────────────────────────────
+# If not build type passed, default to production build without debug flags
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -20,6 +21,7 @@ message(STATUS "Build type : ${CMAKE_BUILD_TYPE}")
 message(STATUS "CXX flags  : ${CMAKE_CXX_FLAGS_RELEASE}")
 
 # ── Dependencies ───────────────────────────────────────────────────────────────
+# NOTE: Refer to Notes file on installing the dependencies
 find_package(OpenCV REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(OPENSSL REQUIRED openssl)
