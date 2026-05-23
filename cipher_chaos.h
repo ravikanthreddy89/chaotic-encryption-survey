@@ -283,7 +283,7 @@ struct YeHuang2018 {
 
 
 struct YeHuang2018Optimized {
-    static constexpr const char* NAME = "YeHuang-2018";
+    static constexpr const char* NAME = "YeHuang-2018-Optimized";
     static constexpr int LOC = 128;
 
     struct LogSine {

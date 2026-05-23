@@ -364,7 +364,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> cipher_names = {
         "AES-256-CTR","AES-256-GCM","ChaCha20-Poly1305",
-        "Fridrich-1998","YeHuang-2018","YeHuang2018Optimized", "LSCM-2020"
+        "Fridrich-1998","YeHuang-2018","YeHuang-2018-Optimized", "LSCM-2020"
     };
     for (const auto& name : cipher_names) {
         double log_sum = 0; int cnt = 0;
