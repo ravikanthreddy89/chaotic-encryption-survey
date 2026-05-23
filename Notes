@@ -1,0 +1,47 @@
+### Installing dependencies
+
+# Update first
+sudo apt update
+
+
+# Install OS packages
+sudo apt install -y \
+  build-essential \
+  cmake \
+  ninja-build \
+  pkg-config \
+  git \
+  curl \
+  wget \
+  unzip \
+  ca-certificates
+
+
+# Install the libraries (OpenSSL, OpenCV, LibSodium and GSL)
+sudo apt install -y \
+  libssl-dev \
+  libopencv-dev \
+  libsodium-dev \
+  libgsl-dev
+
+# Install tools for capturing the metrics for bechmarking
+
+sudo apt install -y \
+  linux-tools-common \
+  linux-tools-generic \
+  time \
+  valgrind \
+  gdb \
+  htop \
+  hyperfine \
+  libpapi-dev \
+  papi-tools
+
+
+# Check the installed version of packages
+openssl version
+
+pkg-config --modversion openssl
+pkg-config --modversion opencv4
+pkg-config --modversion libsodium
+pkg-config --modversion gsl

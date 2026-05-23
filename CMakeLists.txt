@@ -34,7 +34,7 @@ message(STATUS "PAPI    : ${PAPI_VERSION}")
 message(STATUS "GSL     : ${GSL_VERSION}")
 
 # ── Target ─────────────────────────────────────────────────────────────────────
-add_executable(imgcrypt_bench src/main.cpp)
+add_executable(imgcrypt_bench main.cpp)
 
 target_include_directories(imgcrypt_bench PRIVATE
     include
