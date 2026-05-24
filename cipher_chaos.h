@@ -296,6 +296,27 @@ struct YeHuang2018 {
 struct YeHuang2018Optimized {
     static constexpr const char* NAME = "YeHuang-2018-Optimized";
     static constexpr int LOC = 128;
+    struct SortPair {
+        double val;
+        int idx;
+    };
+
+    struct WorkBuffers {
+        std::vector<double> seq;
+        std::vector<SortPair> pairs;
+        std::vector<uint8_t> keystream;
+    };
+
+    static WorkBuffers& buffers() {
+        thread_local WorkBuffers wb;
+        return wb;
+    }
+
+    static inline void ensure_sizes(WorkBuffers& wb, int N, int total_bytes) {
+        wb.seq.resize(N);
+        wb.pairs.resize(N);
+        wb.keystream.resize(total_bytes);
+    }
 
     struct LogSine {
         double x, mu;
@@ -331,8 +352,7 @@ struct YeHuang2018Optimized {
 
     static void derive_ye(double& x0, double& x1, double& mu0, double& mu1) {
         uint8_t digest[32];
-        // Note: Replace Bench::FIXED_KEY if your key wrapper differs
-        SHA256((const unsigned char*)"12345678123456781234567812345678", 32, digest); 
+        SHA256(Bench::FIXED_KEY.data(), 32, digest);
         uint64_t a, b;
         std::memcpy(&a, digest,   8);
         std::memcpy(&b, digest+8, 8);
@@ -354,24 +374,20 @@ struct YeHuang2018Optimized {
         const int H = src.rows, W = src.cols, C = src.channels();
         const int N = H * W;
         const int total_bytes = N * C;
+        WorkBuffers& wb = buffers();
+        ensure_sizes(wb, N, total_bytes);
 
         // 1. Generate chaotic sequence sequentially
         LogSine ls0(x0, mu0);
-        std::vector<double> seq(N);
-        ls0.generate_doubles(seq.data(), N);
+        ls0.generate_doubles(wb.seq.data(), N);
 
         // 2. Structuring pairs avoids cache misses during standard indirect sorting
-        struct SortPair {
-            double val;
-            int idx;
-        };
-        std::vector<SortPair> pairs(N);
         for (int i = 0; i < N; ++i) {
-            pairs[i] = {seq[i], i};
+            wb.pairs[i] = {wb.seq[i], i};
         }
         
         // Sorting pairs is much friendlier to modern hardware pre-fetchers
-        std::sort(pairs.begin(), pairs.end(), [](const SortPair& a, const SortPair& b) {
+        std::sort(wb.pairs.begin(), wb.pairs.end(), [](const SortPair& a, const SortPair& b) {
             return a.val < b.val;
         });
 
@@ -383,31 +399,29 @@ struct YeHuang2018Optimized {
         if (C == 3) {
             for (int i = 0; i < N; ++i) {
                 int src_offset = i * 3;
-                int dest_offset = pairs[i].idx * 3;
+                int dest_offset = wb.pairs[i].idx * 3;
                 perm_ptr[dest_offset]   = src_ptr[src_offset];
                 perm_ptr[dest_offset+1] = src_ptr[src_offset+1];
                 perm_ptr[dest_offset+2] = src_ptr[src_offset+2];
             }
         } else {
             for (int i = 0; i < N; ++i) {
-                std::memcpy(perm_ptr + (pairs[i].idx * C), src_ptr + (i * C), C);
+                std::memcpy(perm_ptr + (wb.pairs[i].idx * C), src_ptr + (i * C), C);
             }
         }
 
         // 4. Diffusion: Massive speedup by generating keystream in bulk
         LogSine ls1(x1, mu1);
-        std::vector<uint8_t> keystream(total_bytes);
-        ls1.generate_keystream(keystream.data(), total_bytes);
+        ls1.generate_keystream(wb.keystream.data(), total_bytes);
 
         cv::Mat out(H, W, src.type());
         uint8_t* out_ptr = out.data;
         
         // Clean vectorization for CBC-like chaining loop
         uint8_t prev[3] = {0x5A, 0xA5, 0xF0}; 
-        int c_idx = 0;
         for (int i = 0; i < total_bytes; i += C) {
             for (int c = 0; c < C; ++c) {
-                uint8_t er = perm_ptr[i + c] ^ keystream[i + c] ^ prev[c];
+                uint8_t er = perm_ptr[i + c] ^ wb.keystream[i + c] ^ prev[c];
                 out_ptr[i + c] = er;
                 prev[c] = er;
             }
@@ -421,11 +435,12 @@ struct YeHuang2018Optimized {
 
         const int H = rows, W = cols, C = src.channels(), N = H * W;
         const int total_bytes = N * C;
+        WorkBuffers& wb = buffers();
+        ensure_sizes(wb, N, total_bytes);
 
         // 1. Rebuild diffusion keystream in a single block pass
         LogSine ls1(x1, mu1);
-        std::vector<uint8_t> ks(total_bytes);
-        ls1.generate_keystream(ks.data(), total_bytes);
+        ls1.generate_keystream(wb.keystream.data(), total_bytes);
 
         // 2. Reverse diffusion with zero abstraction
         cv::Mat undiff(H, W, type);
@@ -434,27 +449,20 @@ struct YeHuang2018Optimized {
         
         uint8_t prev[3] = {0x5A, 0xA5, 0xF0};
         for (int i = 0; i < total_bytes; i += C) {
-            for(int c = 0; c < C; ++c) {
-                uint8_t er = src_ptr[i + c];
-                undiff_ptr[i + c] = er ^ ks[i + c] ^ prev[c];
-                prev[c] = er;
-            }
+                for(int c = 0; c < C; ++c) {
+                    uint8_t er = src_ptr[i + c];
+                    undiff_ptr[i + c] = er ^ wb.keystream[i + c] ^ prev[c];
+                    prev[c] = er;
+                }
         }
 
         // 3. Rebuild permutation index using layout pairs
         LogSine ls0(x0, mu0);
-        std::vector<double> seq(N);
-        ls0.generate_doubles(seq.data(), N);
-
-        struct SortPair {
-            double val;
-            int idx;
-        };
-        std::vector<SortPair> pairs(N);
+        ls0.generate_doubles(wb.seq.data(), N);
         for (int i = 0; i < N; ++i) {
-            pairs[i] = {seq[i], i};
+            wb.pairs[i] = {wb.seq[i], i};
         }
-        std::sort(pairs.begin(), pairs.end(), [](const SortPair& a, const SortPair& b) {
+        std::sort(wb.pairs.begin(), wb.pairs.end(), [](const SortPair& a, const SortPair& b) {
             return a.val < b.val;
         });
 
@@ -463,7 +471,7 @@ struct YeHuang2018Optimized {
         uint8_t* out_ptr = out.data;
         if (C == 3) {
             for (int i = 0; i < N; ++i) {
-                int src_offset = pairs[i].idx * 3;
+                int src_offset = wb.pairs[i].idx * 3;
                 int dest_offset = i * 3;
                 out_ptr[dest_offset]   = undiff_ptr[src_offset];
                 out_ptr[dest_offset+1] = undiff_ptr[src_offset+1];
@@ -471,7 +479,7 @@ struct YeHuang2018Optimized {
             }
         } else {
             for (int i = 0; i < N; ++i) {
-                std::memcpy(out_ptr + (i * C), undiff_ptr + (pairs[i].idx * C), C);
+                std::memcpy(out_ptr + (i * C), undiff_ptr + (wb.pairs[i].idx * C), C);
             }
         }
         return out;
