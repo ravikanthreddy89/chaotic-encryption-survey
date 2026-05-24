@@ -63,7 +63,11 @@ private:
 
 inline const char* diffusion_kernel_name() {
 #if CHAOS_DIFFUSE_KERNEL == 1
-    return "tiled_simd_prexor";
+  #if defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
+    return "tiled_prexor_sse2";
+  #else
+    return "tiled_prexor_scalar_fallback";
+  #endif
 #else
     return "scalar_baseline";
 #endif

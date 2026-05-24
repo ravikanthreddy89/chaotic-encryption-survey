@@ -75,3 +75,34 @@ cd .. && rm -rf build && git pull origin && mkdir build && cd build && cmake .. 
   YeHuang-2018                 7.0 MB/s
   LSCM-2020                   10.2 MB/s
 
+
+Baseline
+
+cd .. && rm -rf build && mkdir build && cd build
+cmake .. -DYEH_USE_FAST_SIN=ON -DCHAOS_DIFFUSE_KERNEL=1 -DCHAOS_DIFFUSE_TILE_BYTES=16384
+cmake --build . --target show_flags
+make -j"$(nproc)"
+./imgcrypt_bench
+
+Results:
+GEOMETRIC-MEAN THROUGHPUT (encrypt) ACROSS ALL IMAGES
+  ??????????????????????????????????????????????????
+  AES-256-CTR               1532.4 MB/s
+  AES-256-GCM               1369.7 MB/s
+  ChaCha20-Poly1305          647.1 MB/s
+  Fridrich-1998               64.3 MB/s
+  YeHuang-2018                10.2 MB/s
+  YeHuang-2018-Optimized      10.8 MB/s
+  LSCM-2020                   11.1 MB/s
+
+
+
+
+SIMD + tiling experiment
+
+cd .. && rm -rf build && mkdir build && cd build
+cmake .. -DYEH_USE_FAST_SIN=ON -DCHAOS_DIFFUSE_KERNEL=1 -DCHAOS_DIFFUSE_TILE_BYTES=16384
+cmake --build . --target show_flags
+make -j"$(nproc)"
+./imgcrypt_bench
+

@@ -8,6 +8,7 @@ option(YEH_USE_FAST_SIN "Use sinf-based YeHuang sine backend (faster, numericall
 set(CHAOS_DIFFUSE_KERNEL "0" CACHE STRING "Diffusion backend: 0=scalar baseline, 1=tiled SIMD-preXOR experiment")
 set_property(CACHE CHAOS_DIFFUSE_KERNEL PROPERTY STRINGS 0 1)
 set(CHAOS_DIFFUSE_TILE_BYTES "16384" CACHE STRING "Tile size in bytes for CHAOS_DIFFUSE_KERNEL=1")
+option(ENABLE_VEC_REPORT "Enable compiler vectorization report flags" OFF)
 
 # ── Build type ─────────────────────────────────────────────────────────────────
 # If not build type passed, default to production build without debug flags
@@ -66,6 +67,22 @@ target_compile_options(imgcrypt_bench PRIVATE
     ${PAPI_CFLAGS_OTHER}
 )
 
+if(ENABLE_VEC_REPORT)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(imgcrypt_bench PRIVATE
+      -fopt-info-vec-optimized
+      -fopt-info-vec-missed
+    )
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(imgcrypt_bench PRIVATE
+      -Rpass=loop-vectorize
+      -Rpass-missed=loop-vectorize
+    )
+  elseif(MSVC)
+    target_compile_options(imgcrypt_bench PRIVATE /Qvec-report:2)
+  endif()
+endif()
+
 if(YEH_USE_FAST_SIN)
   target_compile_definitions(imgcrypt_bench PRIVATE YEH_USE_FAST_SIN=1)
 endif()
@@ -85,5 +102,6 @@ add_custom_target(show_flags
     COMMAND ${CMAKE_COMMAND} -E echo "YEH_USE_FAST_SIN: ${YEH_USE_FAST_SIN}"
     COMMAND ${CMAKE_COMMAND} -E echo "CHAOS_DIFFUSE_KERNEL: ${CHAOS_DIFFUSE_KERNEL}"
     COMMAND ${CMAKE_COMMAND} -E echo "CHAOS_DIFFUSE_TILE_BYTES: ${CHAOS_DIFFUSE_TILE_BYTES}"
+    COMMAND ${CMAKE_COMMAND} -E echo "ENABLE_VEC_REPORT: ${ENABLE_VEC_REPORT}"
     VERBATIM
 )
