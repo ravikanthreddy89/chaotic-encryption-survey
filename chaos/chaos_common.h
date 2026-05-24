@@ -13,7 +13,7 @@
 
 #include <openssl/sha.h>
 
-#include "bench_common.h"
+#include "../bench_common.h"
 
 #if defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
 #include <emmintrin.h>
