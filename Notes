@@ -51,8 +51,7 @@ pkg-config --modversion gsl
 
 
 # local development commands
-cd .. && rm -rf build && git pull origin && mkdir build && cd build && cmake ..
-make -j$(nproc)
+cd .. && rm -rf build && git pull origin && mkdir build && cd build && cmake .. &&make -j$(nproc)
 
 ### OpenSSL with AES-NI enabled
 #  GEOMETRIC-MEAN THROUGHPUT (encrypt) ACROSS ALL IMAGES

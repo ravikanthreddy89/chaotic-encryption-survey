@@ -150,7 +150,7 @@ static void print_row(const Bench::BenchRecord& r) {
                          << m.psnr_decrypt).str();
 
     std::cout << std::left
-              << std::setw(20) << r.cipher_name
+              << std::setw(28) << r.cipher_name
               << std::setw(14) << r.image_name
               << std::right
               << std::setw(7)  << r.width << "x" << std::setw(4) << r.height
@@ -217,7 +217,7 @@ int main(int argc, char* argv[]) {
 
     // ── Print table header ──────────────────────────────────────────────────
     std::cout << std::left
-              << std::setw(20) << "Cipher"
+              << std::setw(28) << "Cipher"
               << std::setw(14) << "Image"
               << std::setw(12) << "Size"
               << std::setw(15) << "Throughput"
