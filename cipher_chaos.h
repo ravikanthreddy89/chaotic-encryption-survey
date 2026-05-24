@@ -46,7 +46,7 @@ namespace Ciphers {
 // - fast path: define YEH_USE_FAST_SIN=1 to use sinf-based evaluation
 static inline double yeh_sin(double v) {
 #if defined(YEH_USE_FAST_SIN) && YEH_USE_FAST_SIN == 1
-    return static_cast<double>(std::sinf(static_cast<float>(v)));
+    return static_cast<double>(std::sin(static_cast<float>(v)));
 #else
     return std::sin(v);
 #endif
