@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(YEH_USE_FAST_SIN "Use sinf-based YeHuang sine backend (faster, numerically different)" OFF)
+set(CHAOS_DIFFUSE_KERNEL "0" CACHE STRING "Diffusion backend: 0=scalar baseline, 1=tiled SIMD-preXOR experiment")
+set_property(CACHE CHAOS_DIFFUSE_KERNEL PROPERTY STRINGS 0 1)
+set(CHAOS_DIFFUSE_TILE_BYTES "16384" CACHE STRING "Tile size in bytes for CHAOS_DIFFUSE_KERNEL=1")
 
 # ── Build type ─────────────────────────────────────────────────────────────────
 # If not build type passed, default to production build without debug flags
@@ -67,6 +70,11 @@ if(YEH_USE_FAST_SIN)
   target_compile_definitions(imgcrypt_bench PRIVATE YEH_USE_FAST_SIN=1)
 endif()
 
+target_compile_definitions(imgcrypt_bench PRIVATE
+    CHAOS_DIFFUSE_KERNEL=${CHAOS_DIFFUSE_KERNEL}
+    CHAOS_DIFFUSE_TILE_BYTES=${CHAOS_DIFFUSE_TILE_BYTES}
+)
+
 # ── Install ────────────────────────────────────────────────────────────────────
 install(TARGETS imgcrypt_bench DESTINATION bin)
 
@@ -75,5 +83,7 @@ add_custom_target(show_flags
     COMMAND ${CMAKE_COMMAND} -E echo "CXX: ${CMAKE_CXX_COMPILER}"
     COMMAND ${CMAKE_COMMAND} -E echo "FLAGS: ${CMAKE_CXX_FLAGS_RELEASE}"
     COMMAND ${CMAKE_COMMAND} -E echo "YEH_USE_FAST_SIN: ${YEH_USE_FAST_SIN}"
+    COMMAND ${CMAKE_COMMAND} -E echo "CHAOS_DIFFUSE_KERNEL: ${CHAOS_DIFFUSE_KERNEL}"
+    COMMAND ${CMAKE_COMMAND} -E echo "CHAOS_DIFFUSE_TILE_BYTES: ${CHAOS_DIFFUSE_TILE_BYTES}"
     VERBATIM
 )

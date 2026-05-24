@@ -90,6 +90,45 @@ static cv::Mat make_uniform_noise(int W, int H) {
     return img;
 }
 
+static cv::Mat make_checkerboard(int W, int H, int block=16) {
+    cv::Mat img(H, W, CV_8UC3);
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            bool on = ((x / block) + (y / block)) % 2 == 0;
+            uint8_t v = on ? 240 : 20;
+            img.at<cv::Vec3b>(y, x) = {v, (uint8_t)(255 - v), v};
+        }
+    }
+    return img;
+}
+
+static cv::Mat make_radial_gradient(int W, int H) {
+    cv::Mat img(H, W, CV_8UC3);
+    const double cx = 0.5 * (W - 1), cy = 0.5 * (H - 1);
+    const double maxr = std::sqrt(cx * cx + cy * cy);
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            double r = std::sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / maxr;
+            uint8_t a = (uint8_t)(255.0 * std::min(1.0, r));
+            uint8_t b = (uint8_t)(255.0 * (1.0 - std::min(1.0, r)));
+            img.at<cv::Vec3b>(y, x) = {a, (uint8_t)((a + b) / 2), b};
+        }
+    }
+    return img;
+}
+
+static cv::Mat make_stripes(int W, int H, int period=12) {
+    cv::Mat img(H, W, CV_8UC3);
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            uint8_t v = (((x / period) % 2) == 0) ? 220 : 35;
+            uint8_t g = (((y / period) % 2) == 0) ? 180 : 60;
+            img.at<cv::Vec3b>(y, x) = {v, g, (uint8_t)(255 - v)};
+        }
+    }
+    return img;
+}
+
 struct ImageSpec {
     std::string name;
     cv::Mat     img;
@@ -175,6 +214,7 @@ int main(int argc, char* argv[]) {
               << "  AES-256-CTR / AES-256-GCM / ChaCha20-Poly1305\n"
               << "  Fridrich-1998 / YeHuang-2018 / LSCM-2020\n"
               << "═══════════════════════════════════════════════════════════════════\n\n";
+    std::cout << "[+] Diffusion backend: " << Ciphers::diffusion_kernel_name() << "\n";
 
     // ── Build image corpus ──────────────────────────────────────────────────
     std::vector<ImageSpec> corpus;
@@ -197,11 +237,15 @@ int main(int argc, char* argv[]) {
     }
 
     // Always add synthetic images
-    for (int dim : {128, 256, 512}) {
+    // Wider dataset for statistical strength across texture and scale classes.
+    for (int dim : {128, 256, 512, 1024}) {
         std::string sfx = std::to_string(dim);
         corpus.push_back({"lena_"    + sfx, make_lena_like   (dim, dim)});
         corpus.push_back({"baboon_"  + sfx, make_baboon_like (dim, dim)});
         corpus.push_back({"noise_"   + sfx, make_uniform_noise(dim, dim)});
+        corpus.push_back({"checker_" + sfx, make_checkerboard(dim, dim)});
+        corpus.push_back({"radial_"  + sfx, make_radial_gradient(dim, dim)});
+        corpus.push_back({"stripes_" + sfx, make_stripes(dim, dim)});
     }
 
     std::cout << "[+] Corpus: " << corpus.size() << " images\n\n";
@@ -383,5 +427,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "\n[+] Full results written to: results/bench_results.csv\n";
+    Ciphers::ChaosProfile::dump_csv("results/chaos_stage_profile.csv");
+    std::cout << "[+] Stage profile written to: results/chaos_stage_profile.csv\n";
     return 0;
 }
