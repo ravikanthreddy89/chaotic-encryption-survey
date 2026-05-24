@@ -4,6 +4,8 @@ project(imgcrypt_bench CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(YEH_USE_FAST_SIN "Use sinf-based YeHuang sine backend (faster, numerically different)" OFF)
+
 # ── Build type ─────────────────────────────────────────────────────────────────
 # If not build type passed, default to production build without debug flags
 if(NOT CMAKE_BUILD_TYPE)
@@ -61,6 +63,10 @@ target_compile_options(imgcrypt_bench PRIVATE
     ${PAPI_CFLAGS_OTHER}
 )
 
+if(YEH_USE_FAST_SIN)
+  target_compile_definitions(imgcrypt_bench PRIVATE YEH_USE_FAST_SIN=1)
+endif()
+
 # ── Install ────────────────────────────────────────────────────────────────────
 install(TARGETS imgcrypt_bench DESTINATION bin)
 
@@ -68,5 +74,6 @@ install(TARGETS imgcrypt_bench DESTINATION bin)
 add_custom_target(show_flags
     COMMAND ${CMAKE_COMMAND} -E echo "CXX: ${CMAKE_CXX_COMPILER}"
     COMMAND ${CMAKE_COMMAND} -E echo "FLAGS: ${CMAKE_CXX_FLAGS_RELEASE}"
+    COMMAND ${CMAKE_COMMAND} -E echo "YEH_USE_FAST_SIN: ${YEH_USE_FAST_SIN}"
     VERBATIM
 )

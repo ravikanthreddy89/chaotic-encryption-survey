@@ -41,6 +41,17 @@
 
 namespace Ciphers {
 
+// YeHuang sine backend:
+// - default: std::sin (double precision)
+// - fast path: define YEH_USE_FAST_SIN=1 to use sinf-based evaluation
+static inline double yeh_sin(double v) {
+#if defined(YEH_USE_FAST_SIN) && YEH_USE_FAST_SIN == 1
+    return static_cast<double>(std::sinf(static_cast<float>(v)));
+#else
+    return std::sin(v);
+#endif
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Shared: derive chaotic ICs from a 32-byte key
 // ─────────────────────────────────────────────────────────────────────────────
@@ -181,7 +192,7 @@ struct YeHuang2018 {
         inline uint8_t byte() { return (uint8_t)((int)(step()*256.0)&0xFF); }
     private:
         inline double step() {
-            x = std::sin(M_PI * mu * (x*(1.0-x) + (4.0-mu)*x*std::sin(M_PI*x)/4.0));
+            x = yeh_sin(M_PI * mu * (x*(1.0-x) + (4.0-mu)*x*yeh_sin(M_PI*x)/4.0));
             if (x < 0) x = -x;
             if (x >= 1.0) x = 1.0 - 1e-10;
             return x;
@@ -311,7 +322,7 @@ struct YeHuang2018Optimized {
     private:
         inline double step() {
             // Unavoidable math from paper, but isolated cleanly for compiler optimization
-            x = std::sin(M_PI * mu * (x * (1.0 - x) + (4.0 - mu) * x * std::sin(M_PI * x) / 4.0));
+            x = yeh_sin(M_PI * mu * (x * (1.0 - x) + (4.0 - mu) * x * yeh_sin(M_PI * x) / 4.0));
             if (x < 0) x = -x;
             if (x >= 1.0) x = 1.0 - 1e-10;
             return x;
