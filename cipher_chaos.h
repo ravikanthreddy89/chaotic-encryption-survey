@@ -94,6 +94,15 @@ struct Fridrich1998 {
     static constexpr const char* NAME = "Fridrich-1998";
     static constexpr int LOC = 82;
 
+    struct WorkBuffers {
+        std::vector<uint8_t> ks;
+    };
+
+    static WorkBuffers& buffers() {
+        thread_local WorkBuffers wb;
+        return wb;
+    }
+
     static cv::Mat encrypt_image(const cv::Mat& src) {
         double x0, y0, r;
         derive_ic(Bench::FIXED_KEY.data(), x0, y0, r);
@@ -139,8 +148,9 @@ struct Fridrich1998 {
         Logistic lm(x0, r);
         const int H = rows, W = cols, C = src.channels();
         const int N = H * W;
-        std::vector<uint8_t> ks(N * C);
-        for (auto& b : ks) b = lm.byte();
+        WorkBuffers& wb = buffers();
+        wb.ks.resize(N * C);
+        for (auto& b : wb.ks) b = lm.byte();
 
         // Reverse diffusion
         cv::Mat undiff(H, W, type);
@@ -148,7 +158,7 @@ struct Fridrich1998 {
         for (int i = 0; i < N; ++i) {
             for (int c = 0; c < C; ++c) {
                 uint8_t e = src.data[i*C+c];
-                uint8_t k = ks[i*C+c];
+                uint8_t k = wb.ks[i*C+c];
                 undiff.data[i*C+c] = e ^ k ^ prev;
                 prev = e;
             }
@@ -495,6 +505,25 @@ struct LSCM2020 {
     static constexpr const char* NAME = "LSCM-2020";
     static constexpr int LOC = 112;
 
+    struct WorkBuffers {
+        std::vector<double> sp;
+        std::vector<int> perm;
+        std::vector<uint8_t> ks;
+        std::vector<int> inv;
+    };
+
+    static WorkBuffers& buffers() {
+        thread_local WorkBuffers wb;
+        return wb;
+    }
+
+    static inline void ensure_sizes(WorkBuffers& wb, int N, int total_bytes) {
+        wb.sp.resize(N);
+        wb.perm.resize(N);
+        wb.ks.resize(total_bytes);
+        wb.inv.resize(N);
+    }
+
     // Logistic-Sine Coupled Map:
     //   x_{n+1} = (4 - mu)*sin(pi*x_n)/4 + mu*x_n*(1-x_n)
     struct LSCM {
@@ -506,7 +535,7 @@ struct LSCM2020 {
         inline uint8_t byte() { return (uint8_t)((int)(step()*256.0)&0xFF); }
     private:
         inline double step() {
-            x = (4.0-mu)*std::sin(M_PI*x)/4.0 + mu*x*(1.0-x);
+            x = (4.0-mu)*yeh_sin(M_PI*x)/4.0 + mu*x*(1.0-x);
             if (x<=0.0) x=1e-10;
             if (x>=1.0) x=1.0-1e-10;
             return x;
@@ -519,29 +548,29 @@ struct LSCM2020 {
         double mu = 3.5 + (r - 3.9) * 4.0;  // map r → mu in [3.5, 3.9)
 
         const int H=src.rows, W=src.cols, C=src.channels(), N=H*W;
+        const int total_bytes = N * C;
+        WorkBuffers& wb = buffers();
+        ensure_sizes(wb, N, total_bytes);
 
         // Two LSCM sequences: seq_p for permutation, seq_d for diffusion
         LSCM lscm_p(x0, mu);
         LSCM lscm_d(y0, mu);
 
         // Build permutation via index-sort of lscm_p
-        std::vector<double> sp(N);
-        for (auto& v : sp) v = lscm_p.next();
-        std::vector<int> perm(N);
-        std::iota(perm.begin(), perm.end(), 0);
-        std::sort(perm.begin(), perm.end(), [&](int a, int b){ return sp[a]<sp[b]; });
+        for (auto& v : wb.sp) v = lscm_p.next();
+        std::iota(wb.perm.begin(), wb.perm.end(), 0);
+        std::sort(wb.perm.begin(), wb.perm.end(), [&](int a, int b){ return wb.sp[a] < wb.sp[b]; });
 
         // Single-pass: permute then XOR
         cv::Mat out(H, W, src.type());
-        std::vector<uint8_t> ks(N*C);
-        for (auto& b : ks) b = lscm_d.byte();
+        for (auto& b : wb.ks) b = lscm_d.byte();
 
         uint8_t chain = 0;
         for (int i=0; i<N; ++i) {
-            int src_i = perm[i];
+            int src_i = wb.perm[i];
             for (int c=0; c<C; ++c) {
                 uint8_t p = src.data[src_i*C+c];
-                uint8_t k = ks[i*C+c];
+                uint8_t k = wb.ks[i*C+c];
                 uint8_t e = p ^ k ^ chain;
                 out.data[i*C+c] = e;
                 chain = e;
@@ -556,23 +585,22 @@ struct LSCM2020 {
         double mu = 3.5 + (r - 3.9) * 4.0;
 
         const int H=rows, W=cols, C=src.channels(), N=H*W;
+        const int total_bytes = N * C;
+        WorkBuffers& wb = buffers();
+        ensure_sizes(wb, N, total_bytes);
 
         // Rebuild both sequences
         LSCM lscm_p(x0, mu);
         LSCM lscm_d(y0, mu);
 
-        std::vector<double> sp(N);
-        for (auto& v : sp) v = lscm_p.next();
-        std::vector<int> perm(N);
-        std::iota(perm.begin(), perm.end(), 0);
-        std::sort(perm.begin(), perm.end(), [&](int a, int b){ return sp[a]<sp[b]; });
+        for (auto& v : wb.sp) v = lscm_p.next();
+        std::iota(wb.perm.begin(), wb.perm.end(), 0);
+        std::sort(wb.perm.begin(), wb.perm.end(), [&](int a, int b){ return wb.sp[a] < wb.sp[b]; });
 
-        std::vector<uint8_t> ks(N*C);
-        for (auto& b : ks) b = lscm_d.byte();
+        for (auto& b : wb.ks) b = lscm_d.byte();
 
         // Inverse permutation
-        std::vector<int> inv(N);
-        for (int i=0; i<N; ++i) inv[perm[i]] = i;
+        for (int i=0; i<N; ++i) wb.inv[wb.perm[i]] = i;
 
         // Reverse diffusion then inverse permute
         cv::Mat undiff(H, W, type);
@@ -580,7 +608,7 @@ struct LSCM2020 {
         for (int i=0; i<N; ++i) {
             for (int c=0; c<C; ++c) {
                 uint8_t e = src.data[i*C+c];
-                uint8_t k = ks[i*C+c];
+                uint8_t k = wb.ks[i*C+c];
                 undiff.data[i*C+c] = e ^ k ^ chain;
                 chain = e;
             }
@@ -589,7 +617,7 @@ struct LSCM2020 {
         cv::Mat out(H, W, type);
         for (int i=0; i<N; ++i)
             for (int c=0; c<C; ++c)
-                out.data[inv[i]*C+c] = undiff.data[i*C+c];
+                out.data[wb.inv[i]*C+c] = undiff.data[i*C+c];
         return out;
     }
 };
