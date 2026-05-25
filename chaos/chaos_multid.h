@@ -82,7 +82,7 @@ struct YeHuang2018 {
         uint8_t prev_r = 0x5A, prev_g = 0xA5, prev_b = 0xF0;
         {
             ChaosProfile::Scope s(NAME, ChaosProfile::Stage::Diffuse);
-#if CHAOS_DIFFUSE_KERNEL == 1
+#if CHAOS_DIFFUSE_KERNEL != 0
             if (C == 3) {
                 std::vector<uint8_t> ks_local(N * C);
                 for (auto& b : ks_local) b = ls1.byte();
@@ -131,7 +131,7 @@ struct YeHuang2018 {
         uint8_t pr = 0x5A, pg = 0xA5, pb = 0xF0;
         {
             ChaosProfile::Scope s(NAME, ChaosProfile::Stage::Reverse);
-#if CHAOS_DIFFUSE_KERNEL == 1
+#if CHAOS_DIFFUSE_KERNEL != 0
             if (C == 3) {
                 std::vector<uint8_t> scratch;
                 uint8_t prev[3] = {pr, pg, pb};
@@ -434,7 +434,7 @@ struct LSCM2020 {
         uint8_t chain = 0;
         {
             ChaosProfile::Scope s(NAME, ChaosProfile::Stage::Diffuse);
-#if CHAOS_DIFFUSE_KERNEL == 1
+#if CHAOS_DIFFUSE_KERNEL != 0
             std::vector<uint8_t> permuted(total_bytes);
             for (int i = 0; i < N; ++i) {
                 int src_i = wb.perm[i];
@@ -496,7 +496,7 @@ struct LSCM2020 {
         uint8_t chain = 0;
         {
             ChaosProfile::Scope s(NAME, ChaosProfile::Stage::Reverse);
-#if CHAOS_DIFFUSE_KERNEL == 1
+#if CHAOS_DIFFUSE_KERNEL != 0
             undiffuse_chain(src.data, wb.ks.data(), undiff.data, static_cast<size_t>(total_bytes), chain, wb.scratch);
 #else
             for (int i = 0; i < N; ++i) {

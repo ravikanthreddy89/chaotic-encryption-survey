@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(YEH_USE_FAST_SIN "Use sinf-based YeHuang sine backend (faster, numerically different)" OFF)
-set(CHAOS_DIFFUSE_KERNEL "0" CACHE STRING "Diffusion backend: 0=scalar baseline, 1=tiled SIMD-preXOR experiment")
-set_property(CACHE CHAOS_DIFFUSE_KERNEL PROPERTY STRINGS 0 1)
-set(CHAOS_DIFFUSE_TILE_BYTES "16384" CACHE STRING "Tile size in bytes for CHAOS_DIFFUSE_KERNEL=1")
+set(CHAOS_DIFFUSE_KERNEL "0" CACHE STRING "Diffusion backend: 0=scalar baseline, 1=tiled SIMD-preXOR experiment, 2=exact block-scan (prefix-XOR)")
+set_property(CACHE CHAOS_DIFFUSE_KERNEL PROPERTY STRINGS 0 1 2)
+set(CHAOS_DIFFUSE_TILE_BYTES "16384" CACHE STRING "Tile size in bytes for CHAOS_DIFFUSE_KERNEL=1 or 2")
 option(ENABLE_VEC_REPORT "Enable compiler vectorization report flags" OFF)
 
 # ── Build type ─────────────────────────────────────────────────────────────────

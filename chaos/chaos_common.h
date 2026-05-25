@@ -68,6 +68,12 @@ inline const char* diffusion_kernel_name() {
   #else
     return "tiled_prexor_scalar_fallback";
   #endif
+#elif CHAOS_DIFFUSE_KERNEL == 2
+  #if defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
+    return "block_scan_exact_sse2";
+  #else
+    return "block_scan_exact_scalar";
+  #endif
 #else
     return "scalar_baseline";
 #endif
@@ -78,7 +84,7 @@ inline void xor_bytes_simd_or_scalar(
         const uint8_t* a,
         const uint8_t* b,
         size_t n) {
-#if CHAOS_DIFFUSE_KERNEL == 1 && defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
+#if CHAOS_DIFFUSE_KERNEL != 0 && defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
     size_t i = 0;
     for (; i + 16 <= n; i += 16) {
         __m128i va = _mm_loadu_si128(reinterpret_cast<const __m128i*>(a + i));
@@ -91,6 +97,21 @@ inline void xor_bytes_simd_or_scalar(
     for (size_t i = 0; i < n; ++i) dst[i] = a[i] ^ b[i];
 #endif
 }
+
+#if defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
+inline __m128i prefix_xor_epi8_16(__m128i v) {
+    v = _mm_xor_si128(v, _mm_slli_si128(v, 1));
+    v = _mm_xor_si128(v, _mm_slli_si128(v, 2));
+    v = _mm_xor_si128(v, _mm_slli_si128(v, 4));
+    v = _mm_xor_si128(v, _mm_slli_si128(v, 8));
+    return v;
+}
+
+inline uint8_t last_byte_epi8_16(__m128i v) {
+    __m128i hi = _mm_srli_si128(v, 15);
+    return static_cast<uint8_t>(_mm_cvtsi128_si32(hi) & 0xFF);
+}
+#endif
 
 inline void diffuse_cbc3(
         const uint8_t* in,
@@ -121,6 +142,65 @@ inline void diffuse_cbc3(
             prev[0] = er; prev[1] = eg; prev[2] = eb;
         }
     }
+#elif CHAOS_DIFFUSE_KERNEL == 2
+    size_t tile = static_cast<size_t>(CHAOS_DIFFUSE_TILE_BYTES);
+    if (tile < 3) tile = 3;
+    tile -= tile % 3;
+    if (tile == 0) tile = 3;
+
+    const size_t pixels = total_bytes / 3;
+    const size_t tile_pixels = std::max<size_t>(1, tile / 3);
+    const size_t blocks = (pixels + tile_pixels - 1) / tile_pixels;
+
+    std::vector<std::array<uint8_t, 3>> block_tail(blocks);
+    std::vector<std::array<uint8_t, 3>> block_seed(blocks);
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t p0 = b * tile_pixels;
+        const size_t p1 = std::min(pixels, p0 + tile_pixels);
+        const size_t byte0 = p0 * 3;
+        const size_t byte1 = p1 * 3;
+        const size_t chunk = byte1 - byte0;
+
+        scratch.resize(chunk);
+        xor_bytes_simd_or_scalar(scratch.data(), in + byte0, ks + byte0, chunk);
+
+        uint8_t lr = 0, lg = 0, lb = 0;
+        for (size_t i = 0; i < chunk; i += 3) {
+            lr ^= scratch[i + 0];
+            lg ^= scratch[i + 1];
+            lb ^= scratch[i + 2];
+            out[byte0 + i + 0] = lr;
+            out[byte0 + i + 1] = lg;
+            out[byte0 + i + 2] = lb;
+        }
+        block_tail[b] = {lr, lg, lb};
+    }
+
+    std::array<uint8_t, 3> carry = {prev[0], prev[1], prev[2]};
+    for (size_t b = 0; b < blocks; ++b) {
+        block_seed[b] = carry;
+        carry[0] ^= block_tail[b][0];
+        carry[1] ^= block_tail[b][1];
+        carry[2] ^= block_tail[b][2];
+    }
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t p0 = b * tile_pixels;
+        const size_t p1 = std::min(pixels, p0 + tile_pixels);
+        const size_t byte0 = p0 * 3;
+        const size_t byte1 = p1 * 3;
+        const auto seed = block_seed[b];
+        for (size_t j = byte0; j < byte1; j += 3) {
+            out[j + 0] ^= seed[0];
+            out[j + 1] ^= seed[1];
+            out[j + 2] ^= seed[2];
+        }
+    }
+
+    prev[0] = carry[0];
+    prev[1] = carry[1];
+    prev[2] = carry[2];
 #else
     for (size_t i = 0; i < total_bytes; i += 3) {
         uint8_t er = in[i + 0] ^ ks[i + 0] ^ prev[0];
@@ -161,6 +241,67 @@ inline void undiffuse_cbc3(
             prev[0] = er; prev[1] = eg; prev[2] = eb;
         }
     }
+#elif CHAOS_DIFFUSE_KERNEL == 2
+    size_t tile = static_cast<size_t>(CHAOS_DIFFUSE_TILE_BYTES);
+    if (tile < 3) tile = 3;
+    tile -= tile % 3;
+    if (tile == 0) tile = 3;
+
+    const size_t pixels = total_bytes / 3;
+    const size_t tile_pixels = std::max<size_t>(1, tile / 3);
+    const size_t blocks = (pixels + tile_pixels - 1) / tile_pixels;
+
+    std::vector<std::array<uint8_t, 3>> block_tail(blocks);
+    std::vector<std::array<uint8_t, 3>> block_seed(blocks);
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t p0 = b * tile_pixels;
+        const size_t p1 = std::min(pixels, p0 + tile_pixels);
+        const size_t byte0 = p0 * 3;
+        const size_t byte1 = p1 * 3;
+        const size_t chunk = byte1 - byte0;
+
+        scratch.resize(chunk);
+        xor_bytes_simd_or_scalar(scratch.data(), in + byte0, ks + byte0, chunk);
+
+        uint8_t lr = 0, lg = 0, lb = 0;
+        for (size_t i = 0; i < chunk; i += 3) {
+            out[byte0 + i + 0] = scratch[i + 0] ^ lr;
+            out[byte0 + i + 1] = scratch[i + 1] ^ lg;
+            out[byte0 + i + 2] = scratch[i + 2] ^ lb;
+            lr ^= in[byte0 + i + 0];
+            lg ^= in[byte0 + i + 1];
+            lb ^= in[byte0 + i + 2];
+        }
+        block_tail[b] = {lr, lg, lb};
+    }
+
+    std::array<uint8_t, 3> carry = {prev[0], prev[1], prev[2]};
+    for (size_t b = 0; b < blocks; ++b) {
+        block_seed[b] = carry;
+        carry[0] ^= block_tail[b][0];
+        carry[1] ^= block_tail[b][1];
+        carry[2] ^= block_tail[b][2];
+    }
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t p0 = b * tile_pixels;
+        const size_t p1 = std::min(pixels, p0 + tile_pixels);
+        const size_t byte0 = p0 * 3;
+        const size_t byte1 = p1 * 3;
+        const auto seed = block_seed[b];
+        for (size_t j = byte0; j < byte1; j += 3) {
+            out[j + 0] ^= seed[0];
+            out[j + 1] ^= seed[1];
+            out[j + 2] ^= seed[2];
+        }
+    }
+
+    if (total_bytes >= 3) {
+        prev[0] = in[total_bytes - 3];
+        prev[1] = in[total_bytes - 2];
+        prev[2] = in[total_bytes - 1];
+    }
 #else
     for (size_t i = 0; i < total_bytes; i += 3) {
         uint8_t er = in[i + 0];
@@ -194,6 +335,61 @@ inline void diffuse_chain(
             chain = e;
         }
     }
+#elif CHAOS_DIFFUSE_KERNEL == 2
+    size_t tile = static_cast<size_t>(CHAOS_DIFFUSE_TILE_BYTES);
+    if (tile == 0) tile = 1;
+    const size_t blocks = (total_bytes + tile - 1) / tile;
+
+    std::vector<uint8_t> block_tail(blocks, 0);
+    std::vector<uint8_t> block_seed(blocks, 0);
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t start = b * tile;
+        const size_t end = std::min(total_bytes, start + tile);
+        const size_t chunk = end - start;
+        scratch.resize(chunk);
+        xor_bytes_simd_or_scalar(scratch.data(), in + start, ks + start, chunk);
+
+        uint8_t local = 0;
+#if defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
+        size_t i = 0;
+        for (; i + 16 <= chunk; i += 16) {
+            __m128i vx = _mm_loadu_si128(reinterpret_cast<const __m128i*>(scratch.data() + i));
+            __m128i vp = prefix_xor_epi8_16(vx);
+            if (local != 0) {
+                __m128i vc = _mm_set1_epi8(static_cast<char>(local));
+                vp = _mm_xor_si128(vp, vc);
+            }
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(out + start + i), vp);
+            local = last_byte_epi8_16(vp);
+        }
+        for (; i < chunk; ++i) {
+            local ^= scratch[i];
+            out[start + i] = local;
+        }
+#else
+        for (size_t i = 0; i < chunk; ++i) {
+            local ^= scratch[i];
+            out[start + i] = local;
+        }
+#endif
+        block_tail[b] = local;
+    }
+
+    uint8_t carry = chain;
+    for (size_t b = 0; b < blocks; ++b) {
+        block_seed[b] = carry;
+        carry ^= block_tail[b];
+    }
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t start = b * tile;
+        const size_t end = std::min(total_bytes, start + tile);
+        const uint8_t seed = block_seed[b];
+        for (size_t i = start; i < end; ++i) out[i] ^= seed;
+    }
+
+    chain = carry;
 #else
     for (size_t i = 0; i < total_bytes; ++i) {
         uint8_t e = in[i] ^ ks[i] ^ chain;
@@ -223,6 +419,64 @@ inline void undiffuse_chain(
             chain = e;
         }
     }
+#elif CHAOS_DIFFUSE_KERNEL == 2
+    size_t tile = static_cast<size_t>(CHAOS_DIFFUSE_TILE_BYTES);
+    if (tile == 0) tile = 1;
+    const size_t blocks = (total_bytes + tile - 1) / tile;
+
+    std::vector<uint8_t> block_tail(blocks, 0);
+    std::vector<uint8_t> block_seed(blocks, 0);
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t start = b * tile;
+        const size_t end = std::min(total_bytes, start + tile);
+        const size_t chunk = end - start;
+        scratch.resize(chunk);
+        xor_bytes_simd_or_scalar(scratch.data(), in + start, ks + start, chunk);
+
+        uint8_t local = 0;
+#if defined(__SSE2__) && (defined(__x86_64__) || defined(__i386__))
+        size_t i = 0;
+        for (; i + 16 <= chunk; i += 16) {
+            __m128i vc = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + start + i));
+            __m128i vs = _mm_loadu_si128(reinterpret_cast<const __m128i*>(scratch.data() + i));
+            __m128i vp_incl = prefix_xor_epi8_16(vc);
+            __m128i vp_prev = _mm_xor_si128(vp_incl, vc);
+            if (local != 0) {
+                __m128i vl = _mm_set1_epi8(static_cast<char>(local));
+                vp_prev = _mm_xor_si128(vp_prev, vl);
+            }
+            __m128i vo = _mm_xor_si128(vs, vp_prev);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(out + start + i), vo);
+            local ^= last_byte_epi8_16(vp_incl);
+        }
+        for (; i < chunk; ++i) {
+            out[start + i] = scratch[i] ^ local;
+            local ^= in[start + i];
+        }
+#else
+        for (size_t i = 0; i < chunk; ++i) {
+            out[start + i] = scratch[i] ^ local;
+            local ^= in[start + i];
+        }
+#endif
+        block_tail[b] = local;
+    }
+
+    uint8_t carry = chain;
+    for (size_t b = 0; b < blocks; ++b) {
+        block_seed[b] = carry;
+        carry ^= block_tail[b];
+    }
+
+    for (size_t b = 0; b < blocks; ++b) {
+        const size_t start = b * tile;
+        const size_t end = std::min(total_bytes, start + tile);
+        const uint8_t seed = block_seed[b];
+        for (size_t i = start; i < end; ++i) out[i] ^= seed;
+    }
+
+    if (total_bytes > 0) chain = in[total_bytes - 1];
 #else
     for (size_t i = 0; i < total_bytes; ++i) {
         uint8_t e = in[i];
