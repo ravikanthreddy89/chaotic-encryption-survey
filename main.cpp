@@ -4,9 +4,9 @@
  * Image-encryption benchmark suite orchestrator.
  *
  * For each (cipher × image) combination:
- *   1. Warm up CPU caches (3 discarded runs)
- *   2. Run 15 timed encrypt passes  → Stats
- *   3. Run 15 timed decrypt passes  → Stats
+ *   1. Warm up CPU caches (configurable; defaults 3 or 5 for large images)
+ *   2. Run timed encrypt passes     → Stats
+ *   3. Run timed decrypt passes     → Stats
  *   4. Compute image-quality metrics
  *   5. Append to results/bench_results.csv
  *   6. Print formatted table row to stdout
@@ -25,8 +25,10 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <functional>
 #include <cstring>
+#include <cstdlib>
 #include <openssl/sha.h>
 
 #include <opencv2/opencv.hpp>
@@ -134,6 +136,62 @@ struct ImageSpec {
     cv::Mat     img;
 };
 
+struct MeasurePlan {
+    int warmup = 3;
+    int runs   = 15;
+};
+
+static int env_int(const char* name, int fallback, int min_allowed = 1) {
+    const char* raw = std::getenv(name);
+    if (!raw || !*raw) return fallback;
+    char* end = nullptr;
+    long v = std::strtol(raw, &end, 10);
+    if (end == raw || v < min_allowed) return fallback;
+    return static_cast<int>(v);
+}
+
+static std::vector<int> env_dims(const char* name, const std::vector<int>& fallback) {
+    const char* raw = std::getenv(name);
+    if (!raw || !*raw) return fallback;
+
+    std::vector<int> dims;
+    std::stringstream ss(raw);
+    std::string tok;
+    while (std::getline(ss, tok, ',')) {
+        if (tok.empty()) continue;
+        char* end = nullptr;
+        long v = std::strtol(tok.c_str(), &end, 10);
+        if (end == tok.c_str() || v < 64) continue;
+        int d = static_cast<int>(v);
+        if (d % 2 != 0) d -= 1;  // Arnold variants require even dims.
+        if (d >= 64) dims.push_back(d);
+    }
+    if (dims.empty()) return fallback;
+    std::sort(dims.begin(), dims.end());
+    dims.erase(std::unique(dims.begin(), dims.end()), dims.end());
+    return dims;
+}
+
+static std::string dims_to_string(const std::vector<int>& dims) {
+    std::ostringstream os;
+    for (size_t i = 0; i < dims.size(); ++i) {
+        if (i) os << ",";
+        os << dims[i];
+    }
+    return os.str();
+}
+
+static MeasurePlan plan_for_image(const cv::Mat& img,
+                                  int large_dim_at,
+                                  int warmup_small,
+                                  int runs_small,
+                                  int warmup_large,
+                                  int runs_large) {
+    int dim = std::max(img.rows, img.cols);
+    if (dim >= large_dim_at) return {warmup_large, runs_large};
+    return {warmup_small, runs_small};
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Generic benchmark runner for one cipher
 // ─────────────────────────────────────────────────────────────────────────────
@@ -141,7 +199,9 @@ template<typename CipherT>
 Bench::BenchRecord run_cipher(const ImageSpec& spec,
                                std::function<cv::Mat(const cv::Mat&)> enc_fn,
                                std::function<cv::Mat(const cv::Mat&, int, int, int)> dec_fn,
-                               int loc) {
+                               int loc,
+                               int warmup,
+                               int runs) {
     const cv::Mat& src = spec.img;
     size_t bytes = (size_t)src.rows * src.cols * src.channels();
 
@@ -158,15 +218,15 @@ Bench::BenchRecord run_cipher(const ImageSpec& spec,
     cv::Mat cipher;
     auto enc_runs = Bench::measure([&]() {
         cipher = enc_fn(src);
-    }, bytes, 3, 15);
-    rec.enc_stats = Bench::Stats::compute(enc_runs, 3);
+    }, bytes, warmup, runs);
+    rec.enc_stats = Bench::Stats::compute(enc_runs, warmup);
 
     // ── Decrypt benchmark ──────────────────────────────────────────────────
     cv::Mat recovered;
     auto dec_runs = Bench::measure([&]() {
         recovered = dec_fn(cipher, src.rows, src.cols, src.type());
-    }, bytes, 3, 15);
-    rec.dec_stats = Bench::Stats::compute(dec_runs, 3);
+    }, bytes, warmup, runs);
+    rec.dec_stats = Bench::Stats::compute(dec_runs, warmup);
 
     // ── Image metrics ──────────────────────────────────────────────────────
     rec.img_metrics = Bench::compute_image_metrics(src, cipher, recovered);
@@ -208,6 +268,13 @@ static void print_row(const Bench::BenchRecord& r) {
 //  main
 // ─────────────────────────────────────────────────────────────────────────────
 int main(int argc, char* argv[]) {
+    const std::vector<int> default_dims = {128, 256, 512, 1024, 2048, 3072};
+    const std::vector<int> dims = env_dims("BENCH_DIMS", default_dims);
+    const int large_dim_at = env_int("BENCH_LARGE_AT", 2048, 64);
+    const int warmup_small = env_int("BENCH_WARMUP", 3, 0);
+    const int runs_small   = env_int("BENCH_RUNS", 15, 1);
+    const int warmup_large = env_int("BENCH_WARMUP_LARGE", 5, 0);
+    const int runs_large   = env_int("BENCH_RUNS_LARGE", 30, 1);
 
     std::cout << "═══════════════════════════════════════════════════════════════════\n"
               << "  IMAGE ENCRYPTION BENCHMARK SUITE\n"
@@ -215,6 +282,10 @@ int main(int argc, char* argv[]) {
               << "  Fridrich-1998 / YeHuang-2018 / LSCM-2020\n"
               << "═══════════════════════════════════════════════════════════════════\n\n";
     std::cout << "[+] Diffusion backend: " << Ciphers::diffusion_kernel_name() << "\n";
+    std::cout << "[+] Synthetic dims: " << dims_to_string(dims) << "\n";
+    std::cout << "[+] Sampling plan: <" << large_dim_at << "px => warmup=" << warmup_small
+              << ", runs=" << runs_small << " | >= " << large_dim_at << "px => warmup="
+              << warmup_large << ", runs=" << runs_large << "\n";
 
     // ── Build image corpus ──────────────────────────────────────────────────
     std::vector<ImageSpec> corpus;
@@ -238,7 +309,7 @@ int main(int argc, char* argv[]) {
 
     // Always add synthetic images
     // Wider dataset for statistical strength across texture and scale classes.
-    for (int dim : {128, 256, 512, 1024}) {
+    for (int dim : dims) {
         std::string sfx = std::to_string(dim);
         corpus.push_back({"lena_"    + sfx, make_lena_like   (dim, dim)});
         corpus.push_back({"baboon_"  + sfx, make_baboon_like (dim, dim)});
@@ -279,6 +350,8 @@ int main(int argc, char* argv[]) {
 
     // ── Run benchmarks ──────────────────────────────────────────────────────
     for (const auto& spec : corpus) {
+        const MeasurePlan plan = plan_for_image(
+            spec.img, large_dim_at, warmup_small, runs_small, warmup_large, runs_large);
 
         // AES-256-CTR
         {
@@ -288,7 +361,9 @@ int main(int argc, char* argv[]) {
                 [](const cv::Mat& s, int r, int c, int t) {
                     return Ciphers::AES256CTR::decrypt_image(s, r, c, t);
                 },
-                Ciphers::AES256CTR::LOC);
+                Ciphers::AES256CTR::LOC,
+                plan.warmup,
+                plan.runs);
             print_row(rec);
             csv << Bench::to_csv(rec);
             all_records.push_back(rec);
@@ -302,7 +377,9 @@ int main(int argc, char* argv[]) {
                 [](const cv::Mat& s, int r, int c, int t) {
                     return Ciphers::AES256GCM::decrypt_image(s, r, c, t);
                 },
-                Ciphers::AES256GCM::LOC);
+                Ciphers::AES256GCM::LOC,
+                plan.warmup,
+                plan.runs);
             print_row(rec);
             csv << Bench::to_csv(rec);
             all_records.push_back(rec);
@@ -323,14 +400,14 @@ int main(int argc, char* argv[]) {
             cv::Mat cipher;
             auto enc_runs = Bench::measure([&]() {
                 cipher = C::encrypt_image(spec.img);
-            }, rec.bytes, 3, 15);
-            rec.enc_stats = Bench::Stats::compute(enc_runs, 3);
+            }, rec.bytes, plan.warmup, plan.runs);
+            rec.enc_stats = Bench::Stats::compute(enc_runs, plan.warmup);
 
             cv::Mat recovered;
             auto dec_runs = Bench::measure([&]() {
                 recovered = C::decrypt_image(spec.img, cipher);
-            }, rec.bytes, 3, 15);
-            rec.dec_stats = Bench::Stats::compute(dec_runs, 3);
+            }, rec.bytes, plan.warmup, plan.runs);
+            rec.dec_stats = Bench::Stats::compute(dec_runs, plan.warmup);
 
             rec.img_metrics     = Bench::compute_image_metrics(spec.img, cipher, recovered);
             rec.ciphertext_hash = sha256_prefix(cipher.data, rec.bytes);
@@ -349,7 +426,9 @@ int main(int argc, char* argv[]) {
                 [](const cv::Mat& s, int r, int c, int t) {
                     return Ciphers::Fridrich1998::decrypt_image(s, r, c, t);
                 },
-                Ciphers::Fridrich1998::LOC);
+                Ciphers::Fridrich1998::LOC,
+                plan.warmup,
+                plan.runs);
             print_row(rec);
             csv << Bench::to_csv(rec);
             all_records.push_back(rec);
@@ -363,7 +442,9 @@ int main(int argc, char* argv[]) {
                 [](const cv::Mat& s, int r, int c, int t) {
                     return Ciphers::YeHuang2018::decrypt_image(s, r, c, t);
                 },
-                Ciphers::YeHuang2018::LOC);
+                Ciphers::YeHuang2018::LOC,
+                plan.warmup,
+                plan.runs);
             print_row(rec);
             csv << Bench::to_csv(rec);
             all_records.push_back(rec);
@@ -377,7 +458,9 @@ int main(int argc, char* argv[]) {
                 [](const cv::Mat& s, int r, int c, int t) {
                     return Ciphers::YeHuang2018Optimized::decrypt_image(s, r, c, t);
                 },
-                Ciphers::YeHuang2018Optimized::LOC);
+                Ciphers::YeHuang2018Optimized::LOC,
+                plan.warmup,
+                plan.runs);
             print_row(rec);
             csv << Bench::to_csv(rec);
             all_records.push_back(rec);
@@ -391,7 +474,9 @@ int main(int argc, char* argv[]) {
                 [](const cv::Mat& s, int r, int c, int t) {
                     return Ciphers::LSCM2020::decrypt_image(s, r, c, t);
                 },
-                Ciphers::LSCM2020::LOC);
+                Ciphers::LSCM2020::LOC,
+                plan.warmup,
+                plan.runs);
             print_row(rec);
             csv << Bench::to_csv(rec);
             all_records.push_back(rec);
