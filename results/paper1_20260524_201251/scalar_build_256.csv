@@ -1,0 +1,5 @@
+case,simd_backend,shape,bytes,warmup,iters,enc_ms,dec_ms,enc_MBps,dec_MBps,correct
+map_fridrich+scalar_chain,scalar,256x256x3,196608,1,2,4.652542,4.227250,80.601099,88.710154,1
+map_fridrich+scan_exact,scalar,256x256x3,196608,1,2,3.310667,3.564375,113.270226,105.207785,1
+sort_logistic+scalar_chain,scalar,256x256x3,196608,1,2,14.703958,13.942584,25.503337,26.896019,1
+sort_logistic+scan_exact,scalar,256x256x3,196608,1,2,11.841499,11.455668,31.668288,32.734887,1

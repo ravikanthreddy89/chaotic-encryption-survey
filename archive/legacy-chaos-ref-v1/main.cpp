@@ -29,6 +29,7 @@
 #include <functional>
 #include <cstring>
 #include <cstdlib>
+#include <cctype>
 #include <openssl/sha.h>
 
 #include <opencv2/opencv.hpp>
@@ -140,6 +141,83 @@ struct MeasurePlan {
     int warmup = 3;
     int runs   = 15;
 };
+
+struct CipherSelection {
+    bool aes_ctr = true;
+    bool aes_gcm = true;
+    bool chacha  = true;
+    bool fridrich = true;
+    bool yehuang = true;
+    bool yehuang_opt = true;
+    bool lscm = true;
+};
+
+static std::string normalize_tag(std::string s) {
+    std::string out;
+    out.reserve(s.size());
+    for (unsigned char ch : s) {
+        if (std::isalnum(ch)) out.push_back(static_cast<char>(std::tolower(ch)));
+    }
+    return out;
+}
+
+static std::string selection_to_string(const CipherSelection& sel) {
+    std::vector<std::string> names;
+    if (sel.aes_ctr) names.push_back("AES-256-CTR");
+    if (sel.aes_gcm) names.push_back("AES-256-GCM");
+    if (sel.chacha) names.push_back("ChaCha20-Poly1305");
+    if (sel.fridrich) names.push_back("Fridrich-1998");
+    if (sel.yehuang) names.push_back("YeHuang-2018");
+    if (sel.yehuang_opt) names.push_back("YeHuang-2018-Optimized");
+    if (sel.lscm) names.push_back("LSCM-2020");
+    std::ostringstream os;
+    for (size_t i = 0; i < names.size(); ++i) {
+        if (i) os << ",";
+        os << names[i];
+    }
+    return os.str();
+}
+
+static CipherSelection env_cipher_selection(const char* name) {
+    CipherSelection sel;
+    const char* raw = std::getenv(name);
+    if (!raw || !*raw) return sel;  // default: all ciphers.
+
+    sel = {};
+    std::stringstream ss(raw);
+    std::string tok;
+    while (std::getline(ss, tok, ',')) {
+        std::string key = normalize_tag(tok);
+        if (key.empty()) continue;
+        if (key == "all") {
+            sel = {true, true, true, true, true, true, true};
+            continue;
+        }
+        if (key == "chaos") {
+            sel.fridrich = true;
+            sel.yehuang = true;
+            sel.yehuang_opt = true;
+            sel.lscm = true;
+            continue;
+        }
+        if (key == "aes" || key == "aesctr" || key == "aes256ctr" || key == "ctr") { sel.aes_ctr = true; continue; }
+        if (key == "aesgcm" || key == "aes256gcm" || key == "gcm") { sel.aes_gcm = true; continue; }
+        if (key == "chacha" || key == "chacha20" || key == "chacha20poly1305") { sel.chacha = true; continue; }
+        if (key == "fridrich" || key == "fridrich1998") { sel.fridrich = true; continue; }
+        if (key == "yehuang" || key == "yehuang2018" || key == "yeh") { sel.yehuang = true; continue; }
+        if (key == "yehuangoptimized" || key == "yehuang2018optimized" || key == "yehopt") {
+            sel.yehuang_opt = true;
+            continue;
+        }
+        if (key == "lscm" || key == "lscm2020") { sel.lscm = true; continue; }
+    }
+
+    if (!sel.aes_ctr && !sel.aes_gcm && !sel.chacha && !sel.fridrich &&
+        !sel.yehuang && !sel.yehuang_opt && !sel.lscm) {
+        return {true, true, true, true, true, true, true};
+    }
+    return sel;
+}
 
 static int env_int(const char* name, int fallback, int min_allowed = 1) {
     const char* raw = std::getenv(name);
@@ -275,6 +353,7 @@ int main(int argc, char* argv[]) {
     const int runs_small   = env_int("BENCH_RUNS", 15, 1);
     const int warmup_large = env_int("BENCH_WARMUP_LARGE", 5, 0);
     const int runs_large   = env_int("BENCH_RUNS_LARGE", 30, 1);
+    const CipherSelection selected = env_cipher_selection("BENCH_CIPHERS");
 
     std::cout << "═══════════════════════════════════════════════════════════════════\n"
               << "  IMAGE ENCRYPTION BENCHMARK SUITE\n"
@@ -283,6 +362,7 @@ int main(int argc, char* argv[]) {
               << "═══════════════════════════════════════════════════════════════════\n\n";
     std::cout << "[+] Diffusion backend: " << Ciphers::diffusion_kernel_name() << "\n";
     std::cout << "[+] Synthetic dims: " << dims_to_string(dims) << "\n";
+    std::cout << "[+] Ciphers: " << selection_to_string(selected) << "\n";
     std::cout << "[+] Sampling plan: <" << large_dim_at << "px => warmup=" << warmup_small
               << ", runs=" << runs_small << " | >= " << large_dim_at << "px => warmup="
               << warmup_large << ", runs=" << runs_large << "\n";
@@ -354,7 +434,7 @@ int main(int argc, char* argv[]) {
             spec.img, large_dim_at, warmup_small, runs_small, warmup_large, runs_large);
 
         // AES-256-CTR
-        {
+        if (selected.aes_ctr) {
             auto rec = run_cipher<Ciphers::AES256CTR>(
                 spec,
                 [](const cv::Mat& s) { return Ciphers::AES256CTR::encrypt_image(s); },
@@ -370,7 +450,7 @@ int main(int argc, char* argv[]) {
         }
 
         // AES-256-GCM
-        {
+        if (selected.aes_gcm) {
             auto rec = run_cipher<Ciphers::AES256GCM>(
                 spec,
                 [](const cv::Mat& s) { return Ciphers::AES256GCM::encrypt_image(s); },
@@ -386,7 +466,7 @@ int main(int argc, char* argv[]) {
         }
 
         // ChaCha20-Poly1305
-        {
+        if (selected.chacha) {
             using C = Ciphers::ChaCha20Poly1305;
             Bench::BenchRecord rec;
             rec.cipher_name = C::NAME;
@@ -419,7 +499,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Fridrich-1998
-        {
+        if (selected.fridrich) {
             auto rec = run_cipher<Ciphers::Fridrich1998>(
                 spec,
                 [](const cv::Mat& s) { return Ciphers::Fridrich1998::encrypt_image(s); },
@@ -435,7 +515,7 @@ int main(int argc, char* argv[]) {
         }
 
         // YeHuang-2018
-        {
+        if (selected.yehuang) {
             auto rec = run_cipher<Ciphers::YeHuang2018>(
                 spec,
                 [](const cv::Mat& s) { return Ciphers::YeHuang2018::encrypt_image(s); },
@@ -451,7 +531,7 @@ int main(int argc, char* argv[]) {
         }
 
         // YeHuang-2018-Optimized
-        {
+        if (selected.yehuang_opt) {
             auto rec = run_cipher<Ciphers::YeHuang2018Optimized>(
                 spec,
                 [](const cv::Mat& s) { return Ciphers::YeHuang2018Optimized::encrypt_image(s); },
@@ -467,7 +547,7 @@ int main(int argc, char* argv[]) {
         }
 
         // LSCM-2020
-        {
+        if (selected.lscm) {
             auto rec = run_cipher<Ciphers::LSCM2020>(
                 spec,
                 [](const cv::Mat& s) { return Ciphers::LSCM2020::encrypt_image(s); },

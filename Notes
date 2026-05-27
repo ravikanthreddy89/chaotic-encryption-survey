@@ -79,7 +79,7 @@ cd .. && rm -rf build && git pull origin && mkdir build && cd build && cmake .. 
 Baseline
 
 cd .. && rm -rf build && mkdir build && cd build
-cmake .. -DYEH_USE_FAST_SIN=ON -DCHAOS_DIFFUSE_KERNEL=1 -DCHAOS_DIFFUSE_TILE_BYTES=16384
+cmake .. -DYEH_USE_FAST_SIN=ON -DCHAOS_DIFFUSE_KERNEL=0 -DCHAOS_DIFFUSE_TILE_BYTES=16384
 cmake --build . --target show_flags
 make -j"$(nproc)"
 ./imgcrypt_bench
@@ -105,4 +105,5 @@ cmake .. -DYEH_USE_FAST_SIN=ON -DCHAOS_DIFFUSE_KERNEL=1 -DCHAOS_DIFFUSE_TILE_BYT
 cmake --build . --target show_flags
 make -j"$(nproc)"
 ./imgcrypt_bench
+
 
