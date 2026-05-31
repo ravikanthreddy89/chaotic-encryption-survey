@@ -1,0 +1,27 @@
+image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
+images/sample.png,keystream,logistic_double,slow,baseline,512,512,3,786432,4.75537,157.716,16053915581292400548
+images/sample.png,keystream,sine_map,very slow,bad baseline,512,512,3,786432,32.5895,23.0136,894870583282671716
+images/sample.png,keystream,fixed_point_tent,high,useful,512,512,3,786432,5.6953,131.688,2052475248213876295
+images/sample.png,keystream,cml,medium-high,chaos-native SIMD,512,512,3,786432,13.374,56.0791,2305312910829552655
+images/sample.png,keystream,cellular_automata,very high,fastest,512,512,3,786432,2.62564,285.645,18270801684654584773
+images/sample.png,keystream,hamiltonian,medium,physics novelty,512,512,3,786432,67.2171,11.1579,17526505089164916202
+images/sample.png,keystream,reaction_diffusion,low-medium,physics novelty,512,512,3,786432,16.273,46.0886,14834099741544592175
+images/sample.png,permutation,chaotic_sort,O(N log N),poor,512,512,3,786432,162.631,4.61167,4804091963577669783
+images/sample.png,permutation,random_walk,O(N) sequential,poor,512,512,3,786432,13.8553,54.1307,5092865165464039963
+images/sample.png,permutation,arnold_cat_map,O(N),good,512,512,3,786432,4.26608,175.805,17048656450226201381
+images/sample.png,permutation,affine_modular,O(N),excellent,512,512,3,786432,11.447,65.5193,9655760477562660133
+images/sample.png,permutation,feistel_index,O(rN),excellent,512,512,3,786432,7.28107,103.007,2357634188322002913
+images/sample.png,permutation,block_permutation,O(N),excellent,512,512,3,786432,1.54141,486.569,4638928410637542693
+images/sample.png,permutation,checkerboard_swaps,O(rN),excellent,512,512,3,786432,3.71147,202.076,17337155783829879921
+images/sample.png,diffusion,global_chain,sequential,poor,512,512,3,786432,3.17747,236.037,15029759519042237291
+images/sample.png,diffusion,block_local_chain,block-level,good,512,512,3,786432,2.56553,292.338,2185959207237564851
+images/sample.png,diffusion,parallel_prefix,reduced,medium,512,512,3,786432,2.84861,263.286,15453695729514252915
+images/sample.png,diffusion,stencil_diffusion,none per round,high,512,512,3,786432,4.64872,161.335,5719023528015319365
+images/sample.png,diffusion,arx_block_diffusion,none,excellent,512,512,3,786432,1.89256,396.288,15122888166098023642
+images/sample.png,diffusion,bitplane_diffusion,none,excellent,512,512,3,786432,2.72465,275.265,13907182546706305021
+images/sample.png,diffusion,prefix_xor_avx2,associative scan,excellent,512,512,3,786432,2.15018,348.808,15029759519042237291
+images/sample.png,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,512,512,3,786432,2.75316,272.415,17917709800562754487
+images/sample.png,diffusion,multilane_chain_avx2,lane-local,excellent,512,512,3,786432,1.63814,457.835,12455377567613268842
+images/sample.png,diffusion,tree_xor_avx2,logarithmic,excellent,512,512,3,786432,1.68737,444.479,16595719361794607085
+images/sample.png,diffusion,prefix_tree_reverse,multi-pass associative,excellent,512,512,3,786432,4.62765,162.069,10059910839342268095
+images/sample.png,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,512,512,3,786432,3.3981,220.712,2621445625342861394

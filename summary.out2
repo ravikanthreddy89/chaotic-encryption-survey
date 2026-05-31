@@ -1,0 +1,59 @@
+SIMD-Friendly Diffusion Experiment Summary
+
+Dataset: `images/sample.png`, 512x512x3, 786432 bytes. Source data: `results/stage_bench.csv` and `results/candidate_schemes.csv`.
+
+## Diffusion Primitive Ranking
+
+| rank | diffusion | MB/s | speedup vs global_chain | dependency model | SIMD fit |
+|---:|---|---:|---:|---|---|
+| 1 | `multilane_chain_avx2` | 457.83 | 1.94x | lane-local | excellent |
+| 2 | `tree_xor_avx2` | 444.48 | 1.88x | logarithmic | excellent |
+| 3 | `arx_block_diffusion` | 396.29 | 1.68x | none | excellent |
+| 4 | `prefix_xor_avx2` | 348.81 | 1.48x | associative scan | excellent |
+| 5 | `block_local_chain` | 292.34 | 1.24x | block-level | good |
+| 6 | `bitplane_diffusion` | 275.26 | 1.17x | none | excellent |
+| 7 | `reverse_prefix_xor_avx2` | 272.42 | 1.15x | associative scan | excellent |
+| 8 | `parallel_prefix` | 263.29 | 1.12x | reduced | medium |
+| 9 | `global_chain` | 236.04 | 1.00x | sequential | poor |
+| 10 | `arx_prefix_mod256` | 220.71 | 0.94x | prefix sum mod 256 | medium-high |
+| 11 | `prefix_tree_reverse` | 162.07 | 0.69x | multi-pass associative | excellent |
+| 12 | `stencil_diffusion` | 161.34 | 0.68x | none per round | high |
+
+Key comparisons:
+- `global_chain`: 236.04 MB/s, baseline sequential feedback.
+- `prefix_xor_avx2`: 348.81 MB/s, 1.48x faster than global chain.
+- `multilane_chain_avx2`: 457.83 MB/s, 1.94x faster than global chain.
+- `tree_xor_avx2`: 444.48 MB/s, 1.88x faster than global chain.
+- `prefix_tree_reverse`: 162.07 MB/s, 0.69x vs global chain, but slower than single-pass primitives because it performs three diffusion passes.
+
+Interpretation: the fastest SIMD-native diffusion variants are `multilane_chain_avx2`, `tree_xor_avx2`, and `arx_block_diffusion`. Prefix-XOR scan is faster than the sequential chain and preserves the closest chaining semantics, but the current implementation still pays carry/reversal overhead. The combined prefix-tree-reverse construction improves the design story but not raw throughput because it is deliberately multi-pass.
+
+## Candidate Pipeline Results
+
+| rank | scheme | MB/s | keygen | permutation | diffusion | dominant cost |
+|---:|---|---:|---|---|---|---|
+| 1 | `Checkerboard-CA-MultilaneTree` | 400.53 | cellular_automata | checkerboard_swaps | multilane_tree | keygen (66.1%) |
+| 2 | `Checkerboard-CA-ARX` | 399.16 | cellular_automata | checkerboard_swaps | arx_block | keygen (64.2%) |
+| 3 | `CA-Feistel-ARX` | 95.60 | cellular_automata | feistel_index | arx_block | permutation (74.9%) |
+| 4 | `Affine-CA-PrefixTree` | 51.13 | cellular_automata | affine_bitplane | prefix_tree_reverse | permutation (68.6%) |
+| 5 | `CML-Feistel-Stencil` | 35.42 | cml | feistel_index | stencil | keygen (55.3%) |
+| 6 | `Affine-CML-Bitplane` | 34.45 | cml | affine_bitplane | bitplane | keygen (49.7%) |
+| 7 | `Hamiltonian-Block-Stencil` | 10.01 | hamiltonian | block_feistel | stencil | keygen (88.3%) |
+
+The new `Checkerboard-CA-MultilaneTree` candidate is the fastest in this run at 400.53 MB/s, slightly ahead of `Checkerboard-CA-ARX`. This supports the idea that lane-local chaining plus tree mixing is a strong SIMD-native alternative to full-image sequential feedback.
+
+The new `Affine-CA-PrefixTree` candidate is much slower at 51.13 MB/s. The bottleneck is not the prefix/tree diffusion alone; the affine byte permutation is expensive in this implementation, and the diffusion is a three-pass construction. It is useful as a research design, but not the fastest engineering choice yet.
+
+## Direct Answer
+
+Yes, the experiment now tests the proposed SIMD-friendly diffusion ideas:
+- XOR prefix-scan diffusion: `prefix_xor_avx2` and `reverse_prefix_xor_avx2`.
+- Block-local CBC-style diffusion: `block_local_chain`.
+- Multi-lane interleaved chaining: `multilane_chain_avx2`.
+- ARX prefix-style diffusion: `arx_prefix_mod256`, plus faster `arx_block_diffusion`.
+- Tree diffusion: `tree_xor_avx2`.
+- Combined prefix/tree/reverse design: `prefix_tree_reverse` and candidate `Affine-CA-PrefixTree`.
+
+## Paper Claim
+
+The strongest claim from this run is: serial XOR feedback can be replaced by associative or lane-local SIMD forms with measurable speedup. Multi-lane chaining and tree diffusion give the best throughput, while prefix-XOR gives the closest semantic link to classic feedback diffusion. A multi-pass prefix/tree/reverse design is defensible cryptographically as a diffusion experiment, but it must be optimized or paired with cheaper permutation to compete on speed.

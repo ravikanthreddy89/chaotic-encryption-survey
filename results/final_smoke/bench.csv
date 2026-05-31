@@ -1,0 +1,12 @@
+MBps,bytes,channels,cipher,correct,diffusion_ms,height,image,image_kind,image_size,keygen_ms,mode,permutation_ms,repeat,run_id,total_ms,variant,width
+101.037,12288,3,logistic_xor,1,0.029569,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.066899,full,0.000463,1,full__gradient_64x64__rep1,0.115985,scalar_avx2,64
+25.0734,12288,3,logistic_permute_xor,1,0.002332,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.06627,full,0.392291,1,full__gradient_64x64__rep1,0.467377,scalar_avx2,64
+101.451,12288,3,arnold_xor,1,0.002573,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.05372,full,0.054127,1,full__gradient_64x64__rep1,0.115511,scalar_avx2,64
+62.3073,12288,3,tiled_arnold_xor,1,0.004105,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.120729,full,0.057113,1,full__gradient_64x64__rep1,0.18808,scalar_avx2,64
+90.675,12288,3,tent_block_xor,1,0.002689,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.120918,full,0.000529,1,full__gradient_64x64__rep1,0.129239,scalar_avx2,64
+20.6855,12288,3,sine_xor,1,0.006928,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.552172,full,0.000488,1,full__gradient_64x64__rep1,0.566519,scalar_avx2,64
+59.3721,12288,3,coupled_lattice_xor,1,0.003286,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.188377,full,0.000485,1,full__gradient_64x64__rep1,0.197378,scalar_avx2,64
+11.4381,12288,3,hamiltonian_lattice_xor,1,0.00313,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,1.01459,full,0.000583,1,full__gradient_64x64__rep1,1.02453,scalar_avx2,64
+200.064,12288,3,chaotic_seed_mix_xor,1,0.003339,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0.04835,full,0.000485,1,full__gradient_64x64__rep1,0.058575,scalar_avx2,64
+5.01695,12288,3,aes_ctr,1,2.33057,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0,full,0,1,full__gradient_64x64__rep1,2.33583,openssl_evp,64
+524.212,12288,3,chacha20,1,0.018382,64,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,0,full,0,1,full__gradient_64x64__rep1,0.022355,openssl_evp,64

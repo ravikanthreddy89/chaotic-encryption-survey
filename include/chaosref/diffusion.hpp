@@ -5,7 +5,8 @@
 #include <cstdint>
 #include <vector>
 
-#if (defined(__x86_64__) || defined(__i386__) || defined(_M_X64) || defined(_M_IX86))
+#if !defined(CHAOSREF_DISABLE_SIMD) && \
+    (defined(__x86_64__) || defined(__i386__) || defined(_M_X64) || defined(_M_IX86))
 #define CHAOSREF_X86 1
 #endif
 
@@ -29,7 +30,9 @@ inline const char* diffusion_kernel_name(DiffusionKernel k) {
 }
 
 inline const char* simd_backend_name() {
-#if defined(CHAOSREF_X86) && defined(CHAOSREF_ENABLE_AVX2) && defined(__AVX2__)
+#if defined(CHAOSREF_DISABLE_SIMD)
+    return "scalar";
+#elif defined(CHAOSREF_X86) && defined(CHAOSREF_ENABLE_AVX2) && defined(__AVX2__)
     return "avx2";
 #elif defined(CHAOSREF_X86) && defined(__SSE2__)
     return "sse2";

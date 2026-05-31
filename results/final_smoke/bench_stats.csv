@@ -1,0 +1,12 @@
+MBps_max,MBps_mean,MBps_median,MBps_min,MBps_stddev,cipher,image_size,n,variant
+5.01695,5.01695,5.01695,5.01695,0.0,aes_ctr,64x64,1,openssl_evp
+101.451,101.451,101.451,101.451,0.0,arnold_xor,64x64,1,scalar_avx2
+524.212,524.212,524.212,524.212,0.0,chacha20,64x64,1,openssl_evp
+200.064,200.064,200.064,200.064,0.0,chaotic_seed_mix_xor,64x64,1,scalar_avx2
+59.3721,59.3721,59.3721,59.3721,0.0,coupled_lattice_xor,64x64,1,scalar_avx2
+11.4381,11.4381,11.4381,11.4381,0.0,hamiltonian_lattice_xor,64x64,1,scalar_avx2
+25.0734,25.0734,25.0734,25.0734,0.0,logistic_permute_xor,64x64,1,scalar_avx2
+101.037,101.037,101.037,101.037,0.0,logistic_xor,64x64,1,scalar_avx2
+20.6855,20.6855,20.6855,20.6855,0.0,sine_xor,64x64,1,scalar_avx2
+90.675,90.675,90.675,90.675,0.0,tent_block_xor,64x64,1,scalar_avx2
+62.3073,62.3073,62.3073,62.3073,0.0,tiled_arnold_xor,64x64,1,scalar_avx2

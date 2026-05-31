@@ -20,6 +20,8 @@ struct Cli {
     bool buckets = false;
     bool roadmap = false;
     bool bench = false;
+    bool stages = false;
+    bool microbench = false;
 
     int size = 1024;
     int channels = 3;
@@ -30,6 +32,8 @@ struct Cli {
     std::string scheme = "all";    // all | map | sort
     std::string kernel = "all";    // all | scalar | scan
     std::string csv_path = "results/bench_ref.csv";
+    std::string stages_csv_path = "results/bench_stages.csv";
+    std::string micro_csv_path = "results/bench_micro.csv";
 };
 
 void print_usage(const char* argv0) {
@@ -39,7 +43,9 @@ void print_usage(const char* argv0) {
         << "  " << argv0 << " --buckets\n"
         << "  " << argv0 << " --roadmap\n"
         << "  " << argv0 << " --bench [--size N] [--channels C] [--warmup W] [--iters I]\\n"
-        << "       [--scheme all|map|sort] [--kernel all|scalar|scan] [--csv PATH]\n";
+        << "       [--scheme all|map|sort] [--kernel all|scalar|scan] [--csv PATH]\n"
+        << "  " << argv0 << " --stages [same options] [--stages-csv PATH]\n"
+        << "  " << argv0 << " --microbench [same options] [--micro-csv PATH]\n";
 }
 
 void print_list() {
@@ -107,6 +113,10 @@ bool parse_cli(int argc, char** argv, Cli& cli) {
             cli.roadmap = true;
         } else if (a == "--bench") {
             cli.bench = true;
+        } else if (a == "--stages") {
+            cli.stages = true;
+        } else if (a == "--microbench") {
+            cli.microbench = true;
         } else if (a == "--size" && i + 1 < argc) {
             if (!parse_int_arg(argv[++i], cli.size)) return false;
         } else if (a == "--channels" && i + 1 < argc) {
@@ -123,6 +133,10 @@ bool parse_cli(int argc, char** argv, Cli& cli) {
             cli.kernel = argv[++i];
         } else if (a == "--csv" && i + 1 < argc) {
             cli.csv_path = argv[++i];
+        } else if (a == "--stages-csv" && i + 1 < argc) {
+            cli.stages_csv_path = argv[++i];
+        } else if (a == "--micro-csv" && i + 1 < argc) {
+            cli.micro_csv_path = argv[++i];
         } else {
             return false;
         }
@@ -219,6 +233,74 @@ void run_benchmark(const Cli& cli) {
     std::cout << "\nCSV written: " << cli.csv_path << "\n";
 }
 
+void run_stage_benchmark(const Cli& cli) {
+    if (cli.size <= 0 || cli.channels <= 0 || cli.warmup < 0 || cli.iters <= 0) {
+        std::cerr << "invalid numeric arguments\n";
+        return;
+    }
+
+    std::vector<BenchCase> cases = build_cases(cli);
+    if (cases.empty()) {
+        std::cerr << "no benchmark cases selected (check --scheme / --kernel)\n";
+        return;
+    }
+
+    chaosref::Image plain = chaosref::make_random_image(cli.size, cli.size, cli.channels, cli.image_seed);
+
+    std::filesystem::path csvp(cli.stages_csv_path);
+    if (!csvp.parent_path().empty()) {
+        std::filesystem::create_directories(csvp.parent_path());
+    }
+    std::ofstream csv(cli.stages_csv_path);
+    csv << chaosref::stage_csv_header();
+
+    std::cout << "Benchmarking staged chaotic buckets\n";
+    std::cout << "  SIMD backend: " << chaosref::simd_backend_name() << "\n";
+    std::cout << "  image: " << chaosref::shape_string(plain) << "  bytes=" << plain.bytes() << "\n";
+    std::cout << "  warmup=" << cli.warmup << " iters=" << cli.iters << "\n\n";
+
+    for (const auto& bc : cases) {
+        std::vector<chaosref::StageBenchResult> rows =
+            chaosref::run_stage_bench_case(plain, bc, cli.warmup, cli.iters);
+        for (const auto& r : rows) {
+            csv << chaosref::to_csv(r);
+        }
+        std::cout << "  " << bc.name << ": " << rows.size() << " stage rows\n";
+    }
+
+    std::cout << "\nStage CSV written: " << cli.stages_csv_path << "\n";
+}
+
+void run_micro_benchmark(const Cli& cli) {
+    if (cli.size <= 0 || cli.channels <= 0 || cli.warmup < 0 || cli.iters <= 0) {
+        std::cerr << "invalid numeric arguments\n";
+        return;
+    }
+
+    chaosref::Image plain = chaosref::make_random_image(cli.size, cli.size, cli.channels, cli.image_seed);
+
+    std::filesystem::path csvp(cli.micro_csv_path);
+    if (!csvp.parent_path().empty()) {
+        std::filesystem::create_directories(csvp.parent_path());
+    }
+    std::ofstream csv(cli.micro_csv_path);
+    csv << chaosref::stage_csv_header();
+
+    std::cout << "Benchmarking isolated SIMD-friendly kernels\n";
+    std::cout << "  SIMD backend: " << chaosref::simd_backend_name() << "\n";
+    std::cout << "  image: " << chaosref::shape_string(plain) << "  bytes=" << plain.bytes() << "\n";
+    std::cout << "  warmup=" << cli.warmup << " iters=" << cli.iters << "\n\n";
+
+    std::vector<chaosref::StageBenchResult> rows =
+        chaosref::run_microbench_cases(plain, cli.warmup, cli.iters);
+    for (const auto& r : rows) {
+        csv << chaosref::to_csv(r);
+    }
+
+    std::cout << "  wrote " << rows.size() << " microbench rows\n";
+    std::cout << "\nMicrobench CSV written: " << cli.micro_csv_path << "\n";
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -247,6 +329,14 @@ int main(int argc, char** argv) {
     }
     if (cli.bench) {
         run_benchmark(cli);
+        return 0;
+    }
+    if (cli.stages) {
+        run_stage_benchmark(cli);
+        return 0;
+    }
+    if (cli.microbench) {
+        run_micro_benchmark(cli);
         return 0;
     }
 

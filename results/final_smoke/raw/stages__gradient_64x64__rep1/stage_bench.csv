@@ -1,0 +1,27 @@
+image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
+images/datasets/smoke/gradient_64x64.ppm,keystream,logistic_double,slow,baseline,64,64,3,12288,0.06437,182.053,517444065898873672
+images/datasets/smoke/gradient_64x64.ppm,keystream,sine_map,very slow,bad baseline,64,64,3,12288,0.556517,21.0573,11371081752077411527
+images/datasets/smoke/gradient_64x64.ppm,keystream,fixed_point_tent,high,useful,64,64,3,12288,0.079646,147.135,6979856712319236913
+images/datasets/smoke/gradient_64x64.ppm,keystream,cml,medium-high,chaos-native SIMD,64,64,3,12288,0.18946,61.8534,881467651013963094
+images/datasets/smoke/gradient_64x64.ppm,keystream,cellular_automata,very high,fastest,64,64,3,12288,0.036163,324.054,15946719512362124932
+images/datasets/smoke/gradient_64x64.ppm,keystream,hamiltonian,medium,physics novelty,64,64,3,12288,1.05193,11.1402,10606696064799279647
+images/datasets/smoke/gradient_64x64.ppm,keystream,reaction_diffusion,low-medium,physics novelty,64,64,3,12288,0.242262,48.3722,2664441318113321775
+images/datasets/smoke/gradient_64x64.ppm,permutation,chaotic_sort,O(N log N),poor,64,64,3,12288,1.52592,7.67977,10094231157378985035
+images/datasets/smoke/gradient_64x64.ppm,permutation,random_walk,O(N) sequential,poor,64,64,3,12288,0.18994,61.6971,8847446220680192767
+images/datasets/smoke/gradient_64x64.ppm,permutation,arnold_cat_map,O(N),good,64,64,3,12288,0.064201,182.532,11499474424836856229
+images/datasets/smoke/gradient_64x64.ppm,permutation,affine_modular,O(N),excellent,64,64,3,12288,0.170202,68.852,18176237930243926757
+images/datasets/smoke/gradient_64x64.ppm,permutation,feistel_index,O(rN),excellent,64,64,3,12288,0.147195,79.6138,8620395138076831201
+images/datasets/smoke/gradient_64x64.ppm,permutation,block_permutation,O(N),excellent,64,64,3,12288,0.021996,532.767,1403619315753567653
+images/datasets/smoke/gradient_64x64.ppm,permutation,checkerboard_swaps,O(rN),excellent,64,64,3,12288,0.055159,212.454,12166682507379432313
+images/datasets/smoke/gradient_64x64.ppm,diffusion,global_chain,sequential,poor,64,64,3,12288,0.03848,304.541,14622809356489539264
+images/datasets/smoke/gradient_64x64.ppm,diffusion,block_local_chain,block-level,good,64,64,3,12288,0.036115,324.484,3515021274985613472
+images/datasets/smoke/gradient_64x64.ppm,diffusion,parallel_prefix,reduced,medium,64,64,3,12288,0.030131,388.927,5405014601698374428
+images/datasets/smoke/gradient_64x64.ppm,diffusion,stencil_diffusion,none per round,high,64,64,3,12288,0.06152,190.487,16075753651864241200
+images/datasets/smoke/gradient_64x64.ppm,diffusion,arx_block_diffusion,none,excellent,64,64,3,12288,0.02579,454.391,5941450147695164649
+images/datasets/smoke/gradient_64x64.ppm,diffusion,bitplane_diffusion,none,excellent,64,64,3,12288,0.038188,306.87,17755791606465128684
+images/datasets/smoke/gradient_64x64.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,64,64,3,12288,0.029968,391.042,14622809356489539264
+images/datasets/smoke/gradient_64x64.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,64,64,3,12288,0.037291,314.251,6838461432792728745
+images/datasets/smoke/gradient_64x64.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,64,64,3,12288,0.021477,545.642,17807432994620637846
+images/datasets/smoke/gradient_64x64.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,64,64,3,12288,0.022897,511.803,2687940926137367517
+images/datasets/smoke/gradient_64x64.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,64,64,3,12288,0.05022,233.348,1218737811185915181
+images/datasets/smoke/gradient_64x64.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,64,64,3,12288,0.045496,257.578,11797374785851844322

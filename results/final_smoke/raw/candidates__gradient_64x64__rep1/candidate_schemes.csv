@@ -1,0 +1,8 @@
+image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
+images/datasets/smoke/gradient_64x64.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,64,64,3,12288,0.023731,0.086891,0.012774,0.126227,92.8387,6839393145546896214
+images/datasets/smoke/gradient_64x64.ppm,CML-Feistel-Stencil,cml,feistel_index,stencil,64,64,3,12288,0.168082,0.075513,0.052502,0.298079,39.3142,11488491478164946688
+images/datasets/smoke/gradient_64x64.ppm,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,64,64,3,12288,1.79007,0.136078,0.061194,1.9902,5.88822,4650408864974934805
+images/datasets/smoke/gradient_64x64.ppm,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,64,64,3,12288,0.169091,0.15713,0.02644,0.355079,33.0032,9342176899522218646
+images/datasets/smoke/gradient_64x64.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,64,64,3,12288,0.023611,0.003829,0.008519,0.03822,306.613,11351721593315219000
+images/datasets/smoke/gradient_64x64.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,64,64,3,12288,0.017026,0.143513,0.051066,0.213414,54.9109,8692589708652513009
+images/datasets/smoke/gradient_64x64.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,64,64,3,12288,0.017084,0.002442,0.005193,0.026463,442.835,12394899591018030461

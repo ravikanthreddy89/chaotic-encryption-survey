@@ -1,0 +1,12 @@
+image,cipher,entropy,chi_square,corr_h,corr_v,corr_d,npcr,uaci,key_sensitivity,kpa_score,cpa_score
+images/datasets/synthetic/gradient_1024x1024.ppm,logistic_xor,7.99993,322.887,-0.0382416,0.00647945,0.00536694,3.17891e-05,1.24663e-07,99.4014,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,logistic_permute_xor,7.99994,248.239,0.00117043,0.000233675,-0.00083402,3.17891e-05,1.24663e-07,99.6059,0.999999,0.00397205
+images/datasets/synthetic/gradient_1024x1024.ppm,arnold_xor,7.99994,249.865,-0.0364858,0.00466832,0.006118,3.17891e-05,1.24663e-07,99.4014,1,0.00390625
+images/datasets/synthetic/gradient_1024x1024.ppm,tiled_arnold_xor,7.99994,246.823,-0.0348819,0.00576026,0.00550745,3.17891e-05,1.24663e-07,99.4014,1,0.0120443
+images/datasets/synthetic/gradient_1024x1024.ppm,tent_block_xor,7.99995,230.373,-0.00177817,-0.00147273,-0.000982243,3.17891e-05,1.24663e-07,99.6171,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,sine_xor,7.99995,238.261,-0.0724889,0.0797312,0.0739947,3.17891e-05,1.24663e-07,99.3037,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,coupled_lattice_xor,7.99994,282.858,0.0307865,0.148521,0.145258,3.17891e-05,1.24663e-07,99.4116,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,hamiltonian_lattice_xor,7.99995,228.991,0.00116489,0.000750087,0.00328686,3.17891e-05,1.24663e-07,99.5381,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,chaotic_seed_mix_xor,7.99994,244.799,-0.000820277,-0.00215818,-0.000149921,3.17891e-05,1.24663e-07,99.6114,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,aes_ctr,7.99994,259.904,-0.00022701,-7.67478e-05,0.00148779,3.17891e-05,1.24663e-07,99.6154,1,1
+images/datasets/synthetic/gradient_1024x1024.ppm,chacha20,7.99994,265.503,0.00109933,-0.00154947,-4.66246e-05,3.17891e-05,1.24663e-07,99.6113,1,1

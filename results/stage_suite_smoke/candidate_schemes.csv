@@ -1,0 +1,6 @@
+image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
+images/sample.png,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,512,512,3,786432,1.21265,57136.6,0.830778,57138.6,0.013126,9840559716873436196
+images/sample.png,CML-Feistel-Stencil,cml,feistel_index,stencil,512,512,3,786432,10.6955,57379.1,3.62174,57393.5,0.0130677,7619187983907773091
+images/sample.png,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,512,512,3,786432,62.3413,57029.9,4.49655,57096.8,0.0131356,7619187983907773091
+images/sample.png,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,512,512,3,786432,11.8944,9.21248,0.417654,21.529,34.8367,10208651425301453903
+images/sample.png,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,512,512,3,786432,1.36532,0.298148,0.28029,1.94609,385.389,12664883298829968327

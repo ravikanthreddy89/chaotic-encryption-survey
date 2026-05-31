@@ -7,5 +7,10 @@ compile_commands.json
 
 # Build directories
 build/
+build-paper1-*/
 cmake-build-*/
 out/
+
+# Generated benchmark runs
+results/paper1_*/
+*.png

@@ -1,0 +1,8 @@
+MBps_max,MBps_mean,MBps_median,MBps_min,MBps_stddev,diffusion,image_size,keystream,n,permutation,scheme
+54.9109,54.9109,54.9109,54.9109,0.0,prefix_tree_reverse,64x64,cellular_automata,1,affine_bitplane,Affine-CA-PrefixTree
+33.0032,33.0032,33.0032,33.0032,0.0,bitplane,64x64,cml,1,affine_bitplane,Affine-CML-Bitplane
+92.8387,92.8387,92.8387,92.8387,0.0,arx_block,64x64,cellular_automata,1,feistel_index,CA-Feistel-ARX
+39.3142,39.3142,39.3142,39.3142,0.0,stencil,64x64,cml,1,feistel_index,CML-Feistel-Stencil
+306.613,306.613,306.613,306.613,0.0,arx_block,64x64,cellular_automata,1,checkerboard_swaps,Checkerboard-CA-ARX
+442.835,442.835,442.835,442.835,0.0,multilane_tree,64x64,cellular_automata,1,checkerboard_swaps,Checkerboard-CA-MultilaneTree
+5.88822,5.88822,5.88822,5.88822,0.0,stencil,64x64,hamiltonian,1,block_feistel,Hamiltonian-Block-Stencil

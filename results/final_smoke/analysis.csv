@@ -1,0 +1,12 @@
+chi_square,cipher,corr_d,corr_h,corr_v,cpa_score,entropy,image,image_kind,image_size,key_sensitivity,kpa_score,mode,npcr,repeat,run_id,uaci
+367.125,logistic_xor,0.0149665,-0.0488454,-0.00363485,1,7.97823,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.2594,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+421.333,logistic_permute_xor,-0.00664519,-0.0410597,0.000702929,0.00683594,7.97523,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.6175,0.999837,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+355.375,arnold_xor,0.00406472,-0.0568841,0.00571551,0.00594076,7.97901,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.2594,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+354.625,tiled_arnold_xor,0.00827803,-0.0409501,0.00107991,0.0120443,7.97916,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.2594,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+283.208,tent_block_xor,0.0052699,0.000525548,0.00284183,1,7.98342,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.5931,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+681.792,sine_xor,0.0822101,0.0179371,0.0612892,1,7.9599,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.3408,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+1081.17,coupled_lattice_xor,0.115611,0.0536067,0.0969114,1,7.93546,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.5931,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+327.75,hamiltonian_lattice_xor,0.00182279,-0.0055874,-0.0047758,1,7.9807,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.528,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+245,chaotic_seed_mix_xor,-0.00189886,-0.00210982,0.00205469,1,7.98555,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.6257,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+250.75,aes_ctr,-0.000643438,0.00626473,-0.0178383,1,7.98517,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.5931,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05
+243.917,chacha20,-0.0273827,-0.0221787,0.0188647,1,7.98571,images/datasets/smoke/gradient_64x64.ppm,gradient,64x64,99.6175,1,full,0.00813802,1,full__gradient_64x64__rep1,3.19138e-05

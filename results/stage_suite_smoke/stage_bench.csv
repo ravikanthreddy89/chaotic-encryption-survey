@@ -1,0 +1,22 @@
+image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
+images/sample.png,keystream,logistic_double,slow,baseline,512,512,3,786432,4.65964,160.957,16053915581292400548
+images/sample.png,keystream,sine_map,very slow,bad baseline,512,512,3,786432,33.1466,22.6267,894870583282671716
+images/sample.png,keystream,fixed_point_tent,high,useful,512,512,3,786432,5.98818,125.247,2052475248213876295
+images/sample.png,keystream,cml,medium-high,chaos-native SIMD,512,512,3,786432,13.3448,56.2016,2305312910829552655
+images/sample.png,keystream,cellular_automata,very high,fastest,512,512,3,786432,2.61246,287.085,18270801684654584773
+images/sample.png,keystream,hamiltonian,medium,physics novelty,512,512,3,786432,72.9039,10.2875,17526505089164916202
+images/sample.png,keystream,reaction_diffusion,low-medium,physics novelty,512,512,3,786432,15.3369,48.9018,14834099741544592175
+images/sample.png,permutation,chaotic_sort,O(N log N),poor,512,512,3,786432,151.614,4.94676,4804091963577669783
+images/sample.png,permutation,random_walk,O(N) sequential,poor,512,512,3,786432,13.2964,56.4064,5092865165464039963
+images/sample.png,permutation,arnold_cat_map,O(N),good,512,512,3,786432,4.80665,156.034,17048656450226201381
+images/sample.png,permutation,affine_modular,O(N),excellent,512,512,3,786432,11.011,68.114,9655760477562660133
+images/sample.png,permutation,feistel_index,O(rN),excellent,512,512,3,786432,56817.8,0.0132001,4988852036449020193
+images/sample.png,permutation,block_permutation,O(N),excellent,512,512,3,786432,1.68564,444.935,4638928410637542693
+images/sample.png,permutation,checkerboard_swaps,O(rN),excellent,512,512,3,786432,3.72499,201.343,17337155783829879921
+images/sample.png,diffusion,global_chain,sequential,poor,512,512,3,786432,3.34715,224.071,15029759519042237291
+images/sample.png,diffusion,block_local_chain,block-level,good,512,512,3,786432,2.609,287.467,2185959207237564851
+images/sample.png,diffusion,parallel_prefix,reduced,medium,512,512,3,786432,2.64412,283.648,15453695729514252915
+images/sample.png,diffusion,stencil_diffusion,none per round,high,512,512,3,786432,4.36865,171.678,8987701077317313317
+images/sample.png,diffusion,arx_block_diffusion,none,excellent,512,512,3,786432,1.8622,402.75,15122888166098023642
+images/sample.png,diffusion,bitplane_diffusion,none,excellent,512,512,3,786432,2.74143,273.58,13907182546706305021
+21
