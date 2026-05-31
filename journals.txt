@@ -1,0 +1,171 @@
+Journal-readiness assessment
+============================
+
+Short answer:
+The project is not journal-ready yet, but it is now a credible foundation for a Q2/Q3 applied-performance paper.
+
+It is not ready for top cryptography, top mathematics, or top hardware journals unless we add deeper proof/cryptanalysis, real datasets, stronger statistics, and possibly hardware implementation.
+
+Recommended paper angle
+=======================
+
+Working title:
+Stage-Level SIMD Redesign and Benchmarking of Chaotic Image Encryption Pipelines
+
+Main claim:
+Traditional chaotic image encryption is slow because of sort-based permutation, scalar floating-point chaotic maps, and serial diffusion chains. SIMD-native redesigns improve performance by replacing hostile stages with cellular automata keystreams, checkerboard/block/Feistel-style permutations, and lane-local/tree/prefix diffusion.
+
+Important limitation:
+Do not claim the proposed schemes beat AES or ChaCha. AES-CTR and ChaCha20 should remain the cryptographic baselines. The chaotic designs should be presented as applied image-domain transformation research and performance/security tradeoff prototypes.
+
+Target journals
+===============
+
+Q1 stretch targets
+------------------
+
+1. IEEE Transactions on Information Forensics and Security
+   Field: security, forensics, cryptographic applications
+   Fit: possible only if we add serious cryptanalysis and a stronger attack model.
+   Current readiness: not ready.
+   Needed: formal threat model, known/chosen plaintext analysis, key/nonce misuse analysis, statistical testing beyond image metrics, comparison to modern secure baselines.
+
+2. IEEE Transactions on Circuits and Systems for Video Technology
+   Field: image/video systems, circuits, software/hardware implementation
+   Fit: possible if framed as image-processing systems and high-performance implementation.
+   Current readiness: not ready, but a better Q1 fit than pure crypto.
+   Needed: 4K/8K experiments, real image datasets, CPU details, maybe GPU/FPGA/ARM SIMD comparison, stronger systems analysis.
+
+3. Journal of Systems Architecture
+   Field: computer systems, hardware/software architecture
+   Fit: possible if expanded into a systems-performance paper.
+   Current readiness: not ready.
+   Needed: deeper architecture measurements, cache behavior, SIMD instruction analysis, ARM/AVX2/AVX-512 or GPU comparison.
+
+4. IEEE Transactions on Parallel and Distributed Systems
+   Field: parallel algorithms and systems
+   Fit: weak unless the SIMD/parallel algorithm contribution becomes much stronger.
+   Current readiness: not ready.
+   Needed: generalizable parallel primitives, scalability study, multicore/GPU analysis, clear novelty beyond this image-encryption application.
+
+5. Designs, Codes and Cryptography
+   Field: mathematical cryptography, coding theory, combinatorics
+   Fit: weak for current empirical work.
+   Current readiness: not suitable now.
+   Needed: formal permutation/diffusion theory, proofs, security reductions or rigorous cryptanalysis.
+
+Q2 realistic targets
+--------------------
+
+1. Journal of Information Security and Applications
+   Field: applied information security
+   Fit: strong.
+   Current readiness: close, after more experiments and clearer writing.
+   Why: the paper is applied, empirical, and security-focused without needing to claim a new provably secure cipher.
+   Needed: real datasets, repeated runs, confidence intervals, stronger KPA/CPA discussion, final paper polish.
+
+2. IET Information Security
+   Field: information security and cryptography
+   Fit: good.
+   Current readiness: possible after strengthening cryptanalysis.
+   Needed: sharper security discussion, attack model, comparison against flawed chaotic-image schemes, and honest AES/ChaCha baseline results.
+
+3. Cryptography, MDPI
+   Field: cryptography and applied mathematics
+   Fit: good if written honestly.
+   Current readiness: realistic after final experiment matrix.
+   Note: MDPI reputation varies by institution and evaluator. Check whether your department values this venue.
+   Needed: stronger security caveats, official BLAKE3 if claiming BLAKE3, real-image experiments.
+
+4. Journal of Real-Time Image Processing
+   Field: image processing performance
+   Fit: good if the paper emphasizes throughput, large images, and real-time image transformation.
+   Current readiness: possible after more performance experiments.
+   Needed: 4K/8K scaling, runtime breakdown, throughput vs image size, real image datasets, maybe video-frame batching.
+
+5. ACM Transactions on Embedded Computing Systems
+   Field: embedded and hardware/software systems
+   Fit: conditional.
+   Current readiness: not ready unless embedded/hardware results are added.
+   Needed: ARM NEON, embedded CPU, FPGA, or constrained-device evaluation.
+
+Q3 safer targets
+----------------
+
+1. Journal of Mathematical Cryptology
+   Field: mathematical cryptology
+   Fit: not ideal for the current empirical paper, but possible if the math/permutation framing is strengthened.
+   Current readiness: possible but not recommended as first choice.
+   Needed: more formal treatment of Feistel/affine/checkerboard permutation properties.
+
+2. Lower-tier applied security or image encryption journals
+   Field: applied security, image encryption, multimedia security
+   Fit: easier.
+   Current readiness: likely after final experiments and manuscript cleanup.
+   Risk: lower reputation and weaker long-term value.
+
+3. General applied computer science journals
+   Field: applied CS/performance/security
+   Fit: possible if the manuscript is positioned as reproducible benchmarking.
+   Current readiness: possible after adding dataset and statistics.
+
+Recommended submission strategy
+===============================
+
+Best first target:
+Journal of Information Security and Applications
+
+Second target:
+IET Information Security
+
+Third target:
+Journal of Real-Time Image Processing
+
+Backup target:
+Cryptography, MDPI, only if the APC/reputation tradeoff is acceptable for your institution.
+
+Q1 stretch path:
+Aim for IEEE Transactions on Circuits and Systems for Video Technology only after adding 4K/8K real-image experiments, stronger performance methodology, and possibly hardware/SIMD architecture analysis.
+
+What must be done before submission
+===================================
+
+1. Run the final matrix with more repetitions:
+   REPS=10 SIZES="512 1024 2048 4096" ./scripts/run_paper_ready_experiments.sh
+
+2. Add real images:
+   Put real datasets under images/datasets/real and include them in the paper.
+
+3. Add statistics:
+   Report mean, median, standard deviation, min, max, and confidence intervals.
+
+4. Add security honesty:
+   Explain that entropy, histogram, NPCR, UACI, and correlation are image-statistical diagnostics, not cryptographic proofs.
+
+5. Keep KPA/CPA failures:
+   These are not embarrassing. They are useful negative controls showing why naive stream-XOR chaotic schemes are weak.
+
+6. Focus on the strongest candidates:
+   Checkerboard-CA-ARX
+   Checkerboard-CA-MultilaneTree
+   CA-Feistel-ARX
+
+7. Avoid weak claims:
+   Do not say "secure like AES."
+   Do not say "cryptographically proven."
+   Do not say "beats AES."
+
+8. Make the contribution precise:
+   "SIMD-native stage redesign for chaotic image encryption pipelines."
+
+Bottom line
+===========
+
+For Q2/Q3:
+Yes, this can become journal-ready with more experiments, real datasets, and a polished manuscript.
+
+For Q1 cryptography or mathematics:
+No, not without formal security or mathematical novelty.
+
+For Q1 systems/image-processing:
+Possible, but only after a much stronger 4K/8K performance study and architecture-level evaluation.

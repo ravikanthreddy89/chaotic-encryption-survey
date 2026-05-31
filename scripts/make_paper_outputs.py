@@ -48,6 +48,12 @@ def load_kind(root: Path, file_name: str) -> list[dict[str, object]]:
         repeat = parts[-1].replace("rep", "") if parts[-1].startswith("rep") else ""
         for row in read_csv(path):
             kind, size = parse_image_meta(row.get("image", ""))
+            width = row.get("width", "")
+            height = row.get("height", "")
+            if not size and width and height:
+                size = f"{width}x{height}"
+            if kind.startswith("real_") or "/real/" in row.get("image", ""):
+                kind = "real_" + Path(row.get("image", "")).stem
             row["run_id"] = run_id
             row["mode"] = mode
             row["repeat"] = repeat
@@ -72,19 +78,55 @@ def aggregate(rows: list[dict[str, object]], group_fields: list[str], metric: st
             groups[tuple(row.get(k, "") for k in group_fields)].append(value)
     out: list[dict[str, object]] = []
     for key, values in sorted(groups.items()):
+        mean = statistics.fmean(values)
+        stddev = statistics.stdev(values) if len(values) > 1 else 0.0
+        ci95 = 1.96 * stddev / math.sqrt(len(values)) if len(values) > 1 else 0.0
         item = {k: v for k, v in zip(group_fields, key)}
         item.update(
             {
                 "n": len(values),
-                f"{metric}_mean": statistics.fmean(values),
+                f"{metric}_mean": mean,
                 f"{metric}_median": statistics.median(values),
                 f"{metric}_min": min(values),
                 f"{metric}_max": max(values),
-                f"{metric}_stddev": statistics.stdev(values) if len(values) > 1 else 0.0,
+                f"{metric}_stddev": stddev,
+                f"{metric}_ci95": ci95,
             }
         )
         out.append(item)
     return out
+
+
+def add_runtime_shares(rows: list[dict[str, object]]) -> None:
+    for row in rows:
+        total = fnum(row.get("total_ms"))
+        if total > 0.0:
+            for stage in ["keygen", "permutation", "diffusion"]:
+                row[f"{stage}_share_pct"] = 100.0 * fnum(row.get(f"{stage}_ms")) / total
+
+
+def add_speedups(rows: list[dict[str, object]],
+                 group_fields: list[str],
+                 name_field: str,
+                 metric: str,
+                 baseline_names: list[str]) -> None:
+    grouped: dict[tuple[object, ...], list[dict[str, object]]] = defaultdict(list)
+    for row in rows:
+        grouped[tuple(row.get(k, "") for k in group_fields)].append(row)
+
+    for group_rows in grouped.values():
+        baseline = math.nan
+        for name in baseline_names:
+            matches = [r for r in group_rows if r.get(name_field) == name]
+            if matches:
+                baseline = fnum(matches[0].get(metric))
+                break
+        if math.isnan(baseline) or baseline <= 0:
+            continue
+        for row in group_rows:
+            value = fnum(row.get(metric))
+            if not math.isnan(value):
+                row[f"{metric}_speedup_vs_baseline"] = value / baseline
 
 
 def best_by(rows: list[dict[str, object]], key_name: str, metric: str, limit: int = 8) -> list[dict[str, object]]:
@@ -252,6 +294,8 @@ def main() -> int:
     analysis = load_kind(root, "analysis.csv")
     stages = load_kind(root, "stage_bench.csv")
     candidates = load_kind(root, "candidate_schemes.csv")
+    add_runtime_shares(bench)
+    add_runtime_shares(candidates)
 
     write_csv(root / "bench.csv", bench, sorted({k for r in bench for k in r}))
     write_csv(root / "analysis.csv", analysis, sorted({k for r in analysis for k in r}))
@@ -261,6 +305,10 @@ def main() -> int:
     bench_agg = aggregate(bench, ["cipher", "variant", "image_size"], "MBps")
     stage_agg = aggregate(stages, ["category", "stage", "image_size"], "MBps")
     cand_agg = aggregate(candidates, ["scheme", "keystream", "permutation", "diffusion", "image_size"], "MBps")
+    add_speedups(bench_agg, ["image_size"], "cipher", "MBps_mean", ["logistic_xor"])
+    add_speedups(stage_agg, ["category", "image_size"], "stage", "MBps_mean",
+                 ["logistic_double", "chaotic_sort", "global_chain"])
+    add_speedups(cand_agg, ["image_size"], "scheme", "MBps_mean", ["CML-Feistel-Stencil", "CA-Feistel-ARX"])
     write_csv(root / "bench_stats.csv", bench_agg, sorted({k for r in bench_agg for k in r}))
     write_csv(root / "stage_stats.csv", stage_agg, sorted({k for r in stage_agg for k in r}))
     write_csv(root / "candidate_stats.csv", cand_agg, sorted({k for r in cand_agg for k in r}))
@@ -278,11 +326,23 @@ def main() -> int:
         "## Fastest Full Schemes",
         markdown_table(top_full, ["cipher", "image_size", "MBps", "keygen_ms", "permutation_ms", "diffusion_ms", "total_ms"]),
         "",
+        "## Aggregated Full-Scheme Statistics",
+        markdown_table(sorted(bench_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:12],
+                       ["cipher", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
+        "",
         "## Fastest Replaceable Stages",
         markdown_table(top_stages, ["category", "stage", "image_size", "MBps", "ms"]),
         "",
+        "## Aggregated Stage Statistics",
+        markdown_table(sorted(stage_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:16],
+                       ["category", "stage", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
+        "",
         "## Fastest Candidate Pipelines",
         markdown_table(top_candidates, ["scheme", "image_size", "MBps", "keygen_ms", "permutation_ms", "diffusion_ms", "total_ms"]),
+        "",
+        "## Aggregated Candidate Statistics",
+        markdown_table(sorted(cand_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:12],
+                       ["scheme", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
         "",
     ]
     (root / "tables.md").write_text("\n".join(tables), encoding="utf-8")
@@ -301,17 +361,29 @@ def main() -> int:
         "## Best Full Schemes",
         markdown_table(top_full[:8], ["cipher", "image_size", "MBps", "total_ms"]),
         "",
+        "## Aggregated Full-Scheme Statistics",
+        markdown_table(sorted(bench_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:8],
+                       ["cipher", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
+        "",
         "## Best Stage Primitives",
         markdown_table(top_stages[:10], ["category", "stage", "image_size", "MBps", "ms"]),
         "",
+        "## Aggregated Stage Statistics",
+        markdown_table(sorted(stage_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:10],
+                       ["category", "stage", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
+        "",
         "## Best Redesigned Candidates",
         markdown_table(top_candidates[:8], ["scheme", "image_size", "MBps", "keygen_ms", "permutation_ms", "diffusion_ms"]),
+        "",
+        "## Aggregated Candidate Statistics",
+        markdown_table(sorted(cand_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:8],
+                       ["scheme", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
         "",
         "## Security Caveats",
         "",
         "- Entropy, histogram, NPCR, UACI, and correlation are image-statistical diagnostics, not cryptographic proofs.",
         "- Deterministic stream-XOR variants remain weak under key/nonce reuse and should be reported as negative controls.",
-        "- The current `chaotic_seed_mix_xor` label intentionally avoids claiming official BLAKE3.",
+        "- `chaotic_seed_blake3_xor` uses official BLAKE3 as a keyed XOF keystream generator.",
         "- A Q2/Q3-ready manuscript should present the proposed candidates as SIMD-native redesigns with measured tradeoffs, not as standardized secure ciphers.",
         "",
         f"## Plot Status\n\n{plot_note}",
@@ -330,9 +402,30 @@ def main() -> int:
         "## Contribution",
         "",
         "1. A C++17/OpenCV/OpenSSL benchmark suite with common cipher interfaces and stage-level timing.",
-        "2. A reproducible matrix over image types, image sizes, repetitions, legacy chaotic schemes, redesigned candidates, and AES/ChaCha baselines.",
+        "2. A reproducible matrix over synthetic controls, the Kodak PhotoCD real-image set, image sizes, repetitions, legacy chaotic schemes, redesigned candidates, and AES/ChaCha baselines.",
         "3. An applied analysis showing which chaotic-image stages are implementation-hostile and which replacements are SIMD-friendly.",
         "4. An explicit security discussion separating image-statistical metrics from cryptographic security claims.",
+        "",
+        "## Experimental Methodology",
+        "",
+        "The benchmark separates full ciphers from replaceable stages. Full schemes measure key generation, permutation, diffusion, and total runtime. Stage experiments isolate keystream generation, permutation, and diffusion primitives so bottlenecks can be attributed directly. The final matrix includes deterministic synthetic images for controlled scaling and the Kodak PhotoCD image set for real natural-image coverage. Results are aggregated with mean, median, standard deviation, minimum, maximum, and 95% confidence intervals.",
+        "",
+        "## Datasets",
+        "",
+        "- Synthetic controls: gradient, texture, and noise images generated deterministically at 512, 1024, 2048, and 4096 square resolutions.",
+        "- Real images: 24 Kodak PhotoCD natural images downloaded from https://r0k.us/graphics/kodak/.",
+        "",
+        "## Baselines",
+        "",
+        "AES-CTR and ChaCha20 are included through OpenSSL EVP as cryptographic baselines. They are not expected to be beaten as general-purpose ciphers. Their purpose is to keep the security and performance discussion anchored to standard cryptographic practice.",
+        "",
+        "## Proposed Direction",
+        "",
+        "The strongest proposed candidates are Checkerboard-CA-ARX and Checkerboard-CA-MultilaneTree. They replace sort-based permutation and serial diffusion with parallel checkerboard swaps, cellular automata keystreams, ARX block diffusion, multi-lane chaining, and tree diffusion.",
+        "",
+        "## Security Position",
+        "",
+        "The image metrics in this work are diagnostic rather than proof of cryptographic security. Entropy, histogram uniformity, NPCR, UACI, and adjacent-pixel correlation are useful for image-domain behavior, but known-plaintext and chosen-plaintext tests remain necessary negative controls. Deterministic stream-XOR variants are explicitly treated as weak under key/nonce reuse.",
         "",
         "## Results",
         "",

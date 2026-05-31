@@ -1,0 +1,247 @@
+Q1 novelty direction
+====================
+
+For Q1, the missing piece is not more image metrics. It is either:
+
+1. a formal mathematical contribution, or
+2. a systems/hardware contribution that generalizes beyond this benchmark.
+
+The current project is a good applied-performance foundation, but by itself it is closer to Q2/Q3. To aim Q1, the paper needs stronger novelty.
+
+
+Mathematical novelty options
+============================
+
+1. Provable permutation family
+-----------------------------
+
+Define the redesigned permutation as a keyed bijection over image indices:
+
+- Feistel permutation over pixel or block IDs.
+- Affine modular permutation inside blocks.
+- Checkerboard/local reversible swaps as lattice updates.
+
+Then prove:
+
+- bijectivity,
+- cycle properties,
+- mixing distance after r rounds,
+- avalanche bounds over index neighborhoods,
+- resistance to simple permutation recovery under chosen plaintext.
+
+This is much stronger than saying "the permutation looks random."
+
+
+2. Diffusion as an algebraic operator
+-------------------------------------
+
+Model prefix-XOR, tree-XOR, multilane chain, and ARX diffusion as operators over:
+
+- GF(2)^n for XOR diffusion,
+- Z_256^n for byte addition/rotation diffusion.
+
+Analyze:
+
+- rank,
+- branch number,
+- dependency growth per round,
+- invertibility,
+- linear and differential propagation.
+
+A strong theorem-style result would be:
+
+"A traditional serial diffusion chain and a SIMD prefix/tree diffusion can be represented as equivalent or related algebraic operators, while the SIMD form reduces dependency depth from O(n) to O(log n) or vector-block depth."
+
+
+3. Formal comparison of chaotic vs SIMD-native stages
+-----------------------------------------------------
+
+Define "implementation-hostile" and "SIMD-native" mathematically:
+
+- sort permutation: O(n log n), global ordering dependency,
+- global diffusion chain: dependency depth n,
+- prefix/tree diffusion: dependency depth log n,
+- checkerboard swaps: local reversible cellular automaton with parallel update sets.
+
+This can become a real theorem-style contribution rather than only benchmark evidence.
+
+
+4. Reversible cellular automata permutation/diffusion
+-----------------------------------------------------
+
+This is probably the strongest mathematical path.
+
+Use reversible local update rules over a 2D lattice:
+
+- checkerboard partition,
+- local bijective update,
+- key-dependent rule selection,
+- repeated rounds.
+
+Then prove:
+
+- reversibility,
+- diffusion radius after r rounds,
+- dependency growth,
+- parallel update schedule,
+- conditions under which the transform remains bijective.
+
+Possible claim:
+
+"Lattice-style reversible updates provide a parallel alternative to global chaotic permutation while retaining deterministic invertibility and predictable diffusion growth."
+
+This is a better Q1 math story than "chaotic map plus histogram."
+
+
+Can AES hardware instructions help?
+===================================
+
+Yes, but mostly not by accelerating floating-point chaotic maps directly.
+
+AES hardware instructions can help by accelerating keyed expansion, Feistel round functions, whitening masks, and diffusion subkeys.
+
+Instruction families
+--------------------
+
+AES-NI / VAES:
+Useful for fast keyed keystream generation, Feistel round functions, tile IVs, and whitening masks.
+
+PCLMULQDQ / VPCLMULQDQ:
+Useful for fast GF(2) mixing, polynomial diffusion, and universal hashing style diffusion.
+
+SHA extensions:
+Possibly useful for seed expansion or hashing on supported CPUs.
+
+AVX2 / AVX-512:
+Useful for SIMD permutation, XOR, ARX, prefix/tree diffusion, and lane-local diffusion.
+
+RDRAND / RDSEED:
+Not useful for reproducible benchmarking. They are nondeterministic seed sources, not deterministic cipher acceleration.
+
+CLMUL plus AES:
+Strong combination for AES-derived round keys plus GF(2) diffusion.
+
+
+Best use of AES-NI
+==================
+
+Do not use AES-NI and pretend the scheme is still "pure chaos."
+
+Frame it honestly:
+
+"Chaotic state selects or perturbs parameters, while AES-NI provides a hardware-backed pseudorandom round function for key expansion and Feistel/permutation subkeys."
+
+
+Concrete designs
+================
+
+1. AES-NI key generation
+------------------------
+
+Use AES-CTR or AES-ECB counter expansion to generate:
+
+- permutation round keys,
+- Feistel subkeys,
+- diffusion masks,
+- tile IVs.
+
+This will be much faster and cryptographically stronger than logistic or sine keystreams.
+
+
+2. AES-NI Feistel permutation
+-----------------------------
+
+For block index i:
+
+L, R = split(i)
+
+for round in 1..r:
+    L, R = R, L XOR AES_round_keyed(R, round_key)
+
+AES-NI accelerates the round function. This gives a keyed bijection over indices.
+
+
+3. AES-assisted chaotic seed expansion
+--------------------------------------
+
+Let chaotic maps produce a small seed/state, then AES-NI expands it:
+
+chaotic_state -> seed
+AES-CTR(seed, counter) -> keystream / permutation keys
+
+Honest claim:
+
+"AES-NI is used as a hardware pseudorandom expander; chaos supplies parameterization, not standalone security."
+
+
+4. CLMUL diffusion
+------------------
+
+Use carry-less multiplication for GF(2) mixing:
+
+block = plaintext XOR keystream
+mixed = CLMUL(block, key_poly) XOR rotated(block)
+
+This gives a stronger mathematical angle because diffusion can be analyzed over GF(2).
+
+
+Best Q1 direction
+=================
+
+Do not aim pure cryptography first.
+
+The stronger Q1 direction is systems/image/hardware:
+
+"A mathematically modeled, SIMD/AES-NI accelerated framework for replacing implementation-hostile chaotic image encryption stages with reversible index permutations and algebraic diffusion operators."
+
+Implement:
+
+- AES-NI key expansion,
+- Feistel index permutation,
+- CLMUL/GF(2) diffusion,
+- AVX2 or AVX-512 prefix/tree diffusion,
+- reversible checkerboard lattice permutation.
+
+This gives:
+
+- formal structure,
+- real hardware acceleration,
+- measurable performance evidence,
+- a contribution beyond one more chaotic image encryption scheme.
+
+
+Clean Q1 novelty package
+========================
+
+Pipeline:
+
+Chaotic parameter generator
+    -> AES-NI / VAES key expansion
+
+Permutation
+    -> keyed Feistel index permutation
+    -> reversible checkerboard lattice updates
+
+Diffusion
+    -> GF(2) CLMUL mixing
+    -> SIMD prefix/tree diffusion
+
+Analysis
+    -> bijectivity
+    -> dependency depth
+    -> branch/diffusion growth
+    -> KPA/CPA discussion
+    -> AES/ChaCha baseline comparison
+
+
+Bottom line
+===========
+
+For Q1 cryptography or mathematics:
+Need formal security or mathematical novelty. Current benchmark results alone are not enough.
+
+For Q1 systems, hardware, or image-processing:
+Possible if we add AES-NI/CLMUL/AVX acceleration, reversible permutation theory, 4K/8K experiments, and architecture-level analysis.
+
+Most promising route:
+Q1 systems/image/hardware paper, not pure cryptography.

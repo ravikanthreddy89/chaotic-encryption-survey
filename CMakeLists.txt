@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(chaos_image_refsimd CXX)
+project(chaos_image_refsimd C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,9 +26,24 @@ target_include_directories(chaos_ref PRIVATE include)
 find_package(OpenCV REQUIRED)
 find_package(OpenSSL REQUIRED)
 
+add_library(official_blake3 STATIC
+  third_party/blake3/blake3.c
+  third_party/blake3/blake3_dispatch.c
+  third_party/blake3/blake3_portable.c
+)
+
+target_include_directories(official_blake3 PUBLIC third_party/blake3)
+target_compile_features(official_blake3 PUBLIC c_std_99)
+target_compile_definitions(official_blake3 PRIVATE
+  BLAKE3_USE_NEON=0
+  BLAKE3_NO_SSE2
+  BLAKE3_NO_SSE41
+  BLAKE3_NO_AVX2
+  BLAKE3_NO_AVX512
+)
+
 add_executable(chaos_image_bench
   src/bench_main.cpp
-  third_party/blake3/blake3.cpp
 )
 
 target_include_directories(chaos_image_bench PRIVATE
@@ -40,6 +55,7 @@ target_include_directories(chaos_image_bench PRIVATE
 target_link_libraries(chaos_image_bench PRIVATE
   ${OpenCV_LIBS}
   OpenSSL::Crypto
+  official_blake3
 )
 
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" CHAOSREF_ARCH_LOWER)

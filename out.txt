@@ -1,0 +1,206 @@
+Progress summary
+================
+
+- Built a C++17 CMake benchmark suite for chaotic image encryption.
+
+- Added OpenCV-based image loading/saving.
+
+- Added OpenSSL EVP baselines:
+  - AES-CTR
+  - ChaCha20
+
+- Added a common image-cipher interface:
+  - IImageCipher
+  - common timing structure for keygen, permutation, diffusion, and total runtime.
+
+- Implemented chaotic full-scheme baselines:
+  - logistic_xor
+  - logistic_permute_xor
+  - arnold_xor
+  - tiled_arnold_xor
+  - tent_block_xor
+  - sine_xor
+  - coupled_lattice_xor
+  - hamiltonian_lattice_xor
+  - chaotic_seed_blake3_xor
+
+- Implemented scalar and AVX2-friendly XOR/diffusion paths where practical.
+
+- Added replaceable stage benchmarks instead of only benchmarking full schemes.
+
+- Added keystream stage tests:
+  - logistic double
+  - sine map
+  - fixed-point tent
+  - coupled map lattice
+  - cellular automata
+  - Hamiltonian lattice
+  - reaction-diffusion
+
+- Added permutation stage tests:
+  - chaotic sort
+  - random walk
+  - Arnold/cat map
+  - affine modular permutation
+  - Feistel index permutation
+  - block permutation
+  - checkerboard swaps
+
+- Added diffusion stage tests:
+  - global serial chain
+  - block-local chain
+  - parallel prefix
+  - stencil diffusion
+  - ARX block diffusion
+  - bit-plane diffusion
+  - prefix-XOR AVX2
+  - reverse prefix-XOR AVX2
+  - multi-lane chain AVX2
+  - tree-XOR AVX2
+  - prefix-tree-reverse diffusion
+  - ARX prefix mod-256 diffusion
+
+- Implemented candidate SIMD-friendly chaotic-image pipelines:
+  - CA-Feistel-ARX
+  - CML-Feistel-Stencil
+  - Hamiltonian-Block-Stencil
+  - Affine-CML-Bitplane
+  - Checkerboard-CA-ARX
+  - Affine-CA-PrefixTree
+  - Checkerboard-CA-MultilaneTree
+
+- Added cryptanalysis/image-statistical metrics:
+  - entropy
+  - histogram plots
+  - chi-square
+  - horizontal adjacent-pixel correlation
+  - vertical adjacent-pixel correlation
+  - diagonal adjacent-pixel correlation
+  - NPCR
+  - UACI
+  - key sensitivity
+  - known-plaintext attack recovery score
+  - chosen-plaintext attack recovery score
+
+- Added CSV outputs:
+  - results/bench.csv
+  - results/analysis.csv
+  - results/stage_bench.csv
+  - results/candidate_schemes.csv
+
+- Added image outputs:
+  - encrypted images
+  - histogram images
+
+- Added summary outputs:
+  - security_summary.md
+  - summary.out
+  - summary.out2
+
+- Added benchmark modes:
+  - --mode all
+  - --mode full
+  - --mode stages
+  - --mode candidates
+  - --fast-stages-only
+  - --fast-candidates-only
+
+- Added a paper-ready experiment harness:
+  - scripts/run_paper_ready_experiments.sh
+  - scripts/generate_synthetic_dataset.py
+  - scripts/make_paper_outputs.py
+
+- Added deterministic synthetic datasets:
+  - gradient images
+  - texture images
+  - noise images
+
+- Added final paper result aggregation:
+  - results/final/bench.csv
+  - results/final/analysis.csv
+  - results/final/stage_bench.csv
+  - results/final/candidate_schemes.csv
+  - results/final/bench_stats.csv
+  - results/final/stage_stats.csv
+  - results/final/candidate_stats.csv
+  - results/final/tables.md
+  - results/final/performance_summary.md
+  - results/final/metadata.md
+
+- Added fallback PNG chart generation when Matplotlib is unavailable:
+  - results/final/figures/candidate_throughput.png
+  - results/final/figures/stage_throughput.png
+
+- Added a draft manuscript skeleton:
+  - paper_draft.md
+
+- Added journal-targeting notes:
+  - journals.txt
+
+- Added Q1 extension notes:
+  - q1.out
+
+- Reframed the paper contribution:
+  - not "we beat AES"
+  - not "new provably secure cipher"
+  - instead: stage-level SIMD redesign and benchmarking of chaotic image encryption pipelines
+
+- Identified the main empirical story:
+  - traditional chaotic image encryption is slow because of floating-point maps, sort-based permutation, and serial diffusion chains
+  - SIMD-native redesigns improve replaceable stages
+  - AES-CTR and ChaCha20 remain the correct cryptographic baselines
+  - chaotic variants are better framed as image-domain transformation and research prototypes
+
+- Replaced the old local BLAKE3-like shim with official BLAKE3 C sources from:
+  - https://github.com/BLAKE3-team/BLAKE3/tree/master/c
+
+- Added official BLAKE3 files under:
+  - third_party/blake3/blake3.c
+  - third_party/blake3/blake3_dispatch.c
+  - third_party/blake3/blake3_portable.c
+  - third_party/blake3/blake3.h
+  - third_party/blake3/blake3_impl.h
+  - third_party/blake3/LICENSE_A2
+  - third_party/blake3/LICENSE_CC0
+  - third_party/blake3/README.md
+
+- Added an official_blake3 CMake static library target.
+
+- Updated chaotic_seed_blake3_xor to use official keyed BLAKE3 XOF output as the keystream generator.
+
+- Rebuilt the project successfully after adding official BLAKE3.
+
+- Reran the final benchmark matrix after adding official BLAKE3:
+  - image sizes: 512, 1024, 2048
+  - image types: gradient, texture, noise
+  - repetitions: 3
+  - slow full-scheme runs capped at 1024
+  - stage/candidate runs extended to 2048
+
+- Verified that old chaotic_seed_mix labels are gone from final outputs.
+
+- Verified that chaotic_seed_blake3_xor appears in final outputs.
+
+- Updated summary.out with official BLAKE3 results.
+
+- Current official BLAKE3 summary:
+  - best observed chaotic_seed_blake3_xor result: 335.247 MB/s at 512x512
+  - aggregated mean at 512x512: 303.54 MB/s
+  - aggregated mean at 1024x1024: 270.33 MB/s
+
+- Current strongest candidate pipelines:
+  - Checkerboard-CA-ARX
+  - Checkerboard-CA-MultilaneTree
+  - CA-Feistel-ARX
+
+- Current strongest paper direction:
+  - top Q2 applied-performance paper first
+  - Q1 extension later with AES-NI/VAES key expansion, CLMUL diffusion, Feistel permutation theory, reversible checkerboard lattice theory, and stronger architecture-level analysis
+
+- Main remaining work for top Q2 readiness:
+  - add real datasets under images/datasets/real
+  - run larger final matrix with REPS=10
+  - add confidence intervals
+  - add more polished paper tables and figures
+  - strengthen security discussion around KPA/CPA and nonce/key reuse
+  - rewrite paper_draft.md into a full manuscript

@@ -61,7 +61,7 @@ If the input image does not exist, the suite creates a deterministic sample imag
 - `results/histograms/*.png`
 
 Implemented suite ciphers:
-- chaotic: `logistic_xor`, `logistic_permute_xor`, `arnold_xor`, `tiled_arnold_xor`, `tent_block_xor`, `sine_xor`, `coupled_lattice_xor`, `hamiltonian_lattice_xor`, `chaotic_seed_mix_xor`
+- chaotic: `logistic_xor`, `logistic_permute_xor`, `arnold_xor`, `tiled_arnold_xor`, `tent_block_xor`, `sine_xor`, `coupled_lattice_xor`, `hamiltonian_lattice_xor`, `chaotic_seed_blake3_xor`
 - baselines: `aes_ctr`, `chacha20`
 
 The suite also benchmarks replaceable primitives independently:
@@ -75,9 +75,10 @@ The suite also benchmarks replaceable primitives independently:
 ```bash
 REPS=5 SIZES="512 1024 2048 4096" ./scripts/run_paper_ready_experiments.sh
 INCLUDE_8K=1 REPS=3 ./scripts/run_paper_ready_experiments.sh
+REPS=10 REAL_REPS=10 SIZES="512 1024 2048 4096" ./scripts/run_paper_ready_experiments.sh
 ```
 
-The final harness generates deterministic synthetic datasets, caps slow full-scheme measurements to practical sizes, scales SIMD-friendly stages/candidates to larger images, and writes:
+The final harness generates deterministic synthetic datasets, downloads the public Kodak PhotoCD real-image set by default, caps slow full-scheme measurements to practical sizes, scales SIMD-friendly stages/candidates to larger images, and writes:
 - `results/final/bench.csv`, `analysis.csv`, `stage_bench.csv`, `candidate_schemes.csv`
 - `results/final/*_stats.csv`
 - `results/final/tables.md`
@@ -87,7 +88,12 @@ The final harness generates deterministic synthetic datasets, caps slow full-sch
 - `summary.out`
 - `paper_draft.md`
 
-The paper framing is applied performance: stage decomposition, SIMD-native redesign, and honest comparison to AES-CTR/ChaCha20. The current `chaotic_seed_mix_xor` uses the local seed-mixing shim and is deliberately not labeled as official BLAKE3.
+The paper framing is applied performance: stage decomposition, SIMD-native redesign, and honest comparison to AES-CTR/ChaCha20. `chaotic_seed_blake3_xor` uses the official BLAKE3 C implementation as a keyed XOF keystream generator.
+
+Real images are stored under `images/datasets/real/kodak`. To only download the dataset:
+```bash
+python3 scripts/download_real_datasets.py --out images/datasets/real/kodak --limit 24
+```
 
 ## Batch run helper
 ```bash
@@ -103,5 +109,5 @@ The Paper 1 runner compares `scalar_build`, `sse2_build`, and `avx2_build`. By d
 
 ## Next milestones
 1. Add user-provided public image datasets under `images/datasets/real`.
-2. Vendor official BLAKE3 if the `chaotic_seed_*` variant should be reported as BLAKE3-backed.
+2. Add BLAKE3 SIMD dispatch sources if BLAKE3 itself should be measured with x86/ARM hardware acceleration.
 3. Add deeper cryptanalysis before any security-deployment claim.

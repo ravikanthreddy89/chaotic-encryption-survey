@@ -1,0 +1,12 @@
+image,cipher,entropy,chi_square,corr_h,corr_v,corr_d,npcr,uaci,key_sensitivity,kpa_score,cpa_score
+images/datasets/real/kodak/kodim06.png,logistic_xor,7.9877,19925,-0.0554248,0.0118724,0.00983994,8.47711e-05,3.32435e-07,99.3863,1,1
+images/datasets/real/kodak/kodim06.png,logistic_permute_xor,7.98779,19753.3,0.00015155,-0.000235199,-0.0017267,8.47711e-05,3.32435e-07,99.6011,0.999998,0.00952064
+images/datasets/real/kodak/kodim06.png,arnold_xor,7.98756,20125.6,-0.0534778,0.0150122,0.0107097,8.47711e-05,3.32435e-07,99.3863,1,0.175729
+images/datasets/real/kodak/kodim06.png,tiled_arnold_xor,7.98749,20238.3,-0.0483195,0.0124869,0.013922,8.47711e-05,3.32435e-07,99.3863,1,0.0717044
+images/datasets/real/kodak/kodim06.png,tent_block_xor,7.99985,244.615,-0.00445703,-0.00314441,0.00102061,8.47711e-05,3.32435e-07,99.6234,1,1
+images/datasets/real/kodak/kodim06.png,sine_xor,7.98495,24839.4,0.113621,0.101144,0.0994214,8.47711e-05,3.32435e-07,99.3009,1,1
+images/datasets/real/kodak/kodim06.png,coupled_lattice_xor,7.98792,19912.8,0.196786,0.209929,0.206795,8.47711e-05,3.32435e-07,99.4091,1,1
+images/datasets/real/kodak/kodim06.png,hamiltonian_lattice_xor,7.99386,9983.71,-0.029064,0.00426384,0.00124051,8.47711e-05,3.32435e-07,99.5316,1,1
+images/datasets/real/kodak/kodim06.png,chaotic_seed_blake3_xor,7.99986,224.451,-0.00283025,0.00315767,0.000722462,8.47711e-05,3.32435e-07,99.608,1,1
+images/datasets/real/kodak/kodim06.png,aes_ctr,7.99984,259.445,0.000445866,1.60679e-05,0.00033501,8.47711e-05,3.32435e-07,99.6112,1,1
+images/datasets/real/kodak/kodim06.png,chacha20,7.99986,235.644,-0.00090685,0.000487284,0.00155348,8.47711e-05,3.32435e-07,99.6203,1,1

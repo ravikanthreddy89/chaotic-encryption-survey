@@ -37,25 +37,25 @@ enum class ChaosFlavor {
     Sine,
     CoupledLattice,
     HamiltonianLattice,
-    ChaoticSeedMix
+    Blake3Seed
 };
 
 inline std::vector<uint8_t> make_keystream(size_t n, const CipherContext& ctx, ChaosFlavor flavor) {
     std::vector<uint8_t> ks(n);
     uint64_t seed = seed_from_key(ctx, static_cast<uint64_t>(flavor) * 0x123456789ABCDEFULL);
 
-    if (flavor == ChaosFlavor::ChaoticSeedMix) {
-        blake3_hasher h;
-        blake3_hasher_init(&h);
-        if (!ctx.key.empty()) blake3_hasher_update(&h, ctx.key.data(), ctx.key.size());
-        if (!ctx.nonce.empty()) blake3_hasher_update(&h, ctx.nonce.data(), ctx.nonce.size());
-        uint8_t root[BLAKE3_OUT_LEN];
-        blake3_hasher_finalize(&h, root, sizeof(root));
-        std::memcpy(&seed, root, sizeof(seed));
-        for (size_t i = 0; i < n; ++i) {
-            if ((i & 7U) == 0) seed = splitmix64_next(seed);
-            ks[i] = static_cast<uint8_t>((seed >> ((i & 7U) * 8U)) & 0xFFU);
+    if (flavor == ChaosFlavor::Blake3Seed) {
+        uint8_t blake_key[BLAKE3_KEY_LEN] = {};
+        for (size_t i = 0; i < ctx.key.size(); ++i) {
+            blake_key[i % BLAKE3_KEY_LEN] ^= ctx.key[i];
+            blake_key[(i * 7U + 3U) % BLAKE3_KEY_LEN] ^= static_cast<uint8_t>(ctx.key[i] + i);
         }
+        blake3_hasher h;
+        blake3_hasher_init_keyed(&h, blake_key);
+        static constexpr char label[] = "chaotic-image-encryption blake3 seeded keystream v1";
+        blake3_hasher_update(&h, label, sizeof(label) - 1U);
+        if (!ctx.nonce.empty()) blake3_hasher_update(&h, ctx.nonce.data(), ctx.nonce.size());
+        blake3_hasher_finalize(&h, ks.data(), ks.size());
         return ks;
     }
 
@@ -98,7 +98,7 @@ inline std::vector<uint8_t> make_keystream(size_t n, const CipherContext& ctx, C
                 z = std::fabs(nz - std::floor(nz));
                 break;
             }
-            case ChaosFlavor::ChaoticSeedMix:
+            case ChaosFlavor::Blake3Seed:
                 break;
         }
         ks[i] = static_cast<uint8_t>(static_cast<int>(x * 256.0) & 0xFF);
@@ -256,7 +256,7 @@ inline std::vector<CipherPtr> make_chaotic_ciphers() {
     c.push_back(std::make_unique<XorChaosCipher>("sine_xor", ChaosFlavor::Sine));
     c.push_back(std::make_unique<XorChaosCipher>("coupled_lattice_xor", ChaosFlavor::CoupledLattice));
     c.push_back(std::make_unique<XorChaosCipher>("hamiltonian_lattice_xor", ChaosFlavor::HamiltonianLattice));
-    c.push_back(std::make_unique<XorChaosCipher>("chaotic_seed_mix_xor", ChaosFlavor::ChaoticSeedMix));
+    c.push_back(std::make_unique<XorChaosCipher>("chaotic_seed_blake3_xor", ChaosFlavor::Blake3Seed));
     return c;
 }
 
