@@ -91,4 +91,4 @@ python3 scripts/make_paper_outputs.py --root "$RESULTS_ROOT"
 
 echo "Wrote $RESULTS_ROOT"
 echo "Wrote summary.out"
-echo "Wrote paper_draft.md"
+echo "Wrote $RESULTS_ROOT/generated_paper_outline.md"

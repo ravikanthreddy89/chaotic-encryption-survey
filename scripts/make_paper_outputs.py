@@ -436,7 +436,7 @@ def main() -> int:
         "The proposed candidates are research prototypes. They require deeper cryptanalysis before any security deployment. The strongest defensible claim is performance-oriented stage redesign, not superiority to AES or ChaCha.",
         "",
     ]
-    Path("paper_draft.md").write_text("\n".join(paper), encoding="utf-8")
+    (root / "generated_paper_outline.md").write_text("\n".join(paper), encoding="utf-8")
     return 0
 
 

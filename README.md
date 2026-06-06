@@ -85,8 +85,10 @@ The final harness generates deterministic synthetic datasets, downloads the publ
 - `results/final/performance_summary.md`
 - `results/final/metadata.md`
 - `results/final/figures/*.png` using Matplotlib when available, otherwise dependency-free fallback bar charts
+- `results/final/generated_paper_outline.md`
 - `summary.out`
-- `paper_draft.md`
+
+The maintained journal manuscript is `paper_draft.md`. Experiment reruns do not overwrite it.
 
 The paper framing is applied performance: stage decomposition, SIMD-native redesign, and honest comparison to AES-CTR/ChaCha20. `chaotic_seed_blake3_xor` uses the official BLAKE3 C implementation as a keyed XOF keystream generator.
 
