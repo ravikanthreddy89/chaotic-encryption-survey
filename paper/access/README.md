@@ -8,6 +8,13 @@ this directory from the parent `ACCESS_latex_template_20260513` template.
 
 The generated review PDF is `access_paper.pdf`.
 
+Generate the vector PDF figures and high-resolution PNG review copies:
+
+```bash
+python3 -m pip install --user -r scripts/plot_requirements.txt
+python3 scripts/generate_publication_plots.py
+```
+
 Build with a TeX distribution that provides `pdflatex`:
 
 ```bash

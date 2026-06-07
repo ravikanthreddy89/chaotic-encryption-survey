@@ -7,6 +7,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{url}
+\graphicspath{{figures/}}
 
 \begin{document}
 
@@ -370,6 +371,15 @@ The results do not support a claim that chaotic-image pipelines outperform
 standard ciphers. Instead, they show the cost of common chaotic components and
 provide a performance target for alternative stage designs.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{full_scheme_throughput.pdf}
+\caption{Selected full-scheme throughput on the 24-image Kodak dataset. Error
+bars show 95\% confidence intervals. Standard cryptographic baselines remain
+substantially faster than the evaluated chaotic full schemes.}
+\label{fig:full-throughput}
+\end{figure*}
+
 \subsection{Isolated Permutation Performance}
 Permutation produces the largest stage-level improvement. At
 512$\times$512, block permutation reaches 512.371 MiB/s and is 100.634 times
@@ -426,6 +436,25 @@ opportunity. It also explains why adding SIMD only to XOR inside a traditional
 end-to-end pipeline may show little total improvement: the remaining generator
 and permutation costs dominate.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{stage_throughput_1024.pdf}
+\caption{Representative replaceable-stage throughput at
+1024$\times$1024. The largest gain is algorithmic: replacing chaotic sort with
+a regular linear-time permutation. AVX2-native multi-lane and tree diffusion
+also outperform the sequential global chain.}
+\label{fig:stage-throughput}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{diffusion_speedup.pdf}
+\caption{Diffusion speedup relative to the global chain on square images.
+AVX2 multi-lane and tree diffusion retain a positive advantage at all measured
+sizes, although the advantage narrows at 4096$\times$4096.}
+\label{fig:diffusion-speedup}
+\end{figure*}
+
 \subsection{Candidate Pipeline Performance}
 Checkerboard-CA-ARX is the fastest composed candidate. On Kodak images it
 achieves 259.138 MiB/s, while Checkerboard-CA-MultilaneTree achieves
@@ -457,6 +486,15 @@ CA-Feistel-ARX and Hamiltonian generation dominates
 Hamiltonian-Block-Stencil. These results support RQ3: isolated-stage choices
 remain visible after composition.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{candidate_scaling.pdf}
+\caption{Candidate-pipeline throughput across square image sizes. The
+checkerboard candidates remain fastest, but all candidates lose throughput as
+working sets grow. Error bars show 95\% confidence intervals.}
+\label{fig:candidate-scaling}
+\end{figure*}
+
 \begin{table}[t]
 \caption{Mean Candidate Stage Shares}
 \label{tab:shares}
@@ -473,6 +511,15 @@ Hamiltonian-Block-Stencil & 83.78\% & 11.97\% & 4.24\% \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{candidate_stage_shares.pdf}
+\caption{Mean runtime composition of the candidate pipelines. The plot exposes
+the dominant bottleneck in each composition and shows why isolated stage
+measurements remain necessary.}
+\label{fig:candidate-shares}
+\end{figure*}
 
 \subsection{Full-Scheme Security Diagnostics}
 All complete schemes decrypt correctly. Several also produce near-eight-bit
@@ -512,6 +559,15 @@ encryption modes; standard stream ciphers intentionally do not provide
 plaintext avalanche. The candidate pipelines were not subjected to the same
 security harness and contain fixed prototype permutations. No
 cryptographic-security conclusion is made for them.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{security_diagnostics.pdf}
+\caption{Selected security diagnostics averaged over the full-scheme
+experiments. Near-ideal entropy, correlation, and key sensitivity coexist with
+complete recovery in the deliberately reused-keystream known-plaintext probe.}
+\label{fig:security-diagnostics}
+\end{figure*}
 
 \section{Discussion}
 \label{sec:discussion}

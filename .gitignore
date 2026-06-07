@@ -10,7 +10,13 @@ build/
 build-paper1-*/
 cmake-build-*/
 out/
+__pycache__/
+*.py[cod]
 
 # Generated benchmark runs
 results/paper1_*/
 *.png
+
+# LaTeX build intermediates
+*.aux
+*.log
