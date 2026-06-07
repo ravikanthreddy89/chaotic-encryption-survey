@@ -185,7 +185,7 @@ proposed stage combinations are not claimed to provide equivalent security.
 \label{sec:design}
 
 \subsection{Common Pipeline Model}
-Each complete scheme implements a common \texttt{IImageCipher} interface.
+Each complete scheme implements a common \emph{IImageCipher} interface.
 Encryption is represented as three timed stages:
 \begin{enumerate}
 \item \textbf{Keystream generation:} produce $N$ key-dependent bytes.
@@ -568,14 +568,16 @@ The source tree includes the benchmark implementation, dataset generators,
 Kodak downloader, experiment harness, raw outputs, aggregate CSV files, and
 figure-generation scripts. The final experiment can be reproduced with:
 \begin{verbatim}
-REPS=10 REAL_REPS=10 SIZES="512 1024 2048 4096" \
-  ./scripts/run_paper_ready_experiments.sh
+REPS=10 REAL_REPS=10 \
+SIZES="512 1024 2048 4096" \
+./scripts/run_paper_ready_experiments.sh
 \end{verbatim}
-Primary result files include \texttt{results/final/bench.csv},
-\texttt{stage\_bench.csv}, \texttt{candidate\_schemes.csv},
-\texttt{analysis.csv}, \texttt{dataset\_manifest.csv}, and their aggregate
-statistics. The exact source revision recorded with the experiment is
-\texttt{4ce898f284f6367921637f8f7d43aa2d2910517e}.
+Primary result files include \path{results/final/bench.csv},
+\path{stage_bench.csv}, \path{candidate_schemes.csv}, \path{analysis.csv},
+\path{dataset_manifest.csv}, and their aggregate statistics. The exact source
+revision recorded with the experiment is
+\texttt{4ce898f}; the complete revision identifier is retained in the
+experiment metadata.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -673,5 +675,7 @@ is a Senior Member of the IEEE and is affiliated with the University at
 Buffalo, Buffalo, NY, USA. His research interests include high-performance
 computing, cryptographic engineering, SIMD optimization, and image security.
 \end{IEEEbiographynophoto}
+
+\EOD
 
 \end{document}

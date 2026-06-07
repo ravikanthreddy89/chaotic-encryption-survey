@@ -6,6 +6,8 @@
 The required IEEE Access class, style, logo, and font assets are included in
 this directory from the parent `ACCESS_latex_template_20260513` template.
 
+The generated review PDF is `access_paper.pdf`.
+
 Build with a TeX distribution that provides `pdflatex`:
 
 ```bash
