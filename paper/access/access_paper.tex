@@ -18,7 +18,8 @@
 \author{\uppercase{Ravikanth Reddy Gudipati}\authorrefmark{1},
 \IEEEmembership{Senior Member, IEEE}}
 \address[1]{University at Buffalo, Buffalo, NY, USA}
-\corresp{Corresponding author: Ravikanth Reddy Gudipati.}
+\corresp{Corresponding author: Ravikanth Reddy Gudipati
+(e-mail: ravikanthreddy@ieee.org).}
 
 \markboth
 {Gudipati: From Chaotic Maps to SIMD-Native Image Transforms}
@@ -54,6 +55,16 @@ permutation-diffusion, SIMD, stage-level benchmarking.
 
 \titlepgskip=-21pt
 \maketitle
+
+% Keep the Access logo left and running title right on all body pages.
+\makeatletter
+\def\@oddhead{\parbox[t]{\textwidth}{\mbox{}\\[-6.3mm]\mbox{}%
+\headerlogoall\hfill{\raisebox{-2pt}{\headerfont\rightmark}}%
+\vspace*{-1.5mm}\par\hrulefill}}
+\def\@evenhead{\parbox[t]{\textwidth}{\mbox{}\\[-6.3mm]\mbox{}%
+\headerlogoall\hfill{\raisebox{-2pt}{\headerfont\rightmark}}%
+\vspace*{-1.5mm}\par\hrulefill}}
+\makeatother
 
 \section{Introduction}
 \label{sec:introduction}
