@@ -631,20 +631,28 @@ permutation and global dependencies are major implementation bottlenecks.
 
 \section{Reproducibility}
 \label{sec:reproducibility}
-The source tree includes the benchmark implementation, dataset generators,
-Kodak downloader, experiment harness, raw outputs, aggregate CSV files, and
-figure-generation scripts. The final experiment can be reproduced with:
+The public research artifact is maintained at
+\url{https://github.com/ravikanthreddy89/chaotic-encryption-survey}. The
+repository includes the benchmark implementation, dataset generators, Kodak
+downloader, experiment harness, raw outputs, aggregate CSV files,
+figure-generation scripts, and manuscript source. A clean checkout can be
+built and the final experiment reproduced with:
 \begin{verbatim}
+git clone <repository-url>
+cd chaotic-encryption-survey
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
 REPS=10 REAL_REPS=10 \
 SIZES="512 1024 2048 4096" \
 ./scripts/run_paper_ready_experiments.sh
 \end{verbatim}
 Primary result files include \path{results/final/bench.csv},
 \path{stage_bench.csv}, \path{candidate_schemes.csv}, \path{analysis.csv},
-\path{dataset_manifest.csv}, and their aggregate statistics. The exact source
-revision recorded with the experiment is
-\texttt{4ce898f}; the complete revision identifier is retained in the
-experiment metadata.
+\path{dataset_manifest.csv}, and their aggregate statistics. The repository
+README documents dependencies, quick-start commands, plot generation, and
+manuscript compilation. The complete source revision used by each experiment
+is retained in the generated metadata.
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -675,8 +683,8 @@ conducted the experiments, analyzed the results, and prepared the manuscript.
 
 \subsection*{Data and Code Availability}
 The benchmark source code, experiment scripts, raw measurements, aggregate
-tables, and reproduction instructions are available at
-\url{https://github.com/ravikanthreddy89/chaotic-image-encryption}.
+tables, manuscript source, and reproduction instructions are available at
+\url{https://github.com/ravikanthreddy89/chaotic-encryption-survey}.
 
 \begin{thebibliography}{00}
 \bibitem{shannon1949} C. E. Shannon, ``Communication theory of secrecy

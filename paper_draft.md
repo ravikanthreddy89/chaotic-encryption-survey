@@ -573,11 +573,18 @@ and global dependencies are major implementation bottlenecks.
 
 ## 8. Reproducibility
 
-The source tree includes the benchmark implementation, dataset generators,
-Kodak downloader, experiment harness, raw outputs, aggregate CSV files, and
-figure-generation scripts. The final experiment can be reproduced with:
+The public research artifact is maintained at
+https://github.com/ravikanthreddy89/chaotic-encryption-survey. The repository
+includes the benchmark implementation, dataset generators, Kodak downloader,
+experiment harness, raw outputs, aggregate CSV files, figure-generation
+scripts, and manuscript source. A clean checkout can be built and the final
+experiment reproduced with:
 
 ```bash
+git clone https://github.com/ravikanthreddy89/chaotic-encryption-survey.git
+cd chaotic-encryption-survey
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
 REPS=10 REAL_REPS=10 SIZES="512 1024 2048 4096" \
   ./scripts/run_paper_ready_experiments.sh
 ```
@@ -593,8 +600,9 @@ Primary result files are:
 - `results/final/performance_summary.md`; and
 - `results/final/metadata.md`.
 
-The exact source revision recorded with the experiment is
-`4ce898f284f6367921637f8f7d43aa2d2910517e`.
+The repository README documents dependencies, quick-start commands, plot
+generation, and manuscript compilation. The complete source revision used by
+each experiment is retained in the generated metadata.
 
 ## 9. Conclusion
 
@@ -635,9 +643,8 @@ conducted the experiments, analyzed the results, and prepared the manuscript.
 ### Data and Code Availability
 
 The benchmark source code, experiment scripts, raw measurements, aggregate
-tables, and reproduction instructions are available at
-https://github.com/ravikanthreddy89/chaotic-image-encryption. The experiment
-revision is identified in Section 8.
+tables, manuscript source, and reproduction instructions are available at
+https://github.com/ravikanthreddy89/chaotic-encryption-survey.
 
 ## References
 
