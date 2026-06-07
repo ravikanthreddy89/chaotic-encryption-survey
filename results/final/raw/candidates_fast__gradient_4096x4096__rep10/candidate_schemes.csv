@@ -1,5 +1,5 @@
 image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
-images/datasets/synthetic/gradient_4096x4096.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,4096,4096,3,50331648,130.126,1089.12,72.6737,1291.93,37.1536,2194736950743884906
-images/datasets/synthetic/gradient_4096x4096.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,4096,4096,3,50331648,117.682,72.4716,57.2833,247.446,193.981,15488569288098010661
-images/datasets/synthetic/gradient_4096x4096.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,4096,4096,3,50331648,119.348,895.417,279.821,1294.59,37.0773,17589197381246775940
-images/datasets/synthetic/gradient_4096x4096.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,4096,4096,3,50331648,118.991,73.4559,114.909,307.365,156.166,5862794167855691801
+images/datasets/synthetic/gradient_4096x4096.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,4096,4096,3,50331648,108.812,753.83,53.3835,916.032,52.3999,2194736950743884906
+images/datasets/synthetic/gradient_4096x4096.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,4096,4096,3,50331648,103.594,66.2325,55.4928,225.328,213.023,15488569288098010661
+images/datasets/synthetic/gradient_4096x4096.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,4096,4096,3,50331648,106.547,721.067,283.937,1111.56,43.1827,17589197381246775940
+images/datasets/synthetic/gradient_4096x4096.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,4096,4096,3,50331648,116.262,75.9793,122.856,315.102,152.332,5862794167855691801

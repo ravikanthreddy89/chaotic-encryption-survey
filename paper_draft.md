@@ -23,10 +23,10 @@ per configuration.
 The results show that implementation structure matters more than the nominal
 presence of SIMD instructions. Replacing chaotic sort permutation with a
 linear block permutation improves mean permutation throughput by
-105.9--135.0 times at tested sizes. Replacing a global feedback chain with
+100.6--131.9 times at tested sizes. Replacing a global feedback chain with
 AVX2 multi-lane or tree diffusion improves mean diffusion throughput by
-approximately 1.9--2.1 times. The fastest benchmark-informed candidate pipeline,
-Checkerboard-CA-ARX, sustains 245.7 MiB/s on Kodak images and 188.9 MiB/s at
+approximately 1.8--2.1 times. The fastest benchmark-informed candidate pipeline,
+Checkerboard-CA-ARX, sustains 259.1 MiB/s on Kodak images and 200.0 MiB/s at
 4096x4096, while the fastest standard baseline, ChaCha20 through OpenSSL
 EVP, remains substantially faster.
 
@@ -316,6 +316,8 @@ Two dataset classes are used:
 
 Synthetic images provide controlled size and content variation. Kodak images
 provide natural-image diversity while retaining a stable public benchmark.
+The Lena/Lenna image is explicitly excluded from the publication dataset and
+does not appear in the active benchmark results.
 
 ### 4.3 Experiment Matrix
 
@@ -373,13 +375,13 @@ conservative BLAKE3 measurement.
 
 | Scheme | Image size | n | Mean MiB/s | 95% CI | Speedup vs logistic XOR |
 |---|---:|---:|---:|---:|---:|
-| ChaCha20 | 512x512 | 30 | 945.506 | 46.968 | 7.127x |
-| ChaCha20 | 768x512 | 180 | 845.183 | 12.099 | 6.316x |
-| ChaCha20 | 1024x1024 | 30 | 768.588 | 25.216 | 5.969x |
-| AES-256-CTR | 768x512 | 180 | 337.636 | 3.266 | 2.523x |
-| AES-256-CTR | 1024x1024 | 30 | 533.687 | 15.948 | 4.145x |
-| BLAKE3-XOR | 768x512 | 180 | 299.394 | 3.426 | 2.237x |
-| BLAKE3-XOR | 1024x1024 | 30 | 267.421 | 8.154 | 2.077x |
+| ChaCha20 | 512x512 | 30 | 996.357 | 42.849 | 7.128x |
+| ChaCha20 | 768x512 | 180 | 895.707 | 10.484 | 6.389x |
+| ChaCha20 | 1024x1024 | 30 | 903.400 | 18.640 | 6.532x |
+| AES-256-CTR | 768x512 | 180 | 355.663 | 3.399 | 2.537x |
+| AES-256-CTR | 1024x1024 | 30 | 594.958 | 9.202 | 4.302x |
+| BLAKE3-XOR | 768x512 | 180 | 315.714 | 2.750 | 2.252x |
+| BLAKE3-XOR | 1024x1024 | 30 | 294.142 | 4.023 | 2.127x |
 
 The results do not support a claim that chaotic-image pipelines outperform
 standard ciphers. Instead, they show the cost of common chaotic components and
@@ -388,17 +390,17 @@ provide a performance target for alternative stage designs.
 ### 5.2 Isolated Permutation Performance
 
 Permutation produces the largest stage-level improvement. At 512x512, block
-permutation reaches 488.197 MiB/s and is 105.859 times faster than chaotic
-sort. At 1024x1024 it reaches 465.646 MiB/s and is 134.984 times faster.
+permutation reaches 512.371 MiB/s and is 100.634 times faster than chaotic
+sort. At 1024x1024 it reaches 497.839 MiB/s and is 131.861 times faster.
 
 **Table 2. Aggregate block-permutation performance relative to chaotic sort.**
 
 | Image size | n | Mean MiB/s | 95% CI | Speedup |
 |---|---:|---:|---:|---:|
-| 512x512 | 30 | 488.197 | 10.410 | 105.859x |
-| 512x768 | 60 | 484.649 | 5.764 | 111.033x |
-| 768x512 | 180 | 480.218 | 3.135 | 110.670x |
-| 1024x1024 | 30 | 465.646 | 8.393 | 134.984x |
+| 512x512 | 30 | 512.371 | 6.473 | 100.634x |
+| 512x768 | 60 | 499.309 | 4.729 | 110.013x |
+| 768x512 | 180 | 499.812 | 2.866 | 109.371x |
+| 1024x1024 | 30 | 497.839 | 5.289 | 131.861x |
 
 This result answers RQ1 and RQ2: chaotic sort is an
 implementation-hostile design choice, and replacing it with a regular
@@ -415,13 +417,13 @@ Their mean speedups over the global chain are approximately twofold.
 
 | Stage | Image size | n | Mean MiB/s | 95% CI | Speedup vs global chain |
 |---|---:|---:|---:|---:|---:|
-| Multi-lane chain AVX2 | 512x512 | 30 | 479.517 | 9.062 | 2.130x |
-| Multi-lane chain AVX2 | 768x512 | 180 | 483.497 | 2.725 | 2.125x |
-| Multi-lane chain AVX2 | 1024x1024 | 30 | 447.583 | 11.638 | 1.977x |
-| Tree XOR AVX2 | 512x512 | 30 | 452.561 | 8.089 | 2.010x |
-| Tree XOR AVX2 | 768x512 | 180 | 454.466 | 2.819 | 1.997x |
-| Tree XOR AVX2 | 1024x1024 | 30 | 426.760 | 9.649 | 1.885x |
-| ARX block diffusion | 768x512 | 180 | 411.095 | 2.810 | 1.807x |
+| Multi-lane chain AVX2 | 512x512 | 30 | 499.419 | 7.774 | 2.076x |
+| Multi-lane chain AVX2 | 768x512 | 180 | 499.120 | 3.046 | 2.095x |
+| Multi-lane chain AVX2 | 1024x1024 | 30 | 493.067 | 8.000 | 2.054x |
+| Tree XOR AVX2 | 512x512 | 30 | 470.202 | 7.667 | 1.955x |
+| Tree XOR AVX2 | 768x512 | 180 | 469.901 | 2.793 | 1.973x |
+| Tree XOR AVX2 | 1024x1024 | 30 | 464.386 | 8.035 | 1.935x |
+| ARX block diffusion | 768x512 | 180 | 426.568 | 2.540 | 1.791x |
 
 The result demonstrates that removing a global byte-to-byte dependency creates
 a measurable SIMD opportunity. It also explains why adding SIMD only to XOR
@@ -431,30 +433,30 @@ the remaining generator and permutation costs dominate.
 ### 5.4 Candidate Pipeline Performance
 
 Checkerboard-CA-ARX is the fastest composed candidate. On Kodak images it
-achieves 245.658 MiB/s, while Checkerboard-CA-MultilaneTree achieves
-220.599 MiB/s. Both remain slower than AES-256-CTR and ChaCha20 on the same
+achieves 259.138 MiB/s, while Checkerboard-CA-MultilaneTree achieves
+232.142 MiB/s. Both remain slower than AES-256-CTR and ChaCha20 on the same
 image dimensions.
 
 **Table 4. Aggregate candidate-pipeline throughput.**
 
 | Candidate | Image size | n | Mean MiB/s | 95% CI |
 |---|---:|---:|---:|---:|
-| Checkerboard-CA-ARX | 512x512 | 30 | 249.045 | 6.148 |
-| Checkerboard-CA-ARX | 768x512 | 180 | 245.658 | 3.054 |
-| Checkerboard-CA-ARX | 1024x1024 | 30 | 211.652 | 5.127 |
-| Checkerboard-CA-ARX | 2048x2048 | 30 | 196.312 | 3.182 |
-| Checkerboard-CA-ARX | 4096x4096 | 30 | 188.949 | 2.567 |
-| Checkerboard-CA-MultilaneTree | 768x512 | 180 | 220.599 | 2.585 |
-| Checkerboard-CA-MultilaneTree | 4096x4096 | 30 | 150.678 | 2.260 |
+| Checkerboard-CA-ARX | 512x512 | 30 | 267.596 | 3.771 |
+| Checkerboard-CA-ARX | 768x512 | 180 | 259.138 | 2.666 |
+| Checkerboard-CA-ARX | 1024x1024 | 30 | 234.149 | 4.490 |
+| Checkerboard-CA-ARX | 2048x2048 | 30 | 216.487 | 3.933 |
+| Checkerboard-CA-ARX | 4096x4096 | 30 | 199.993 | 4.384 |
+| Checkerboard-CA-MultilaneTree | 768x512 | 180 | 232.142 | 2.111 |
+| Checkerboard-CA-MultilaneTree | 4096x4096 | 30 | 159.392 | 3.931 |
 
 The candidate stage shares explain the remaining bottlenecks:
 
 | Candidate | Keystream share | Permutation share | Diffusion share |
 |---|---:|---:|---:|
-| Checkerboard-CA-ARX | 47.46% | 27.93% | 24.59% |
-| Checkerboard-CA-MultilaneTree | 38.34% | 22.68% | 38.97% |
-| CA-Feistel-ARX | 10.84% | 83.57% | 5.58% |
-| Hamiltonian-Block-Stencil | 82.42% | 13.30% | 4.28% |
+| Checkerboard-CA-ARX | 47.69% | 27.86% | 24.44% |
+| Checkerboard-CA-MultilaneTree | 38.44% | 22.60% | 38.95% |
+| CA-Feistel-ARX | 11.69% | 82.32% | 5.99% |
+| Hamiltonian-Block-Stencil | 83.78% | 11.97% | 4.24% |
 
 The fast checkerboard candidates distribute work across all three stages,
 whereas Feistel indexing dominates CA-Feistel-ARX and Hamiltonian generation
@@ -472,12 +474,12 @@ positive metrics are insufficient to establish security.
 
 | Scheme | Entropy | Chi-square | Mean absolute correlation | Plaintext NPCR | Key sensitivity | KPA recovery |
 |---|---:|---:|---:|---:|---:|---:|
-| ChaCha20 | 7.999845 | 258.874 | 0.000738 | 0.000084% | 99.619% | 1.000 |
-| AES-256-CTR | 7.999843 | 259.125 | 0.000424 | 0.000084% | 99.611% | 1.000 |
-| BLAKE3-XOR | 7.999850 | 247.607 | 0.000759 | 0.000084% | 99.607% | 1.000 |
-| Tent-XOR | 7.999828 | 282.731 | 0.001231 | 0.000084% | 99.623% | 1.000 |
-| Logistic-XOR | 7.984321 | 26641.399 | 0.020388 | 0.000084% | 99.387% | 1.000 |
-| Coupled-lattice-XOR | 7.971770 | 45857.479 | 0.134324 | 0.000084% | 99.410% | 1.000 |
+| ChaCha20 | 7.999845 | 258.874 | 0.001216 | 0.000084% | 99.619% | 1.000 |
+| AES-256-CTR | 7.999843 | 259.125 | 0.001148 | 0.000084% | 99.611% | 1.000 |
+| BLAKE3-XOR | 7.999850 | 247.607 | 0.001419 | 0.000084% | 99.607% | 1.000 |
+| Tent-XOR | 7.999828 | 282.731 | 0.001721 | 0.000084% | 99.623% | 1.000 |
+| Logistic-XOR | 7.984321 | 26641.399 | 0.020440 | 0.000084% | 99.387% | 1.000 |
+| Coupled-lattice-XOR | 7.971770 | 45857.479 | 0.137337 | 0.000084% | 99.410% | 1.000 |
 
 The KPA recovery score of 1.0 for AES-CTR, ChaCha20, BLAKE3-XOR, and the
 stream-XOR chaotic variants is expected because the experiment deliberately
@@ -586,12 +588,13 @@ Primary result files are:
 - `results/final/stage_bench.csv` and `stage_stats.csv`;
 - `results/final/candidate_schemes.csv` and `candidate_stats.csv`;
 - `results/final/analysis.csv`;
+- `results/final/dataset_manifest.csv`;
 - `results/final/tables.md`;
 - `results/final/performance_summary.md`; and
 - `results/final/metadata.md`.
 
 The exact source revision recorded with the experiment is
-`af3901293c3c835be4433d529d31b292ca1cb061`.
+`4ce898f284f6367921637f8f7d43aa2d2910517e`.
 
 ## 9. Conclusion
 

@@ -1,21 +1,21 @@
 image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
-images/datasets/synthetic/gradient_2048x2048.ppm,keystream,fixed_point_tent,high,useful,2048,2048,3,12582912,105.025,114.258,13272600421135494129
-images/datasets/synthetic/gradient_2048x2048.ppm,keystream,cml,medium-high,chaos-native SIMD,2048,2048,3,12582912,218.278,54.9757,15425893592488899889
-images/datasets/synthetic/gradient_2048x2048.ppm,keystream,cellular_automata,very high,fastest,2048,2048,3,12582912,46.5104,258.007,15526243392689371928
-images/datasets/synthetic/gradient_2048x2048.ppm,permutation,arnold_cat_map,O(N),good,2048,2048,3,12582912,105.219,114.048,3185230771024536357
-images/datasets/synthetic/gradient_2048x2048.ppm,permutation,affine_modular,O(N),excellent,2048,2048,3,12582912,243.536,49.2741,11826938664279593765
-images/datasets/synthetic/gradient_2048x2048.ppm,permutation,feistel_index,O(rN),excellent,2048,2048,3,12582912,214.854,55.8519,4989714246592902657
-images/datasets/synthetic/gradient_2048x2048.ppm,permutation,block_permutation,O(N),excellent,2048,2048,3,12582912,29.9383,400.824,11414136307431058213
-images/datasets/synthetic/gradient_2048x2048.ppm,permutation,checkerboard_swaps,O(rN),excellent,2048,2048,3,12582912,67.8619,176.83,14771424889100478649
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,global_chain,sequential,poor,2048,2048,3,12582912,53.8755,222.736,2113306921882609362
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,block_local_chain,block-level,good,2048,2048,3,12582912,45.1852,265.574,17064445465030873522
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,parallel_prefix,reduced,medium,2048,2048,3,12582912,51.7422,231.919,1655307408276151782
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,stencil_diffusion,none per round,high,2048,2048,3,12582912,74.1526,161.828,6837935735164044356
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,arx_block_diffusion,none,excellent,2048,2048,3,12582912,33.5077,358.126,632192580447154863
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,bitplane_diffusion,none,excellent,2048,2048,3,12582912,49.7172,241.365,14102225536862827236
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,40.6284,295.36,2113306921882609362
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,50.6256,237.034,8840249945223143163
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,2048,2048,3,12582912,31.2361,384.171,5586871593783009033
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,2048,2048,3,12582912,34.0226,352.706,17854643384417264021
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,2048,2048,3,12582912,83.3924,143.898,1708145261194603327
-images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,2048,2048,3,12582912,59.7812,200.732,2546409075986168818
+images/datasets/synthetic/gradient_2048x2048.ppm,keystream,fixed_point_tent,high,useful,2048,2048,3,12582912,95.0913,126.195,13272600421135494129
+images/datasets/synthetic/gradient_2048x2048.ppm,keystream,cml,medium-high,chaos-native SIMD,2048,2048,3,12582912,201.408,59.5804,15425893592488899889
+images/datasets/synthetic/gradient_2048x2048.ppm,keystream,cellular_automata,very high,fastest,2048,2048,3,12582912,43.3899,276.562,15526243392689371928
+images/datasets/synthetic/gradient_2048x2048.ppm,permutation,arnold_cat_map,O(N),good,2048,2048,3,12582912,85.9084,139.684,3185230771024536357
+images/datasets/synthetic/gradient_2048x2048.ppm,permutation,affine_modular,O(N),excellent,2048,2048,3,12582912,195.046,61.524,11826938664279593765
+images/datasets/synthetic/gradient_2048x2048.ppm,permutation,feistel_index,O(rN),excellent,2048,2048,3,12582912,164.554,72.9244,4989714246592902657
+images/datasets/synthetic/gradient_2048x2048.ppm,permutation,block_permutation,O(N),excellent,2048,2048,3,12582912,28.2097,425.385,11414136307431058213
+images/datasets/synthetic/gradient_2048x2048.ppm,permutation,checkerboard_swaps,O(rN),excellent,2048,2048,3,12582912,61.6085,194.778,14771424889100478649
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,global_chain,sequential,poor,2048,2048,3,12582912,51.7506,231.882,2113306921882609362
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,block_local_chain,block-level,good,2048,2048,3,12582912,42.9887,279.143,17064445465030873522
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,parallel_prefix,reduced,medium,2048,2048,3,12582912,47.1262,254.635,1655307408276151782
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,stencil_diffusion,none per round,high,2048,2048,3,12582912,68.5177,175.137,6837935735164044356
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,arx_block_diffusion,none,excellent,2048,2048,3,12582912,32.077,374.1,632192580447154863
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,bitplane_diffusion,none,excellent,2048,2048,3,12582912,45.3617,264.54,14102225536862827236
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,39.5568,303.361,2113306921882609362
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,45.8313,261.83,8840249945223143163
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,2048,2048,3,12582912,29.1975,410.994,5586871593783009033
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,2048,2048,3,12582912,32.2839,371.702,17854643384417264021
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,2048,2048,3,12582912,78.8973,152.096,1708145261194603327
+images/datasets/synthetic/gradient_2048x2048.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,2048,2048,3,12582912,54.276,221.092,2546409075986168818

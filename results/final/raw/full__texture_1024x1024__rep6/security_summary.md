@@ -4,17 +4,17 @@ Input image: `images/datasets/synthetic/texture_1024x1024.ppm` (1024x1024x3)
 
 | cipher | MB/s | entropy | NPCR | UACI | key sensitivity | KPA score | CPA score | correct |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| logistic_xor | 123.53 | 7.9999 | 0.00 | 0.00 | 99.40 | 1.0000 | 1.0000 | 1 |
-| logistic_permute_xor | 11.28 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 0.0039 | 1 |
-| arnold_xor | 87.16 | 7.9999 | 0.00 | 0.00 | 99.40 | 1.0000 | 0.0039 | 1 |
-| tiled_arnold_xor | 82.78 | 7.9999 | 0.00 | 0.00 | 99.40 | 1.0000 | 0.0061 | 1 |
-| tent_block_xor | 75.77 | 7.9999 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
-| sine_xor | 23.95 | 7.9999 | 0.00 | 0.00 | 99.30 | 1.0000 | 1.0000 | 1 |
-| coupled_lattice_xor | 68.96 | 7.9999 | 0.00 | 0.00 | 99.41 | 1.0000 | 1.0000 | 1 |
-| hamiltonian_lattice_xor | 11.39 | 7.9999 | 0.00 | 0.00 | 99.54 | 1.0000 | 1.0000 | 1 |
-| chaotic_seed_blake3_xor | 295.49 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
-| aes_ctr | 568.14 | 7.9999 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
-| chacha20 | 692.73 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
+| logistic_xor | 136.20 | 7.9999 | 0.00 | 0.00 | 99.40 | 1.0000 | 1.0000 | 1 |
+| logistic_permute_xor | 12.72 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 0.0039 | 1 |
+| arnold_xor | 107.76 | 7.9999 | 0.00 | 0.00 | 99.40 | 1.0000 | 0.0039 | 1 |
+| tiled_arnold_xor | 87.08 | 7.9999 | 0.00 | 0.00 | 99.40 | 1.0000 | 0.0061 | 1 |
+| tent_block_xor | 78.17 | 7.9999 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
+| sine_xor | 24.01 | 7.9999 | 0.00 | 0.00 | 99.30 | 1.0000 | 1.0000 | 1 |
+| coupled_lattice_xor | 70.00 | 7.9999 | 0.00 | 0.00 | 99.41 | 1.0000 | 1.0000 | 1 |
+| hamiltonian_lattice_xor | 11.75 | 7.9999 | 0.00 | 0.00 | 99.54 | 1.0000 | 1.0000 | 1 |
+| chaotic_seed_blake3_xor | 304.12 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
+| aes_ctr | 590.36 | 7.9999 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
+| chacha20 | 898.46 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
 
 KPA/CPA scores are empirical byte recovery ratios under deterministic key/nonce reuse. High values indicate a stream-XOR style vulnerability under reused keystream assumptions.
 

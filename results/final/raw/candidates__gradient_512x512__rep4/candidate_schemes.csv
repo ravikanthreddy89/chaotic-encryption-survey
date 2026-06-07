@@ -1,8 +1,8 @@
 image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
-images/datasets/synthetic/gradient_512x512.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,512,512,3,786432,1.77957,6.88722,0.976599,9.64747,77.7406,1030153695164066229
-images/datasets/synthetic/gradient_512x512.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,512,512,3,786432,1.7989,0.768454,0.816966,3.3881,221.363,14141379237052620034
-images/datasets/synthetic/gradient_512x512.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,512,512,3,786432,1.60552,11.1798,3.92024,16.7097,44.8842,11511167765748651023
-images/datasets/synthetic/gradient_512x512.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,512,512,3,786432,1.52643,0.595007,1.15269,3.27765,228.823,4305604454997157537
-images/datasets/synthetic/gradient_512x512.ppm,CML-Feistel-Stencil,cml,feistel_index,stencil,512,512,3,786432,12.2378,6.27506,3.18422,21.7008,34.5609,9616188472344676131
-images/datasets/synthetic/gradient_512x512.ppm,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,512,512,3,786432,65.4921,6.24717,3.15008,74.8931,10.0143,16874792644486012194
-images/datasets/synthetic/gradient_512x512.ppm,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,512,512,3,786432,11.855,11.093,1.53293,24.4843,30.6319,4577604707368596687
+images/datasets/synthetic/gradient_512x512.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,512,512,3,786432,1.66941,6.11718,0.859797,8.64975,86.7077,1030153695164066229
+images/datasets/synthetic/gradient_512x512.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,512,512,3,786432,1.63639,0.491064,0.727596,2.85769,262.45,14141379237052620034
+images/datasets/synthetic/gradient_512x512.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,512,512,3,786432,1.47487,10.7406,3.69617,15.9145,47.1267,11511167765748651023
+images/datasets/synthetic/gradient_512x512.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,512,512,3,786432,1.46077,0.57267,0.978862,3.01525,248.735,4305604454997157537
+images/datasets/synthetic/gradient_512x512.ppm,CML-Feistel-Stencil,cml,feistel_index,stencil,512,512,3,786432,11.0061,5.81074,2.85361,19.6743,38.1209,9616188472344676131
+images/datasets/synthetic/gradient_512x512.ppm,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,512,512,3,786432,62.2273,6.15478,3.0935,71.4795,10.4925,16874792644486012194
+images/datasets/synthetic/gradient_512x512.ppm,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,512,512,3,786432,11.1356,10.4454,1.57789,23.1769,32.3599,4577604707368596687

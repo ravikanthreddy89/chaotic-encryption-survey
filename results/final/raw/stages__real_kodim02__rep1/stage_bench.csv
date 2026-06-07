@@ -1,27 +1,27 @@
 image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
-images/datasets/real/kodak/kodim02.png,keystream,logistic_double,slow,baseline,768,512,3,1179648,8.29829,135.57,16352428071501016112
-images/datasets/real/kodak/kodim02.png,keystream,sine_map,very slow,bad baseline,768,512,3,1179648,49.836,22.5741,3229335138050633222
-images/datasets/real/kodak/kodim02.png,keystream,fixed_point_tent,high,useful,768,512,3,1179648,8.82549,127.472,547275334597606753
-images/datasets/real/kodak/kodim02.png,keystream,cml,medium-high,chaos-native SIMD,768,512,3,1179648,19.002,59.2043,551434269804455751
-images/datasets/real/kodak/kodim02.png,keystream,cellular_automata,very high,fastest,768,512,3,1179648,3.9165,287.246,6408282267245646781
-images/datasets/real/kodak/kodim02.png,keystream,hamiltonian,medium,physics novelty,768,512,3,1179648,98.3457,11.4392,10367332591215019916
-images/datasets/real/kodak/kodim02.png,keystream,reaction_diffusion,low-medium,physics novelty,768,512,3,1179648,23.3705,48.1377,7386139916934624047
-images/datasets/real/kodak/kodim02.png,permutation,chaotic_sort,O(N log N),poor,768,512,3,1179648,254.355,4.42295,3926799114098917032
-images/datasets/real/kodak/kodim02.png,permutation,random_walk,O(N) sequential,poor,768,512,3,1179648,20.3227,55.3568,13407486088823026274
-images/datasets/real/kodak/kodim02.png,permutation,arnold_cat_map,O(N),good,768,512,3,1179648,6.82944,164.728,10415541989909939728
-images/datasets/real/kodak/kodim02.png,permutation,affine_modular,O(N),excellent,768,512,3,1179648,16.3305,68.8893,3138481027689940520
-images/datasets/real/kodak/kodim02.png,permutation,feistel_index,O(rN),excellent,768,512,3,1179648,18.9723,59.297,9060175925892806710
-images/datasets/real/kodak/kodim02.png,permutation,block_permutation,O(N),excellent,768,512,3,1179648,2.37155,474.372,9448961987677250754
-images/datasets/real/kodak/kodim02.png,permutation,checkerboard_swaps,O(rN),excellent,768,512,3,1179648,6.55579,171.604,4229042757979035478
-images/datasets/real/kodak/kodim02.png,diffusion,global_chain,sequential,poor,768,512,3,1179648,4.99648,225.158,8192747274883405781
-images/datasets/real/kodak/kodim02.png,diffusion,block_local_chain,block-level,good,768,512,3,1179648,3.96144,283.988,8629606214157809353
-images/datasets/real/kodak/kodim02.png,diffusion,parallel_prefix,reduced,medium,768,512,3,1179648,4.68082,240.343,12710143467168717489
-images/datasets/real/kodak/kodim02.png,diffusion,stencil_diffusion,none per round,high,768,512,3,1179648,7.41503,151.719,12582447471277721990
-images/datasets/real/kodak/kodim02.png,diffusion,arx_block_diffusion,none,excellent,768,512,3,1179648,2.98445,376.954,12525134411062383398
-images/datasets/real/kodak/kodim02.png,diffusion,bitplane_diffusion,none,excellent,768,512,3,1179648,4.30673,261.219,8440635370253318864
-images/datasets/real/kodak/kodim02.png,diffusion,prefix_xor_avx2,associative scan,excellent,768,512,3,1179648,3.36658,334.167,8192747274883405781
-images/datasets/real/kodak/kodim02.png,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,768,512,3,1179648,4.30199,261.507,414421588930875310
-images/datasets/real/kodak/kodim02.png,diffusion,multilane_chain_avx2,lane-local,excellent,768,512,3,1179648,2.52694,445.203,3965690345424927715
-images/datasets/real/kodak/kodim02.png,diffusion,tree_xor_avx2,logarithmic,excellent,768,512,3,1179648,2.60609,431.681,10701707177119320317
-images/datasets/real/kodak/kodim02.png,diffusion,prefix_tree_reverse,multi-pass associative,excellent,768,512,3,1179648,6.50318,172.992,13636499340101308037
-images/datasets/real/kodak/kodim02.png,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,768,512,3,1179648,4.93926,227.767,9938841258313556322
+images/datasets/real/kodak/kodim02.png,keystream,logistic_double,slow,baseline,768,512,3,1179648,6.37122,176.575,16352428071501016112
+images/datasets/real/kodak/kodim02.png,keystream,sine_map,very slow,bad baseline,768,512,3,1179648,46.6238,24.1293,3229335138050633222
+images/datasets/real/kodak/kodim02.png,keystream,fixed_point_tent,high,useful,768,512,3,1179648,8.39272,134.045,547275334597606753
+images/datasets/real/kodak/kodim02.png,keystream,cml,medium-high,chaos-native SIMD,768,512,3,1179648,19.0436,59.0748,551434269804455751
+images/datasets/real/kodak/kodim02.png,keystream,cellular_automata,very high,fastest,768,512,3,1179648,3.99796,281.393,6408282267245646781
+images/datasets/real/kodak/kodim02.png,keystream,hamiltonian,medium,physics novelty,768,512,3,1179648,95.1342,11.8254,10367332591215019916
+images/datasets/real/kodak/kodim02.png,keystream,reaction_diffusion,low-medium,physics novelty,768,512,3,1179648,22.9221,49.0792,7386139916934624047
+images/datasets/real/kodak/kodim02.png,permutation,chaotic_sort,O(N log N),poor,768,512,3,1179648,245.242,4.5873,3926799114098917032
+images/datasets/real/kodak/kodim02.png,permutation,random_walk,O(N) sequential,poor,768,512,3,1179648,20.8333,54.0001,13407486088823026274
+images/datasets/real/kodak/kodim02.png,permutation,arnold_cat_map,O(N),good,768,512,3,1179648,6.87387,163.663,10415541989909939728
+images/datasets/real/kodak/kodim02.png,permutation,affine_modular,O(N),excellent,768,512,3,1179648,16.536,68.0333,3138481027689940520
+images/datasets/real/kodak/kodim02.png,permutation,feistel_index,O(rN),excellent,768,512,3,1179648,19.4081,57.9656,9060175925892806710
+images/datasets/real/kodak/kodim02.png,permutation,block_permutation,O(N),excellent,768,512,3,1179648,2.29392,490.427,9448961987677250754
+images/datasets/real/kodak/kodim02.png,permutation,checkerboard_swaps,O(rN),excellent,768,512,3,1179648,5.54268,202.97,4229042757979035478
+images/datasets/real/kodak/kodim02.png,diffusion,global_chain,sequential,poor,768,512,3,1179648,4.83217,232.815,8192747274883405781
+images/datasets/real/kodak/kodim02.png,diffusion,block_local_chain,block-level,good,768,512,3,1179648,3.88556,289.533,8629606214157809353
+images/datasets/real/kodak/kodim02.png,diffusion,parallel_prefix,reduced,medium,768,512,3,1179648,3.99711,281.453,12710143467168717489
+images/datasets/real/kodak/kodim02.png,diffusion,stencil_diffusion,none per round,high,768,512,3,1179648,6.35677,176.977,12582447471277721990
+images/datasets/real/kodak/kodim02.png,diffusion,arx_block_diffusion,none,excellent,768,512,3,1179648,2.71036,415.075,12525134411062383398
+images/datasets/real/kodak/kodim02.png,diffusion,bitplane_diffusion,none,excellent,768,512,3,1179648,4.04275,278.276,8440635370253318864
+images/datasets/real/kodak/kodim02.png,diffusion,prefix_xor_avx2,associative scan,excellent,768,512,3,1179648,3.17162,354.709,8192747274883405781
+images/datasets/real/kodak/kodim02.png,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,768,512,3,1179648,4.01057,280.509,414421588930875310
+images/datasets/real/kodak/kodim02.png,diffusion,multilane_chain_avx2,lane-local,excellent,768,512,3,1179648,2.20234,510.82,3965690345424927715
+images/datasets/real/kodak/kodim02.png,diffusion,tree_xor_avx2,logarithmic,excellent,768,512,3,1179648,2.42234,464.427,10701707177119320317
+images/datasets/real/kodak/kodim02.png,diffusion,prefix_tree_reverse,multi-pass associative,excellent,768,512,3,1179648,6.38403,176.221,13636499340101308037
+images/datasets/real/kodak/kodim02.png,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,768,512,3,1179648,4.82259,233.277,9938841258313556322

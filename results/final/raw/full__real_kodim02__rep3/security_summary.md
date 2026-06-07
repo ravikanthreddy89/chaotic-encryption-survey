@@ -4,17 +4,17 @@ Input image: `images/datasets/real/kodak/kodim02.png` (768x512x3)
 
 | cipher | MB/s | entropy | NPCR | UACI | key sensitivity | KPA score | CPA score | correct |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| logistic_xor | 136.14 | 7.9857 | 0.00 | 0.00 | 99.39 | 1.0000 | 1.0000 | 1 |
-| logistic_permute_xor | 14.26 | 7.9858 | 0.00 | 0.00 | 99.56 | 1.0000 | 0.0359 | 1 |
-| arnold_xor | 121.02 | 7.9859 | 0.00 | 0.00 | 99.39 | 1.0000 | 0.1950 | 1 |
-| tiled_arnold_xor | 85.20 | 7.9856 | 0.00 | 0.00 | 99.39 | 1.0000 | 0.0623 | 1 |
-| tent_block_xor | 78.46 | 7.9998 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
-| sine_xor | 23.43 | 7.9063 | 0.00 | 0.00 | 99.30 | 1.0000 | 1.0000 | 1 |
-| coupled_lattice_xor | 68.39 | 7.9172 | 0.00 | 0.00 | 99.41 | 1.0000 | 1.0000 | 1 |
-| hamiltonian_lattice_xor | 11.26 | 7.9919 | 0.00 | 0.00 | 99.53 | 1.0000 | 1.0000 | 1 |
-| chaotic_seed_blake3_xor | 266.97 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
-| aes_ctr | 319.19 | 7.9998 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
-| chacha20 | 720.81 | 7.9998 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
+| logistic_xor | 135.90 | 7.9857 | 0.00 | 0.00 | 99.39 | 1.0000 | 1.0000 | 1 |
+| logistic_permute_xor | 14.55 | 7.9858 | 0.00 | 0.00 | 99.56 | 1.0000 | 0.0359 | 1 |
+| arnold_xor | 126.22 | 7.9859 | 0.00 | 0.00 | 99.39 | 1.0000 | 0.1950 | 1 |
+| tiled_arnold_xor | 93.90 | 7.9856 | 0.00 | 0.00 | 99.39 | 1.0000 | 0.0623 | 1 |
+| tent_block_xor | 82.19 | 7.9998 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
+| sine_xor | 24.55 | 7.9063 | 0.00 | 0.00 | 99.30 | 1.0000 | 1.0000 | 1 |
+| coupled_lattice_xor | 69.90 | 7.9172 | 0.00 | 0.00 | 99.41 | 1.0000 | 1.0000 | 1 |
+| hamiltonian_lattice_xor | 11.73 | 7.9919 | 0.00 | 0.00 | 99.53 | 1.0000 | 1.0000 | 1 |
+| chaotic_seed_blake3_xor | 241.36 | 7.9999 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
+| aes_ctr | 328.99 | 7.9998 | 0.00 | 0.00 | 99.61 | 1.0000 | 1.0000 | 1 |
+| chacha20 | 814.78 | 7.9998 | 0.00 | 0.00 | 99.62 | 1.0000 | 1.0000 | 1 |
 
 KPA/CPA scores are empirical byte recovery ratios under deterministic key/nonce reuse. High values indicate a stream-XOR style vulnerability under reused keystream assumptions.
 

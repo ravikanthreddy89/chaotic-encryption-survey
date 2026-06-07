@@ -1,8 +1,8 @@
 image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
-images/datasets/synthetic/noise_2048x2048.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,2048,2048,3,12582912,29.6666,169.978,16.2175,215.87,55.589,3961641192647960007
-images/datasets/synthetic/noise_2048x2048.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,2048,2048,3,12582912,29.0612,14.5144,15.8057,59.3872,202.064,4857582123793231664
-images/datasets/synthetic/noise_2048x2048.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,2048,2048,3,12582912,28.9957,200.931,69.638,299.571,40.0573,16932889893407130843
-images/datasets/synthetic/noise_2048x2048.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,2048,2048,3,12582912,29.8515,14.914,31.3831,76.1548,157.574,5835626791526880045
-images/datasets/synthetic/noise_2048x2048.ppm,CML-Feistel-Stencil,cml,feistel_index,stencil,2048,2048,3,12582912,197.864,170.083,55.6298,423.582,28.3298,11734957335222455872
-images/datasets/synthetic/noise_2048x2048.ppm,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,2048,2048,3,12582912,1088.79,205.121,59.79,1353.71,8.86453,6448214577727937639
-images/datasets/synthetic/noise_2048x2048.ppm,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,2048,2048,3,12582912,189.589,244.265,28.8474,462.711,25.9341,18367206447980725851
+images/datasets/synthetic/noise_2048x2048.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,2048,2048,3,12582912,26.8903,113.17,13.1709,153.238,78.3096,3961641192647960007
+images/datasets/synthetic/noise_2048x2048.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,2048,2048,3,12582912,26.9966,12.4155,13.805,53.2267,225.451,4857582123793231664
+images/datasets/synthetic/noise_2048x2048.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,2048,2048,3,12582912,26.0077,172.856,57.9304,256.8,46.729,16932889893407130843
+images/datasets/synthetic/noise_2048x2048.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,2048,2048,3,12582912,25.8113,12.3134,24.9347,63.0668,190.274,5835626791526880045
+images/datasets/synthetic/noise_2048x2048.ppm,CML-Feistel-Stencil,cml,feistel_index,stencil,2048,2048,3,12582912,173.215,113.099,49.0168,335.338,35.7848,11734957335222455872
+images/datasets/synthetic/noise_2048x2048.ppm,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,2048,2048,3,12582912,958.679,111.559,48.5047,1118.75,10.7263,6448214577727937639
+images/datasets/synthetic/noise_2048x2048.ppm,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,2048,2048,3,12582912,173.063,163.857,23.252,360.178,33.3169,18367206447980725851

@@ -13,7 +13,7 @@ See `stage_bench.csv` for independent keystream, permutation, and diffusion prim
 
 | candidate | keystream | permutation | diffusion | MB/s |
 |---|---|---|---|---:|
-| CA-Feistel-ARX | cellular_automata | feistel_index | arx_block | 38.88 |
-| Checkerboard-CA-ARX | cellular_automata | checkerboard_swaps | arx_block | 184.98 |
-| Affine-CA-PrefixTree | cellular_automata | affine_bitplane | prefix_tree_reverse | 38.19 |
-| Checkerboard-CA-MultilaneTree | cellular_automata | checkerboard_swaps | multilane_tree | 150.60 |
+| CA-Feistel-ARX | cellular_automata | feistel_index | arx_block | 53.16 |
+| Checkerboard-CA-ARX | cellular_automata | checkerboard_swaps | arx_block | 186.52 |
+| Affine-CA-PrefixTree | cellular_automata | affine_bitplane | prefix_tree_reverse | 40.82 |
+| Checkerboard-CA-MultilaneTree | cellular_automata | checkerboard_swaps | multilane_tree | 154.29 |

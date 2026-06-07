@@ -1,21 +1,21 @@
 image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
-images/datasets/synthetic/noise_2048x2048.ppm,keystream,fixed_point_tent,high,useful,2048,2048,3,12582912,107.108,112.036,13272600421135494129
-images/datasets/synthetic/noise_2048x2048.ppm,keystream,cml,medium-high,chaos-native SIMD,2048,2048,3,12582912,216.909,55.3228,15425893592488899889
-images/datasets/synthetic/noise_2048x2048.ppm,keystream,cellular_automata,very high,fastest,2048,2048,3,12582912,47.4528,252.883,15526243392689371928
-images/datasets/synthetic/noise_2048x2048.ppm,permutation,arnold_cat_map,O(N),good,2048,2048,3,12582912,102.16,117.462,16170850166925738632
-images/datasets/synthetic/noise_2048x2048.ppm,permutation,affine_modular,O(N),excellent,2048,2048,3,12582912,202.899,59.1428,11562643863421117636
-images/datasets/synthetic/noise_2048x2048.ppm,permutation,feistel_index,O(rN),excellent,2048,2048,3,12582912,170.441,70.4057,17175761521866670304
-images/datasets/synthetic/noise_2048x2048.ppm,permutation,block_permutation,O(N),excellent,2048,2048,3,12582912,28.6804,418.404,5048924111675817462
-images/datasets/synthetic/noise_2048x2048.ppm,permutation,checkerboard_swaps,O(rN),excellent,2048,2048,3,12582912,66.2013,181.265,1507836881202680218
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,global_chain,sequential,poor,2048,2048,3,12582912,52.8493,227.061,1588737642193837415
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,block_local_chain,block-level,good,2048,2048,3,12582912,44.886,267.344,13388787940263802719
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,parallel_prefix,reduced,medium,2048,2048,3,12582912,49.1288,244.256,113894610876010655
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,stencil_diffusion,none per round,high,2048,2048,3,12582912,70.9916,169.034,12323620627384639919
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,arx_block_diffusion,none,excellent,2048,2048,3,12582912,34.2352,350.517,17818058573781922403
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,bitplane_diffusion,none,excellent,2048,2048,3,12582912,51.6554,232.309,13472940782155275462
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,39.3815,304.711,1588737642193837415
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,48.2648,248.628,9651502027906062341
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,2048,2048,3,12582912,31.5973,379.779,6195467562524962968
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,2048,2048,3,12582912,33.0562,363.019,1702162588631723749
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,2048,2048,3,12582912,81.6338,146.998,5703119441014838471
-images/datasets/synthetic/noise_2048x2048.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,2048,2048,3,12582912,55.5481,216.029,4072523699215994023
+images/datasets/synthetic/noise_2048x2048.ppm,keystream,fixed_point_tent,high,useful,2048,2048,3,12582912,95.6816,125.416,13272600421135494129
+images/datasets/synthetic/noise_2048x2048.ppm,keystream,cml,medium-high,chaos-native SIMD,2048,2048,3,12582912,195.084,61.5121,15425893592488899889
+images/datasets/synthetic/noise_2048x2048.ppm,keystream,cellular_automata,very high,fastest,2048,2048,3,12582912,39.938,300.465,15526243392689371928
+images/datasets/synthetic/noise_2048x2048.ppm,permutation,arnold_cat_map,O(N),good,2048,2048,3,12582912,83.8782,143.065,16170850166925738632
+images/datasets/synthetic/noise_2048x2048.ppm,permutation,affine_modular,O(N),excellent,2048,2048,3,12582912,174.728,68.6781,11562643863421117636
+images/datasets/synthetic/noise_2048x2048.ppm,permutation,feistel_index,O(rN),excellent,2048,2048,3,12582912,139.361,86.1074,17175761521866670304
+images/datasets/synthetic/noise_2048x2048.ppm,permutation,block_permutation,O(N),excellent,2048,2048,3,12582912,24.7975,483.92,5048924111675817462
+images/datasets/synthetic/noise_2048x2048.ppm,permutation,checkerboard_swaps,O(rN),excellent,2048,2048,3,12582912,57.9605,207.037,1507836881202680218
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,global_chain,sequential,poor,2048,2048,3,12582912,48.658,246.619,1588737642193837415
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,block_local_chain,block-level,good,2048,2048,3,12582912,39.0667,307.167,13388787940263802719
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,parallel_prefix,reduced,medium,2048,2048,3,12582912,44.15,271.801,113894610876010655
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,stencil_diffusion,none per round,high,2048,2048,3,12582912,64.0443,187.37,12323620627384639919
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,arx_block_diffusion,none,excellent,2048,2048,3,12582912,27.5619,435.384,17818058573781922403
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,bitplane_diffusion,none,excellent,2048,2048,3,12582912,42.8808,279.845,13472940782155275462
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,36.2238,331.274,1588737642193837415
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,2048,2048,3,12582912,45.458,263.98,9651502027906062341
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,2048,2048,3,12582912,28.3453,423.351,6195467562524962968
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,2048,2048,3,12582912,30.7026,390.846,1702162588631723749
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,2048,2048,3,12582912,74.4699,161.139,5703119441014838471
+images/datasets/synthetic/noise_2048x2048.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,2048,2048,3,12582912,52.8216,227.18,4072523699215994023

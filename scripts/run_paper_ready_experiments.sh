@@ -6,20 +6,22 @@ cd "$ROOT_DIR"
 
 BUILD_DIR="${BUILD_DIR:-build}"
 RESULTS_ROOT="${RESULTS_ROOT:-results/final}"
+CLEAN_RESULTS="${CLEAN_RESULTS:-1}"
 DATASET_DIR="${DATASET_DIR:-images/datasets/synthetic}"
 REAL_DATASET_DIR="${REAL_DATASET_DIR:-images/datasets/real/kodak}"
 DOWNLOAD_REAL="${DOWNLOAD_REAL:-1}"
 REAL_LIMIT="${REAL_LIMIT:-24}"
-REAL_REPS="${REAL_REPS:-$REPS}"
 RUN_SYNTHETIC="${RUN_SYNTHETIC:-1}"
 RUN_REAL="${RUN_REAL:-1}"
 SIZES="${SIZES:-512 1024 2048 4096}"
 KINDS="${KINDS:-gradient texture noise}"
 REPS="${REPS:-5}"
+REAL_REPS="${REAL_REPS:-$REPS}"
 FULL_MAX_SIZE="${FULL_MAX_SIZE:-1024}"
 SLOW_STAGE_MAX_SIZE="${SLOW_STAGE_MAX_SIZE:-1024}"
 SLOW_CANDIDATE_MAX_SIZE="${SLOW_CANDIDATE_MAX_SIZE:-2048}"
 INCLUDE_8K="${INCLUDE_8K:-0}"
+ALLOW_RESTRICTED_IMAGES="${ALLOW_RESTRICTED_IMAGES:-0}"
 
 if [[ "$INCLUDE_8K" == "1" ]] && [[ " $SIZES " != *" 8192 "* ]]; then
   SIZES="$SIZES 8192"
@@ -36,7 +38,23 @@ if [[ "$RUN_REAL" == "1" && "$DOWNLOAD_REAL" == "1" ]]; then
   python3 scripts/download_real_datasets.py --out "$REAL_DATASET_DIR" --limit "$REAL_LIMIT"
 fi
 
+if [[ "$CLEAN_RESULTS" == "1" ]]; then
+  if [[ -z "$RESULTS_ROOT" || "$RESULTS_ROOT" == "/" || "$RESULTS_ROOT" == "." ]]; then
+    echo "Refusing unsafe RESULTS_ROOT for clean run: '$RESULTS_ROOT'" >&2
+    exit 2
+  fi
+  rm -rf "$RESULTS_ROOT"
+fi
 mkdir -p "$RESULTS_ROOT/raw"
+
+validate_publication_image() {
+  local image="$1"
+  local lower="${image,,}"
+  if [[ "$ALLOW_RESTRICTED_IMAGES" != "1" ]] && [[ "$lower" == *lena* || "$lower" == *lenna* ]]; then
+    echo "Refusing restricted publication input: $image" >&2
+    exit 2
+  fi
+}
 
 run_one_image() {
   local image="$1"
@@ -44,6 +62,7 @@ run_one_image() {
   local size="$3"
   local reps="$4"
 
+    validate_publication_image "$image"
     for rep in $(seq 1 "$reps"); do
       if (( size <= FULL_MAX_SIZE )); then
         out="$RESULTS_ROOT/raw/full__${label}__rep${rep}"

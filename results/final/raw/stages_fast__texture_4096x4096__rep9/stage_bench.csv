@@ -1,21 +1,21 @@
 image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
-images/datasets/synthetic/texture_4096x4096.ppm,keystream,fixed_point_tent,high,useful,4096,4096,3,50331648,415.363,115.562,8750984382815305012
-images/datasets/synthetic/texture_4096x4096.ppm,keystream,cml,medium-high,chaos-native SIMD,4096,4096,3,50331648,870.528,55.139,1281355382643370342
-images/datasets/synthetic/texture_4096x4096.ppm,keystream,cellular_automata,very high,fastest,4096,4096,3,50331648,211.341,227.121,7093055502049179837
-images/datasets/synthetic/texture_4096x4096.ppm,permutation,arnold_cat_map,O(N),good,4096,4096,3,50331648,686.792,69.8902,8997431310380065573
-images/datasets/synthetic/texture_4096x4096.ppm,permutation,affine_modular,O(N),excellent,4096,4096,3,50331648,977.118,49.1241,18307517321776170789
-images/datasets/synthetic/texture_4096x4096.ppm,permutation,feistel_index,O(rN),excellent,4096,4096,3,50331648,1154.49,41.5769,5387881808581760163
-images/datasets/synthetic/texture_4096x4096.ppm,permutation,block_permutation,O(N),excellent,4096,4096,3,50331648,142.048,337.914,9601373681217137445
-images/datasets/synthetic/texture_4096x4096.ppm,permutation,checkerboard_swaps,O(rN),excellent,4096,4096,3,50331648,295.152,162.628,8070098962992671611
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,global_chain,sequential,poor,4096,4096,3,50331648,214.375,223.907,7171571840147090092
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,block_local_chain,block-level,good,4096,4096,3,50331648,205.637,233.421,1312739976551407944
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,parallel_prefix,reduced,medium,4096,4096,3,50331648,233.933,205.187,6705840668684820128
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,stencil_diffusion,none per round,high,4096,4096,3,50331648,314.075,152.83,11540296020065412637
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,arx_block_diffusion,none,excellent,4096,4096,3,50331648,156.588,306.537,6643345473151786642
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,bitplane_diffusion,none,excellent,4096,4096,3,50331648,216.857,221.344,217334978508700993
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,4096,4096,3,50331648,182.007,263.726,7171571840147090092
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,4096,4096,3,50331648,220.108,218.075,6677468733844299740
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,4096,4096,3,50331648,152.948,313.831,3245440869607926661
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,4096,4096,3,50331648,159.515,300.912,17973736320422542377
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,4096,4096,3,50331648,386.793,124.097,6260609494340614080
-images/datasets/synthetic/texture_4096x4096.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,4096,4096,3,50331648,250.306,191.765,8816507579839016177
+images/datasets/synthetic/texture_4096x4096.ppm,keystream,fixed_point_tent,high,useful,4096,4096,3,50331648,384.388,124.874,8750984382815305012
+images/datasets/synthetic/texture_4096x4096.ppm,keystream,cml,medium-high,chaos-native SIMD,4096,4096,3,50331648,811.926,59.1187,1281355382643370342
+images/datasets/synthetic/texture_4096x4096.ppm,keystream,cellular_automata,very high,fastest,4096,4096,3,50331648,179.98,266.697,7093055502049179837
+images/datasets/synthetic/texture_4096x4096.ppm,permutation,arnold_cat_map,O(N),good,4096,4096,3,50331648,597.883,80.2832,8997431310380065573
+images/datasets/synthetic/texture_4096x4096.ppm,permutation,affine_modular,O(N),excellent,4096,4096,3,50331648,769.322,62.3926,18307517321776170789
+images/datasets/synthetic/texture_4096x4096.ppm,permutation,feistel_index,O(rN),excellent,4096,4096,3,50331648,843.966,56.8743,5387881808581760163
+images/datasets/synthetic/texture_4096x4096.ppm,permutation,block_permutation,O(N),excellent,4096,4096,3,50331648,132.178,363.148,9601373681217137445
+images/datasets/synthetic/texture_4096x4096.ppm,permutation,checkerboard_swaps,O(rN),excellent,4096,4096,3,50331648,269.08,178.386,8070098962992671611
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,global_chain,sequential,poor,4096,4096,3,50331648,204.189,235.076,7171571840147090092
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,block_local_chain,block-level,good,4096,4096,3,50331648,184.501,260.162,1312739976551407944
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,parallel_prefix,reduced,medium,4096,4096,3,50331648,206.166,232.822,6705840668684820128
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,stencil_diffusion,none per round,high,4096,4096,3,50331648,298.328,160.897,11540296020065412637
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,arx_block_diffusion,none,excellent,4096,4096,3,50331648,146.252,328.2,6643345473151786642
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,bitplane_diffusion,none,excellent,4096,4096,3,50331648,201.003,238.802,217334978508700993
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,4096,4096,3,50331648,170.405,281.682,7171571840147090092
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,4096,4096,3,50331648,205.188,233.932,6677468733844299740
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,4096,4096,3,50331648,134.801,356.081,3245440869607926661
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,4096,4096,3,50331648,141.132,340.107,17973736320422542377
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,4096,4096,3,50331648,337.519,142.214,6260609494340614080
+images/datasets/synthetic/texture_4096x4096.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,4096,4096,3,50331648,240.051,199.957,8816507579839016177

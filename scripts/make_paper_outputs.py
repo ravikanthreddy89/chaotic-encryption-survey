@@ -25,7 +25,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 def write_csv(path: Path, rows: list[dict[str, object]], fields: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fields)
+        w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         w.writeheader()
         for row in rows:
             w.writerow({k: row.get(k, "") for k in fields})
@@ -226,7 +226,30 @@ def fallback_bar_png(path: Path, rows: list[dict[str, object]], value_key: str) 
     write_png(path, width, height, rgb)
 
 
-def write_metadata(root: Path) -> None:
+def write_dataset_manifest(root: Path, *collections: list[dict[str, object]]) -> list[dict[str, object]]:
+    images: dict[str, dict[str, object]] = {}
+    for rows in collections:
+        for row in rows:
+            image = str(row.get("image", ""))
+            if not image:
+                continue
+            lower = image.lower()
+            if "lena" in lower or "lenna" in lower:
+                raise RuntimeError(f"restricted publication image found in results: {image}")
+            images[image] = {
+                "image": image,
+                "image_kind": row.get("image_kind", ""),
+                "image_size": row.get("image_size", ""),
+                "dataset": "kodak_photocd" if "/real/kodak/" in image else "synthetic_control",
+            }
+    manifest = sorted(images.values(), key=lambda row: str(row["image"]))
+    write_csv(root / "dataset_manifest.csv", manifest, ["dataset", "image_kind", "image_size", "image"])
+    return manifest
+
+
+def write_metadata(root: Path, manifest: list[dict[str, object]]) -> None:
+    synthetic_count = sum(row["dataset"] == "synthetic_control" for row in manifest)
+    kodak_count = sum(row["dataset"] == "kodak_photocd" for row in manifest)
     text = [
         "# Experiment Metadata",
         "",
@@ -237,6 +260,10 @@ def write_metadata(root: Path) -> None:
         f"compiler: {command_output(['c++', '--version']).splitlines()[0]}",
         f"cmake: {command_output(['cmake', '--version']).splitlines()[0]}",
         f"git_head: {command_output(['git', 'rev-parse', 'HEAD'])}",
+        f"dataset_manifest: {root / 'dataset_manifest.csv'}",
+        f"synthetic_images: {synthetic_count}",
+        f"kodak_photocd_images: {kodak_count}",
+        "restricted_images_excluded: Lena, Lenna",
         "",
     ]
     (root / "metadata.md").write_text("\n".join(text), encoding="utf-8")
@@ -294,6 +321,7 @@ def main() -> int:
     analysis = load_kind(root, "analysis.csv")
     stages = load_kind(root, "stage_bench.csv")
     candidates = load_kind(root, "candidate_schemes.csv")
+    manifest = write_dataset_manifest(root, bench, analysis, stages, candidates)
     add_runtime_shares(bench)
     add_runtime_shares(candidates)
 
@@ -314,7 +342,7 @@ def main() -> int:
     write_csv(root / "candidate_stats.csv", cand_agg, sorted({k for r in cand_agg for k in r}))
 
     plot_note = make_plots(root, candidates, stages)
-    write_metadata(root)
+    write_metadata(root, manifest)
 
     top_candidates = best_by(candidates, "scheme", "MBps")
     top_stages = best_by(stages, "stage", "MBps", 12)

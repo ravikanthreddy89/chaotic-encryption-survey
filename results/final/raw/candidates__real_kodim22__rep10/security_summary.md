@@ -13,10 +13,10 @@ See `stage_bench.csv` for independent keystream, permutation, and diffusion prim
 
 | candidate | keystream | permutation | diffusion | MB/s |
 |---|---|---|---|---:|
-| CA-Feistel-ARX | cellular_automata | feistel_index | arx_block | 52.81 |
-| Checkerboard-CA-ARX | cellular_automata | checkerboard_swaps | arx_block | 258.09 |
-| Affine-CA-PrefixTree | cellular_automata | affine_bitplane | prefix_tree_reverse | 43.85 |
-| Checkerboard-CA-MultilaneTree | cellular_automata | checkerboard_swaps | multilane_tree | 198.66 |
-| CML-Feistel-Stencil | cml | feistel_index | stencil | 27.30 |
-| Hamiltonian-Block-Stencil | hamiltonian | block_feistel | stencil | 9.37 |
-| Affine-CML-Bitplane | cml | affine_bitplane | bitplane | 30.58 |
+| CA-Feistel-ARX | cellular_automata | feistel_index | arx_block | 56.23 |
+| Checkerboard-CA-ARX | cellular_automata | checkerboard_swaps | arx_block | 271.57 |
+| Affine-CA-PrefixTree | cellular_automata | affine_bitplane | prefix_tree_reverse | 45.51 |
+| Checkerboard-CA-MultilaneTree | cellular_automata | checkerboard_swaps | multilane_tree | 227.32 |
+| CML-Feistel-Stencil | cml | feistel_index | stencil | 28.27 |
+| Hamiltonian-Block-Stencil | hamiltonian | block_feistel | stencil | 8.97 |
+| Affine-CML-Bitplane | cml | affine_bitplane | bitplane | 31.49 |
