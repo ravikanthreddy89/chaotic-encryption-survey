@@ -29,6 +29,7 @@ CSV output, publication plots, and an IEEE Access manuscript.
   total runtime
 - Scalar, SSE2/AVX2-oriented, and portable comparison paths
 - Full-scheme AES-256-CTR, ChaCha20, BLAKE3-XOR, and chaotic-map baselines
+- Authenticated AES-256-GCM and ChaCha20-Poly1305 baselines with tamper tests
 - SIMD-friendly permutation and diffusion candidates
 - Entropy, chi-square, adjacent-pixel correlation, NPCR, UACI, key
   sensitivity, known-plaintext, and chosen-plaintext diagnostics
@@ -112,7 +113,7 @@ histograms under the selected results directory.
 | --- | --- |
 | Chaotic-map baselines | `logistic_xor`, `logistic_permute_xor`, `arnold_xor`, `tiled_arnold_xor`, `tent_block_xor`, `sine_xor`, `coupled_lattice_xor`, `hamiltonian_lattice_xor` |
 | Cryptographic keystream | `chaotic_seed_blake3_xor` using the official BLAKE3 C implementation |
-| Standard baselines | OpenSSL EVP AES-256-CTR and ChaCha20 |
+| Standard baselines | OpenSSL EVP AES-256-CTR, ChaCha20, AES-256-GCM, and ChaCha20-Poly1305 |
 
 ### Replaceable stages
 
@@ -126,6 +127,21 @@ The regular block/checkerboard permutations and candidate diffusion stages are
 performance templates. They are included to isolate implementation costs, not
 to claim cryptographic security.
 
+### Publication reference families
+
+The `chaos_ref` executable is the correctness-first publication harness. It
+contains four reversible family proxies:
+
+- Fridrich-style modular-shear permutation and chain diffusion
+- Chaotic sort permutation and chain diffusion
+- Bit-plane transpose and chain diffusion
+- Key-derived symbolic two-bit substitution and chain diffusion
+
+For every family, `scalar_chain` and `scan_exact` produce byte-identical
+ciphertext. Builds report `scalar`, `sse2`, `avx2`, or `neon` as appropriate.
+These implementations are family proxies unless a manuscript explicitly
+documents an exact reproduction of a cited algorithm.
+
 ## Reproduce the Paper Experiments
 
 The publication harness generates deterministic synthetic images, optionally
@@ -138,6 +154,30 @@ Standard run:
 REPS=10 REAL_REPS=10 SIZES="512 1024 2048 4096" \
   ./scripts/run_paper_ready_experiments.sh
 ```
+
+For the revised cross-architecture study, run the same command on the x86 and
+ARM hosts with different output directories:
+
+```bash
+PLATFORM_ID=xeon_e5 OUT_DIR=results/cross_arch_x86 \
+  ./scripts/run_cross_arch_publication.sh
+
+PLATFORM_ID=graviton OUT_DIR=results/cross_arch_arm \
+  ./scripts/run_cross_arch_publication.sh
+```
+
+The runner builds forced-scalar and native backends, runs CTest before the
+matrix, discovers real images under `images/datasets/real`, randomizes case
+order deterministically, and writes raw full/stage records plus paired
+image-level bootstrap intervals. Use a small smoke run before a full run:
+
+```bash
+SIZES=64 REPS=1 WARMUP=0 ITERS=1 REAL_IMAGE_LIMIT=1 \
+  OUT_DIR=/tmp/chaos-cross-smoke ./scripts/run_cross_arch_publication.sh
+```
+
+Statistical claims must use `paired_speedups.csv`; repetitions are averaged
+within each image before images become the units of analysis.
 
 Include 8K stage and candidate measurements:
 

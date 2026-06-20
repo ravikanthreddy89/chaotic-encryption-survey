@@ -17,6 +17,7 @@ struct BenchCase {
 };
 
 struct BenchResult {
+    std::string image_id;
     std::string name;
     std::string simd_backend;
     std::string shape;
@@ -33,6 +34,7 @@ struct BenchResult {
 };
 
 struct StageBenchResult {
+    std::string image_id;
     std::string name;
     std::string simd_backend;
     std::string shape;
@@ -64,7 +66,8 @@ inline uint64_t elapsed_ns(std::chrono::steady_clock::time_point start,
 inline BenchResult run_bench_case(const Image& plain,
                                   const BenchCase& bc,
                                   int warmup,
-                                  int iters) {
+                                  int iters,
+                                  const std::string& image_id = "synthetic") {
     for (int i = 0; i < warmup; ++i) {
         Image c = encrypt_image(plain, bc.cfg);
         Image r = decrypt_image(c, bc.cfg);
@@ -94,6 +97,7 @@ inline BenchResult run_bench_case(const Image& plain,
     }
 
     BenchResult br;
+    br.image_id = image_id;
     br.name = bc.name;
     br.simd_backend = simd_backend_name();
     br.shape = shape_string(plain);
@@ -115,8 +119,10 @@ inline void append_stage(std::vector<StageBenchResult>& out,
                          int iters,
                          const std::string& stage,
                          uint64_t ns,
-                         bool correct) {
+                         bool correct,
+                         const std::string& image_id = "synthetic") {
     StageBenchResult r;
+    r.image_id = image_id;
     r.name = bc.name;
     r.simd_backend = simd_backend_name();
     r.shape = shape_string(plain);
@@ -133,7 +139,8 @@ inline void append_stage(std::vector<StageBenchResult>& out,
 inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
                                                           const BenchCase& bc,
                                                           int warmup,
-                                                          int iters) {
+                                                          int iters,
+                                                          const std::string& image_id = "synthetic") {
     for (int i = 0; i < warmup; ++i) {
         Image c = encrypt_image(plain, bc.cfg);
         Image r = decrypt_image(c, bc.cfg);
@@ -146,6 +153,7 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
     uint64_t enc_sort_scores_ns = 0;
     uint64_t enc_sort_indices_ns = 0;
     uint64_t enc_permute_apply_ns = 0;
+    uint64_t enc_transform_ns = 0;
     uint64_t enc_keystream_ns = 0;
     uint64_t enc_diffuse_ns = 0;
     uint64_t dec_keystream_ns = 0;
@@ -154,6 +162,7 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
     uint64_t dec_sort_scores_ns = 0;
     uint64_t dec_sort_indices_ns = 0;
     uint64_t dec_inverse_apply_ns = 0;
+    uint64_t dec_inverse_transform_ns = 0;
 
     Image last_cipher;
     Image last_recovered;
@@ -169,7 +178,7 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
             permuted = permute_map_fridrich(plain, bc.cfg.map_rounds);
             auto t1 = std::chrono::steady_clock::now();
             enc_permute_map_ns += elapsed_ns(t0, t1);
-        } else {
+        } else if (bc.cfg.perm_kind == PermutationKind::SortLogistic) {
             std::vector<double> scores(static_cast<size_t>(plain.pixels()));
             auto t0 = std::chrono::steady_clock::now();
             fill_logistic_scores(scores, bc.cfg.perm_seed);
@@ -189,6 +198,15 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
             permuted = permute_sort(plain, enc_idx);
             auto t5 = std::chrono::steady_clock::now();
             enc_permute_apply_ns += elapsed_ns(t4, t5);
+        } else {
+            auto t0 = std::chrono::steady_clock::now();
+            if (bc.cfg.perm_kind == PermutationKind::BitPlaneTranspose) {
+                permuted = permute_bitplanes(plain);
+            } else {
+                permuted = permute_symbolic(plain, bc.cfg.perm_seed);
+            }
+            auto t1 = std::chrono::steady_clock::now();
+            enc_transform_ns += elapsed_ns(t0, t1);
         }
 
         std::vector<uint8_t> ks(permuted.bytes());
@@ -226,7 +244,7 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
             recovered = invert_permute_map_fridrich(undiff, bc.cfg.map_rounds);
             auto t15 = std::chrono::steady_clock::now();
             dec_inverse_map_ns += elapsed_ns(t14, t15);
-        } else {
+        } else if (bc.cfg.perm_kind == PermutationKind::SortLogistic) {
             std::vector<double> scores(static_cast<size_t>(cipher.pixels()));
             auto t14 = std::chrono::steady_clock::now();
             fill_logistic_scores(scores, bc.cfg.perm_seed);
@@ -246,6 +264,15 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
             recovered = invert_permute_sort(undiff, dec_idx);
             auto t19 = std::chrono::steady_clock::now();
             dec_inverse_apply_ns += elapsed_ns(t18, t19);
+        } else {
+            auto t14 = std::chrono::steady_clock::now();
+            if (bc.cfg.perm_kind == PermutationKind::BitPlaneTranspose) {
+                recovered = permute_bitplanes(undiff);
+            } else {
+                recovered = permute_symbolic(undiff, bc.cfg.perm_seed, true);
+            }
+            auto t15 = std::chrono::steady_clock::now();
+            dec_inverse_transform_ns += elapsed_ns(t14, t15);
         }
 
         auto dec_end = std::chrono::steady_clock::now();
@@ -259,23 +286,30 @@ inline std::vector<StageBenchResult> run_stage_bench_case(const Image& plain,
 
     const bool correct = equal_image(plain, last_recovered) && !last_cipher.empty();
     std::vector<StageBenchResult> out;
-    append_stage(out, bc, plain, warmup, iters, "encrypt_total", enc_total_ns, correct);
-    append_stage(out, bc, plain, warmup, iters, "decrypt_total", dec_total_ns, correct);
+    append_stage(out, bc, plain, warmup, iters, "encrypt_total", enc_total_ns, correct, image_id);
+    append_stage(out, bc, plain, warmup, iters, "decrypt_total", dec_total_ns, correct, image_id);
     if (bc.cfg.perm_kind == PermutationKind::MapFridrich) {
-        append_stage(out, bc, plain, warmup, iters, "encrypt_permute_map", enc_permute_map_ns, correct);
-        append_stage(out, bc, plain, warmup, iters, "decrypt_inverse_map", dec_inverse_map_ns, correct);
+        append_stage(out, bc, plain, warmup, iters, "encrypt_permute_map", enc_permute_map_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters, "decrypt_inverse_map", dec_inverse_map_ns, correct, image_id);
+    } else if (bc.cfg.perm_kind == PermutationKind::SortLogistic) {
+        append_stage(out, bc, plain, warmup, iters, "encrypt_sort_scores", enc_sort_scores_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters, "encrypt_sort_indices", enc_sort_indices_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters, "encrypt_permute_apply", enc_permute_apply_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters, "decrypt_sort_scores", dec_sort_scores_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters, "decrypt_sort_indices", dec_sort_indices_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters, "decrypt_inverse_apply", dec_inverse_apply_ns, correct, image_id);
     } else {
-        append_stage(out, bc, plain, warmup, iters, "encrypt_sort_scores", enc_sort_scores_ns, correct);
-        append_stage(out, bc, plain, warmup, iters, "encrypt_sort_indices", enc_sort_indices_ns, correct);
-        append_stage(out, bc, plain, warmup, iters, "encrypt_permute_apply", enc_permute_apply_ns, correct);
-        append_stage(out, bc, plain, warmup, iters, "decrypt_sort_scores", dec_sort_scores_ns, correct);
-        append_stage(out, bc, plain, warmup, iters, "decrypt_sort_indices", dec_sort_indices_ns, correct);
-        append_stage(out, bc, plain, warmup, iters, "decrypt_inverse_apply", dec_inverse_apply_ns, correct);
+        append_stage(out, bc, plain, warmup, iters,
+                     std::string("encrypt_") + permutation_kind_name(bc.cfg.perm_kind),
+                     enc_transform_ns, correct, image_id);
+        append_stage(out, bc, plain, warmup, iters,
+                     std::string("decrypt_inverse_") + permutation_kind_name(bc.cfg.perm_kind),
+                     dec_inverse_transform_ns, correct, image_id);
     }
-    append_stage(out, bc, plain, warmup, iters, "encrypt_keystream_logistic", enc_keystream_ns, correct);
-    append_stage(out, bc, plain, warmup, iters, "encrypt_diffuse", enc_diffuse_ns, correct);
-    append_stage(out, bc, plain, warmup, iters, "decrypt_keystream_logistic", dec_keystream_ns, correct);
-    append_stage(out, bc, plain, warmup, iters, "decrypt_undiffuse", dec_undiffuse_ns, correct);
+    append_stage(out, bc, plain, warmup, iters, "encrypt_keystream_logistic", enc_keystream_ns, correct, image_id);
+    append_stage(out, bc, plain, warmup, iters, "encrypt_diffuse", enc_diffuse_ns, correct, image_id);
+    append_stage(out, bc, plain, warmup, iters, "decrypt_keystream_logistic", dec_keystream_ns, correct, image_id);
+    append_stage(out, bc, plain, warmup, iters, "decrypt_undiffuse", dec_undiffuse_ns, correct, image_id);
     return out;
 }
 
@@ -352,11 +386,11 @@ inline std::vector<StageBenchResult> run_microbench_cases(const Image& plain,
 }
 
 inline std::string csv_header() {
-    return "case,simd_backend,shape,bytes,warmup,iters,enc_ms,dec_ms,enc_MBps,dec_MBps,correct\n";
+    return "image,case,simd_backend,shape,bytes,warmup,iters,enc_ms,dec_ms,enc_MBps,dec_MBps,correct\n";
 }
 
 inline std::string to_csv(const BenchResult& r) {
-    return r.name + "," +
+    return r.image_id + "," + r.name + "," +
            r.simd_backend + "," +
            r.shape + "," +
            std::to_string(r.bytes) + "," +
@@ -370,11 +404,11 @@ inline std::string to_csv(const BenchResult& r) {
 }
 
 inline std::string stage_csv_header() {
-    return "case,simd_backend,shape,bytes,warmup,iters,stage,ms,MBps,correct\n";
+    return "image,case,simd_backend,shape,bytes,warmup,iters,stage,ms,MBps,correct\n";
 }
 
 inline std::string to_csv(const StageBenchResult& r) {
-    return r.name + "," +
+    return r.image_id + "," + r.name + "," +
            r.simd_backend + "," +
            r.shape + "," +
            std::to_string(r.bytes) + "," +

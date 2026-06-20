@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(chaos_image_refsimd C CXX)
 
+include(CTest)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -25,6 +27,9 @@ target_include_directories(chaos_ref PRIVATE include)
 
 find_package(OpenCV REQUIRED)
 find_package(OpenSSL REQUIRED)
+
+target_include_directories(chaos_ref PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(chaos_ref PRIVATE ${OpenCV_LIBS})
 
 add_library(official_blake3 STATIC
   third_party/blake3/blake3.c
@@ -106,3 +111,26 @@ endif()
 
 install(TARGETS chaos_ref DESTINATION bin)
 install(TARGETS chaos_image_bench DESTINATION bin)
+
+if(BUILD_TESTING)
+  add_executable(chaosref_tests tests/reference_tests.cpp)
+  target_include_directories(chaosref_tests PRIVATE include)
+  if(ENABLE_NATIVE_ARCH AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(chaosref_tests PRIVATE -march=native)
+  endif()
+  if(NOT ENABLE_SIMD_INTRINSICS)
+    target_compile_definitions(chaosref_tests PRIVATE CHAOSREF_DISABLE_SIMD=1)
+  endif()
+  if(ENABLE_SIMD_INTRINSICS AND ENABLE_AVX2 AND CHAOSREF_X86)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      target_compile_options(chaosref_tests PRIVATE -mavx2)
+    endif()
+    target_compile_definitions(chaosref_tests PRIVATE CHAOSREF_ENABLE_AVX2=1)
+  endif()
+  add_test(NAME chaosref_reference_tests COMMAND chaosref_tests)
+
+  add_executable(evp_cipher_tests tests/evp_cipher_tests.cpp)
+  target_include_directories(evp_cipher_tests PRIVATE src ${OpenCV_INCLUDE_DIRS})
+  target_link_libraries(evp_cipher_tests PRIVATE ${OpenCV_LIBS} OpenSSL::Crypto)
+  add_test(NAME evp_cipher_tests COMMAND evp_cipher_tests)
+endif()

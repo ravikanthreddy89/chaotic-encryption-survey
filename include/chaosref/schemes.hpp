@@ -13,11 +13,19 @@ namespace chaosref {
 
 enum class PermutationKind {
     MapFridrich,
-    SortLogistic
+    SortLogistic,
+    BitPlaneTranspose,
+    SymbolicSubstitution
 };
 
 inline const char* permutation_kind_name(PermutationKind k) {
-    return (k == PermutationKind::MapFridrich) ? "map_fridrich" : "sort_logistic";
+    switch (k) {
+        case PermutationKind::MapFridrich: return "map_fridrich";
+        case PermutationKind::SortLogistic: return "sort_logistic";
+        case PermutationKind::BitPlaneTranspose: return "bitplane_transpose";
+        case PermutationKind::SymbolicSubstitution: return "symbolic_substitution";
+    }
+    return "unknown";
 }
 
 struct SchemeConfig {
@@ -34,9 +42,13 @@ inline Image encrypt_image(const Image& plain, const SchemeConfig& cfg) {
 
     if (cfg.perm_kind == PermutationKind::MapFridrich) {
         permuted = permute_map_fridrich(plain, cfg.map_rounds);
-    } else {
+    } else if (cfg.perm_kind == PermutationKind::SortLogistic) {
         idx = build_sort_permutation(static_cast<size_t>(plain.pixels()), cfg.perm_seed);
         permuted = permute_sort(plain, idx);
+    } else if (cfg.perm_kind == PermutationKind::BitPlaneTranspose) {
+        permuted = permute_bitplanes(plain);
+    } else {
+        permuted = permute_symbolic(plain, cfg.perm_seed);
     }
 
     Image cipher = permuted;
@@ -55,9 +67,12 @@ inline Image decrypt_image(const Image& cipher, const SchemeConfig& cfg) {
     if (cfg.perm_kind == PermutationKind::MapFridrich) {
         return invert_permute_map_fridrich(undiff, cfg.map_rounds);
     }
-
-    std::vector<uint32_t> idx = build_sort_permutation(static_cast<size_t>(cipher.pixels()), cfg.perm_seed);
-    return invert_permute_sort(undiff, idx);
+    if (cfg.perm_kind == PermutationKind::SortLogistic) {
+        std::vector<uint32_t> idx = build_sort_permutation(static_cast<size_t>(cipher.pixels()), cfg.perm_seed);
+        return invert_permute_sort(undiff, idx);
+    }
+    if (cfg.perm_kind == PermutationKind::BitPlaneTranspose) return permute_bitplanes(undiff);
+    return permute_symbolic(undiff, cfg.perm_seed, true);
 }
 
 }  // namespace chaosref

@@ -10,6 +10,12 @@
 #define CHAOSREF_X86 1
 #endif
 
+#if !defined(CHAOSREF_DISABLE_SIMD) && \
+    (defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64))
+#define CHAOSREF_ARM_NEON 1
+#include <arm_neon.h>
+#endif
+
 #if defined(CHAOSREF_X86) && defined(__SSE2__)
 #include <emmintrin.h>
 #endif
@@ -36,6 +42,8 @@ inline const char* simd_backend_name() {
     return "avx2";
 #elif defined(CHAOSREF_X86) && defined(__SSE2__)
     return "sse2";
+#elif defined(CHAOSREF_ARM_NEON)
+    return "neon";
 #else
     return "scalar";
 #endif
@@ -60,10 +68,29 @@ inline void xor_bytes(uint8_t* dst, const uint8_t* a, const uint8_t* b, size_t n
         _mm_storeu_si128(reinterpret_cast<__m128i*>(dst + i), vx);
     }
     for (; i < n; ++i) dst[i] = a[i] ^ b[i];
+#elif defined(CHAOSREF_ARM_NEON)
+    size_t i = 0;
+    for (; i + 16 <= n; i += 16) {
+        const uint8x16_t va = vld1q_u8(a + i);
+        const uint8x16_t vb = vld1q_u8(b + i);
+        vst1q_u8(dst + i, veorq_u8(va, vb));
+    }
+    for (; i < n; ++i) dst[i] = a[i] ^ b[i];
 #else
     for (size_t i = 0; i < n; ++i) dst[i] = a[i] ^ b[i];
 #endif
 }
+
+#if defined(CHAOSREF_ARM_NEON)
+inline uint8x16_t prefix_xor_16_neon(uint8x16_t v) {
+    const uint8x16_t zero = vdupq_n_u8(0);
+    v = veorq_u8(v, vextq_u8(zero, v, 15));
+    v = veorq_u8(v, vextq_u8(zero, v, 14));
+    v = veorq_u8(v, vextq_u8(zero, v, 12));
+    v = veorq_u8(v, vextq_u8(zero, v, 8));
+    return v;
+}
+#endif
 
 #if defined(CHAOSREF_X86) && defined(__SSE2__)
 inline __m128i prefix_xor_16(__m128i v) {
@@ -138,6 +165,18 @@ inline void diffuse_scan_exact(const uint8_t* in,
             }
             _mm_storeu_si128(reinterpret_cast<__m128i*>(out + start + i), vp);
             local = last_byte_16(vp);
+        }
+        for (; i < chunk; ++i) {
+            local ^= scratch[i];
+            out[start + i] = local;
+        }
+#elif defined(CHAOSREF_ARM_NEON)
+        size_t i = 0;
+        for (; i + 16 <= chunk; i += 16) {
+            uint8x16_t vp = prefix_xor_16_neon(vld1q_u8(scratch.data() + i));
+            if (local != 0) vp = veorq_u8(vp, vdupq_n_u8(local));
+            vst1q_u8(out + start + i, vp);
+            local = vgetq_lane_u8(vp, 15);
         }
         for (; i < chunk; ++i) {
             local ^= scratch[i];

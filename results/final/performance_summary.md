@@ -8,6 +8,12 @@ This experiment package is positioned as an applied performance study, not as a 
 - SIMD-friendly redesigns move the useful contribution to replaceable stages: cellular automata keystreams, checkerboard/block/Feistel-style permutations, and lane-local/tree/prefix diffusion.
 - AES-CTR and ChaCha20 remain the correct cryptographic baselines; the redesigned chaotic candidates are research prototypes for image-domain transformation tradeoffs.
 
+## Cross-Architecture Check
+
+- The publication harness was rerun on a local Intel Xeon E5-2620 v4 host with AVX2 and on an AWS Neoverse-N1 instance with NEON.
+- The matched matrix used synthetic sizes 256, 512, and 1024, three repetitions, one warm-up, four timed iterations, and the Kodak pair `kodim01.png` and `kodim02.png`.
+- The paired geometric-mean ranking was stable across both machines: `scan_exact` stayed ahead for map and symbolic families, and sort-based permutation remained near parity.
+
 ## Best Full Schemes
 | cipher | image_size | MBps | total_ms |
 |---|---|---|---|

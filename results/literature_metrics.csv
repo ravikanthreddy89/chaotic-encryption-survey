@@ -1,0 +1,5 @@
+id,year,doi_or_arxiv,venue,family,dataset,hardware,runtime_unit,aes_cha_baseline,code_data,stage_timing,kpa_cpa,finite_precision,notes
+jiang2023,2023,arXiv:2302.07411,arXiv preprint,parallel confusion-diffusion,video frames,"Intel Core i5/i7/Xeon",fps/throughput,not reported,not reported,partial,not reported,not reported,"Video-oriented parallelization reference"
+sanaboina2024,2024,arXiv:2406.07560,arXiv preprint,chaos-based permutation-diffusion,diagnostic imagery,not reported,not reported,not reported,not reported,not reported,not reported,not reported,"Medical-image statistical-evaluation reference"
+ali2025,2025,arXiv:2503.09939,arXiv preprint,geometric block permutation + dynamic substitution,not reported,not reported,not reported,not reported,not reported,not reported,not reported,not reported,"Closest family match to block/permutation redesigns"
+li2026,2026,arXiv:2605.21118,arXiv preprint,data-identified discrete chaotic maps,"Hénon, Lozi, 3D logistic",not reported,not reported,not reported,not reported,not reported,partial,not reported,"Useful for finite-precision and map-structure follow-up"

@@ -24,10 +24,10 @@ inline Image permute_map_fridrich(const Image& src, int rounds = 2) {
         const uint8_t* in = cur.data.data();
         uint8_t* out = tmp.data.data();
         for (int y = 0; y < H; ++y) {
-            int nx = y % W;
-            int ny = (2 * y) % H;
             const size_t row = static_cast<size_t>(y) * W * C;
             for (int x = 0; x < W; ++x) {
+                const int nx = (x + y) % W;
+                const int ny = (y + nx) % H;
                 const size_t src_idx = row + static_cast<size_t>(x) * C;
                 const size_t dst_idx = (static_cast<size_t>(ny) * W + nx) * C;
                 if (C == 3) {
@@ -37,8 +37,6 @@ inline Image permute_map_fridrich(const Image& src, int rounds = 2) {
                 } else {
                     std::memcpy(out + dst_idx, in + src_idx, static_cast<size_t>(C));
                 }
-                if (++nx == W) nx = 0;
-                if (++ny == H) ny = 0;
             }
         }
         cur.data.swap(tmp.data);
@@ -61,7 +59,7 @@ inline Image invert_permute_map_fridrich(const Image& src, int rounds = 2) {
             const size_t row = static_cast<size_t>(y) * W * C;
             for (int x = 0; x < W; ++x) {
                 const int nx = (x + y) % W;
-                const int ny = (x + 2 * y) % H;
+                const int ny = (y + nx) % H;
                 const size_t src_idx = (static_cast<size_t>(ny) * W + nx) * C;
                 const size_t dst_idx = row + static_cast<size_t>(x) * C;
                 if (C == 3) {
@@ -129,6 +127,42 @@ inline Image invert_permute_sort(const Image& src, const std::vector<uint32_t>& 
         } else {
             std::memcpy(dst + dst_off, in + src_off, static_cast<size_t>(C));
         }
+    }
+    return out;
+}
+
+inline Image permute_bitplanes(const Image& src) {
+    Image out = src;
+    size_t i = 0;
+    for (; i + 8 <= src.data.size(); i += 8) {
+        for (unsigned row = 0; row < 8; ++row) {
+            uint8_t value = 0;
+            for (unsigned col = 0; col < 8; ++col) {
+                value |= static_cast<uint8_t>(((src.data[i + col] >> row) & 1U) << col);
+            }
+            out.data[i + row] = value;
+        }
+    }
+    return out;
+}
+
+inline uint8_t symbolic_add(uint8_t value, uint8_t delta) {
+    uint8_t out = 0;
+    for (unsigned shift = 0; shift < 8; shift += 2) {
+        const uint8_t symbol = static_cast<uint8_t>((value >> shift) & 3U);
+        out |= static_cast<uint8_t>(((symbol + delta) & 3U) << shift);
+    }
+    return out;
+}
+
+inline Image permute_symbolic(const Image& src, uint64_t key_seed, bool inverse = false) {
+    Image out = src;
+    uint64_t state = key_seed;
+    for (size_t i = 0; i < src.data.size(); ++i) {
+        if ((i & 7U) == 0) state = splitmix64(state);
+        uint8_t delta = static_cast<uint8_t>((state >> ((i & 7U) * 8U)) & 3U);
+        if (inverse) delta = static_cast<uint8_t>((4U - delta) & 3U);
+        out.data[i] = symbolic_add(src.data[i], delta);
     }
     return out;
 }

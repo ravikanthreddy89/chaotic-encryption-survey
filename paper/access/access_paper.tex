@@ -521,6 +521,71 @@ measurements remain necessary.}
 \label{fig:candidate-shares}
 \end{figure*}
 
+\subsection{Cross-Architecture Reproducibility}
+To check whether the conclusions depend on one CPU family, the publication
+harness was rerun on the local Intel Xeon E5-2620 v4 host with AVX2 and on an
+AWS Neoverse-N1 instance with NEON. The matched run used synthetic sizes
+256, 512, and 1024, three repetitions, one warm-up, four timed iterations, and
+the Kodak pair \texttt{kodim01.png} and \texttt{kodim02.png}. The paired
+geometric-mean analysis over five images preserved the same qualitative
+ordering on both systems: \texttt{scan\_exact} consistently beat the scalar
+chain for the map and symbolic families, while \texttt{sort\_logistic}
+remained near parity.
+
+\begin{table}[t]
+\caption{Representative Cross-Architecture Paired Speedups}
+\label{tab:cross-arch}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Case} & \textbf{x86} & \textbf{ARM} \\
+\midrule
+Map + scan exact & 1.166$\times$ / 1.074$\times$ & 1.305$\times$ / 1.103$\times$ \\
+Symbolic + scan exact & 1.153$\times$ / 1.053$\times$ & 1.308$\times$ / 1.115$\times$ \\
+Bitplane + scan exact & 1.101$\times$ / 0.933$\times$ & 1.249$\times$ / 1.068$\times$ \\
+Sort logistic + scan exact & 1.032$\times$ / 1.012$\times$ & 1.042$\times$ / 1.016$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These paired runs support the claim that the main throughput ranking is not an
+artifact of the Xeon server alone. The exact-scan variant is the most robust
+replacement across both architectures, even though the absolute gains differ
+slightly by host and stage family.
+
+\subsection{Recent Literature Positioning}
+The recent chaos-based image-encryption literature still emphasizes
+confusion-diffusion compositions, hybrid key schedules, geometric block
+permutation, and statistical security diagnostics. Representative recent
+examples include multithreaded parallel confusion and diffusion for video
+frames \cite{jiang2023}, a medical-imagery permutation-diffusion design
+\cite{sanaboina2024}, geometric block permutation with dynamic substitution
+\cite{ali2025}, and data-identified discrete chaotic maps \cite{li2026}.
+
+\begin{table*}[t]
+\caption{Representative Recent Works and the Remaining Measurement Gap}
+\label{tab:recent-work}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{0.08\textwidth}p{0.36\textwidth}p{0.22\textwidth}p{0.24\textwidth}}
+\toprule
+\textbf{Year} & \textbf{Representative work} & \textbf{Family / emphasis} & \textbf{Gap relative to this paper} \\
+\midrule
+2023 & \cite{jiang2023} & Multithreaded parallel confusion-diffusion for video frames & Reports speed and statistical tests, but not stage-level attribution across architectures. \\
+2024 & \cite{sanaboina2024} & Chaos-based permutation-diffusion for diagnostic imagery & Focuses on image statistics and functional encryption, not SIMD stage decomposition. \\
+2025 & \cite{ali2025} & Geometric block permutation with dynamic substitution & Emphasizes statistical security, not finite-precision or cross-CPU benchmarking. \\
+2026 & \cite{li2026} & Data-identified discrete chaotic maps & Explores a newer map family, but still centers on cipher statistics rather than stage timing. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+This is not a substitute for a full peer-reviewed 2022--2026 survey matrix.
+It is the manuscript-level positioning needed to show that the present work is
+about measured implementation cost and reproducibility, not a new claim of
+cryptographic superiority. The companion notes retain the fuller matrix
+template for later journal-specific expansion.
+
 \subsection{Full-Scheme Security Diagnostics}
 All complete schemes decrypt correctly. Several also produce near-eight-bit
 entropy, low adjacent-pixel correlation, and strong key sensitivity. These
@@ -559,6 +624,34 @@ encryption modes; standard stream ciphers intentionally do not provide
 plaintext avalanche. The candidate pipelines were not subjected to the same
 security harness and contain fixed prototype permutations. No
 cryptographic-security conclusion is made for them.
+
+\subsection{Negative-Control Summary}
+The control probes below are the ones reviewers usually ask for when a chaos
+paper leans too hard on image statistics. They are useful precisely because
+they do not prove security: they expose misuse sensitivity, limited avalanche
+under keystream reuse, and the missing finite-precision analysis.
+
+\begin{table*}[t]
+\caption{Negative-Control Outcomes}
+\label{tab:negative-controls}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{0.22\textwidth}p{0.30\textwidth}p{0.38\textwidth}}
+\toprule
+\textbf{Control} & \textbf{Measured outcome} & \textbf{Interpretation} \\
+\midrule
+Reused key/nonce & KPA recovery score is 1.000 for ChaCha20, AES-CTR, BLAKE3-XOR, Tent-XOR, Logistic-XOR, and Coupled-lattice-XOR. & This is a misuse probe. It shows deterministic recovery under repeated keystream, not a break of the underlying primitive. \\
+One-bit plaintext flip & NPCR is 0.000084\% for the same full-scheme controls. & Stream and CTR-style constructions do not provide plaintext avalanche under keystream reuse; this is the expected control result. \\
+One-bit key flip & Key sensitivity stays in the 99.387--99.623\% range across the measured full schemes. & Sensitivity is high but still only a diagnostic, not a security proof. \\
+Finite precision orbit collapse & Exact double logistic orbits showed no repeat within $10^6$ steps across 16 seeds. The 16-bit quantized logistic stress test repeated in all 16 seeds after 35--549 steps (median 161; cycle length 5--245, median 60). The current fixed-point tent probe also showed no repeat within $10^6$ steps. & Finite precision clearly changes effective orbit length; the exact implementation still needs a longer-horizon orbit-length or state-space study before any stronger claim. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The finite-precision row is deliberate: it now records a reduced-precision
+stress test instead of leaving the analysis blank. The exact double orbit
+still only gives a lower bound on repeat length, which is the correct level of
+claim for the current harness.
 
 \begin{figure*}[t]
 \centering
@@ -623,7 +716,10 @@ not secure key-derived permutations. Candidate pipelines do not yet implement
 inverse transforms or undergo the full cryptanalysis suite. Image-domain
 diagnostics are reported only for full schemes and do not constitute proofs of
 security. AES-CTR and ChaCha20 are confidentiality-only baselines; deployment
-should use authenticated encryption.
+should use authenticated encryption. Finite-precision state-collapse is now
+covered only as a reduced-precision stress test, and a longer-horizon exact
+orbit-length study is still needed before any stronger claim about the chaotic
+maps themselves.
 
 These limitations constrain the claim to stage-level performance analysis and
 prototype composition. They do not invalidate the finding that sort
@@ -722,6 +818,25 @@ Telecommunications}, pp. 31--38, 2011.
 ``Cryptanalysis of a chaotic image encryption algorithm based on information
 entropy,'' \emph{IEEE Access}, vol. 6, pp. 75834--75842, 2018,
 doi: 10.1109/ACCESS.2018.2883690.
+
+\bibitem{jiang2023} D. Jiang, Z. Yuan, W. Li, and L. Lu, ``Real-time chaotic
+video encryption based on multithreaded parallel confusion and diffusion,''
+\emph{arXiv preprint arXiv:2302.07411}, 2023. [Online]. Available:
+\url{https://arxiv.org/abs/2302.07411}
+
+\bibitem{sanaboina2024} C. S. Sanaboina and T. Yadla, ``An effective approach
+to scramble multiple diagnostic imageries using chaos-based cryptography,''
+\emph{arXiv preprint arXiv:2406.07560}, 2024. [Online]. Available:
+\url{https://arxiv.org/abs/2406.07560}
+
+\bibitem{ali2025} M. Ali \emph{et al.}, ``A chaotic image encryption scheme
+using novel geometric block permutation and dynamic substitution,''
+\emph{arXiv preprint arXiv:2503.09939}, 2025. [Online]. Available:
+\url{https://arxiv.org/abs/2503.09939}
+
+\bibitem{li2026} W. Li \emph{et al.}, ``Image encryption via data-identified
+discrete chaotic maps,'' \emph{arXiv preprint arXiv:2605.21118}, 2026.
+[Online]. Available: \url{https://arxiv.org/abs/2605.21118}
 
 \bibitem{liu2015} Y. Liu, L. Y. Zhang, J. Wang, Y. Zhang, and K.-W. Wong,
 ``Chosen-plaintext attack of an image encryption scheme based on modified

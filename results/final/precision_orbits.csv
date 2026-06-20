@@ -1,0 +1,49 @@
+family,sample,seed,quant_bits,warmup,max_steps,repeated,first_repeat_step,cycle_length,distinct_states,note
+logistic_double,0,7960286522194355700,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,0,7960286522194355700,16,500,1000000,1,204,133,203,quantized repeat detected
+fixed_point_tent,0,7960286522194355700,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,1,487617019471545679,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,1,487617019471545679,16,500,1000000,1,246,166,245,quantized repeat detected
+fixed_point_tent,1,487617019471545679,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,2,17909611376780542444,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,2,17909611376780542444,16,500,1000000,1,35,23,34,quantized repeat detected
+fixed_point_tent,2,17909611376780542444,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,3,1961750202426094747,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,3,1961750202426094747,16,500,1000000,1,264,91,263,quantized repeat detected
+fixed_point_tent,3,1961750202426094747,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,4,6038094601263162090,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,4,6038094601263162090,16,500,1000000,1,181,25,180,quantized repeat detected
+fixed_point_tent,4,6038094601263162090,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,5,3207296026000306913,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,5,3207296026000306913,16,500,1000000,1,130,88,129,quantized repeat detected
+fixed_point_tent,5,3207296026000306913,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,6,14232521865600346940,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,6,14232521865600346940,16,500,1000000,1,161,60,160,quantized repeat detected
+fixed_point_tent,6,14232521865600346940,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,7,4532161160992623299,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,7,4532161160992623299,16,500,1000000,1,162,157,161,quantized repeat detected
+fixed_point_tent,7,4532161160992623299,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,8,17561866513979060390,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,8,17561866513979060390,16,500,1000000,1,74,14,73,quantized repeat detected
+fixed_point_tent,8,17561866513979060390,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,9,7313543279846440201,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,9,7313543279846440201,16,500,1000000,1,69,44,68,quantized repeat detected
+fixed_point_tent,9,7313543279846440201,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,10,14038607207048404726,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,10,14038607207048404726,16,500,1000000,1,549,245,548,quantized repeat detected
+fixed_point_tent,10,14038607207048404726,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,11,9665182471527586683,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,11,9665182471527586683,16,500,1000000,1,60,34,59,quantized repeat detected
+fixed_point_tent,11,9665182471527586683,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,12,10241033088150448431,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,12,10241033088150448431,16,500,1000000,1,130,5,129,quantized repeat detected
+fixed_point_tent,12,10241033088150448431,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,13,13064396156225473817,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,13,13064396156225473817,16,500,1000000,1,158,150,157,quantized repeat detected
+fixed_point_tent,13,13064396156225473817,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,14,9564308153959284907,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,14,9564308153959284907,16,500,1000000,1,178,14,177,quantized repeat detected
+fixed_point_tent,14,9564308153959284907,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_double,15,9018883062403043925,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget
+logistic_q16,15,9018883062403043925,16,500,1000000,1,333,85,332,quantized repeat detected
+fixed_point_tent,15,9018883062403043925,0,500,1000000,0,-1,-1,1000000,no exact repeat within budget

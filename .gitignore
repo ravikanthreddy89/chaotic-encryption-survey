@@ -8,6 +8,8 @@ compile_commands.json
 # Build directories
 build/
 build-paper1-*/
+build-cross-*/
+build-scalar-test/
 cmake-build-*/
 out/
 __pycache__/

@@ -18,6 +18,7 @@ struct StageTimes {
 
 struct CipherResult {
     cv::Mat image;
+    std::vector<uint8_t> authentication_tag;
     StageTimes times;
 };
 
@@ -34,6 +35,9 @@ public:
     virtual std::string variant() const = 0;
     virtual CipherResult encrypt(const cv::Mat& plain, const CipherContext& ctx) = 0;
     virtual CipherResult decrypt(const cv::Mat& cipher, const CipherContext& ctx) = 0;
+    virtual CipherResult decrypt_result(const CipherResult& cipher, const CipherContext& ctx) {
+        return decrypt(cipher.image, ctx);
+    }
 };
 
 using CipherPtr = std::unique_ptr<IImageCipher>;

@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
         const std::string safe = bench::sanitize_name(cipher_name);
 
         bench::CipherResult enc = cipher->encrypt(plain, ctx);
-        bench::CipherResult dec = cipher->decrypt(enc.image, ctx);
+        bench::CipherResult dec = cipher->decrypt_result(enc, ctx);
         const bool correct = equal_mat(plain, dec.image);
         const double mb = static_cast<double>(bench::image_bytes(plain)) / (1024.0 * 1024.0);
         const double mbps = enc.times.total_ms > 0.0 ? mb / (enc.times.total_ms / 1000.0) : 0.0;
