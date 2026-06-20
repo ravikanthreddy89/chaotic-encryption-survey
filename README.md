@@ -16,7 +16,8 @@ SIMD-friendly designs.
 
 The suite includes scalar and AVX2 implementations, OpenSSL AES-256-CTR and
 ChaCha20 baselines, image-domain security diagnostics, public dataset tooling,
-CSV output, publication plots, and an IEEE Access manuscript.
+CSV output, publication plots, a finite-precision orbit probe, and an IEEE
+Access manuscript.
 
 > **Security notice:** The experimental chaotic and candidate pipelines are
 > research prototypes. They have not received the cryptanalysis required for
@@ -32,7 +33,8 @@ CSV output, publication plots, and an IEEE Access manuscript.
 - Authenticated AES-256-GCM and ChaCha20-Poly1305 baselines with tamper tests
 - SIMD-friendly permutation and diffusion candidates
 - Entropy, chi-square, adjacent-pixel correlation, NPCR, UACI, key
-  sensitivity, known-plaintext, and chosen-plaintext diagnostics
+  sensitivity, known-plaintext, chosen-plaintext, and finite-precision orbit
+  diagnostics
 - Synthetic and Kodak PhotoCD dataset support
 - Reproducible CSV aggregation, confidence intervals, plots, and manuscript
 
@@ -104,6 +106,21 @@ Useful options:
 
 Each run writes benchmark CSVs, security diagnostics, encrypted images, and
 histograms under the selected results directory.
+
+### Finite-precision probe
+
+The publication harness now includes a dedicated orbit-length probe for the
+chaotic map recurrence:
+
+```bash
+./build/chaos_ref --precision --warmup 500 --precision-samples 16 \
+  --precision-max-steps 1000000 --precision-bits 16 \
+  --precision-csv results/final/precision_orbits.csv
+```
+
+This probe records exact double-precision orbit bounds and a reduced-precision
+stress test. The current manuscript reports the measured 16-bit quantized
+collapse as a limitation check, not as a security proof.
 
 ## Implemented Experiments
 
@@ -216,6 +233,11 @@ cd paper/access
 pdflatex -interaction=nonstopmode -halt-on-error access_paper.tex
 pdflatex -interaction=nonstopmode -halt-on-error access_paper.tex
 ```
+
+The current submission bundle is staged around the paper source, figures, and
+supporting evidence files rather than a journal portal integration. The
+workspace also keeps a local archive at `/tmp/q2_submission_bundle.tar.gz`
+for upload to an external submission system.
 
 ## Focused SIMD Kernel Benchmark
 
