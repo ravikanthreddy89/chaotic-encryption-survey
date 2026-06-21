@@ -26,7 +26,7 @@
 University at Buffalo, Buffalo, NY, USA \\
 \email{ravikanthreddy@ieee.org}}
 
-\date{Received: date / Accepted: date}
+\date{}
 
 \maketitle
 
@@ -279,8 +279,8 @@ Affine-CML-Bitplane & CML & Affine mapping & Bit-plane transform \\
 \end{tabular}
 \end{table*}
 
-These pipelines currently produce checksums for performance validation but do
-not implement complete decryptors or equivalent security probes. They are
+These pipelines produce checksums for performance validation but do not
+implement complete decryptors or equivalent security probes. They are
 component-composition experiments, not proposed secure ciphers.
 
 \section{Experimental Methodology}
@@ -288,12 +288,43 @@ component-composition experiments, not proposed secure ciphers.
 
 \subsection{Implementation and Platform}
 
+The benchmark is implemented in C++17 and built with CMake in Release mode
+with host-specific optimization. OpenCV is used for image loading and output,
+OpenSSL EVP provides AES-256-CTR, AES-256-GCM, ChaCha20, and ChaCha20-Poly1305,
+and the official BLAKE3 C implementation provides keyed XOF output. The
+single-process timing harness reports wall-clock stage latency and total
+latency; this paper does not claim multicore scaling.
+
+The primary x86-64 experiments ran on a four-vCPU Intel Xeon E5-2620 v4 at
+2.10 GHz under 64-bit Linux 5.15 with GCC 11.4.0 and CMake 3.22.1. That host
+supports SSE2, AVX, AVX2, and AES instructions. The publication build used
+\texttt{-O3} and \texttt{-march=native}; AVX2 kernels were enabled only on
+x86-64 builds that report AVX2 support. BLAKE3 was compiled in portable mode,
+so its result does not include optional architecture-specific SIMD dispatch.
+
+The cross-architecture check used the same harness on a cloud ARM64/aarch64
+host under 64-bit Linux 7.0 with GCC 15.2.0 and CMake 4.2.3. The committed
+metadata records the operating system, compiler, CMake version, machine
+architecture, and dataset manifest for this host; cloud instance type, memory
+size, and frequency-governor state were not retained. For the ARM64 run the
+native SIMD build disabled AVX2 and used the portable ARM/NEON-compatible
+path. The matched cross-architecture matrix used three repetitions, one
+warm-up iteration, four timed iterations, synthetic images at 256$\times$256,
+512$\times$512, and 1024$\times$1024, and the Kodak \texttt{kodim01} and
+\texttt{kodim02} images. The video-frame real-time extension used 24 public
+frames at 1280$\times$720 and 1920$\times$1080 on both architectures.
+
+CPU frequency, processor affinity, cache state, and virtualization noise were
+not controlled beyond using repeated measurements and reporting confidence
+intervals or p95 latency where applicable. These factors are treated as
+limitations rather than hidden sources of determinism.
+
 \subsection{Use of Generative AI Assistance}
 The study used generative-AI and large-language-model assistance as an
 engineering and editorial aid during manuscript preparation. The assistance was
 limited to drafting and reorganizing prose, identifying claim-boundary issues,
 suggesting experiment-reporting checklists, helping convert the manuscript to
-the Springer Nature \LaTeX{} template, and proposing small automation changes
+the Springer \LaTeX{} macro package, and proposing small automation changes
 for dataset and result aggregation scripts. The benchmark design, source-code
 changes, experiment execution, result selection, numerical interpretation, and
 final claims were reviewed and accepted by the author. No generative-AI system
@@ -302,29 +333,8 @@ reported without verification from the committed CSV outputs, and no external
 source was cited solely from AI-generated text. The author takes full
 responsibility for the accuracy, integrity, and interpretation of the work.
 
-The benchmark is implemented in C++17 and built with CMake in Release mode
-using GCC 11.4.0, \texttt{-O3}, \texttt{-march=native}, and explicit AVX2
-support. OpenCV is used for image loading and output, OpenSSL EVP provides
-AES-256-CTR and ChaCha20, and the official BLAKE3 C implementation provides
-keyed XOF output.
-
-Experiments ran on a four-core Intel Xeon E5-2620 v4 at 2.10 GHz under
-64-bit Linux 5.15. The processor supports SSE2, AVX, AVX2, and AES
-instructions. BLAKE3 was compiled in portable mode, so its result does not
-include optional architecture-specific SIMD dispatch. Candidate and stage
-measurements are single-process measurements; this paper does not claim
-multicore scaling.
-
-For a Journal of Real-Time Image Processing submission, the same harness is
-reported on two CPU architectures: an x86-64 SIMD host and an ARM64 host. The
-preferred final matrix can add a third modern x86 host so that the current
-older Xeon result is not the only x86 data point. Each platform report should
-include processor model, core or vCPU count, memory, operating system,
-compiler version, compiler flags, SIMD capability, warm-up count, timed
-repetitions, and whether CPU frequency or affinity was controlled.
-
 \subsection{Datasets}
-Two dataset classes are used in the current results:
+Three dataset classes are used in the reported results:
 \begin{itemize}
 \item \textbf{Synthetic controls:} deterministic gradient, texture, and noise
 images at 512$\times$512, 1024$\times$1024, 2048$\times$2048, and
@@ -332,32 +342,34 @@ images at 512$\times$512, 1024$\times$1024, 2048$\times$2048, and
 \item \textbf{Natural images:} all 24 color images from the Kodak PhotoCD
 dataset \cite{kodak}, comprising 768$\times$512 and 512$\times$768
 orientations.
+\item \textbf{Video frames:} 24 public video frames sampled at
+1280$\times$720 and 1920$\times$1080 for frame-level latency and p95
+measurements.
 \end{itemize}
 Synthetic images provide controlled size and content variation. Kodak images
 provide natural-image diversity while retaining a stable public benchmark.
 The Lena/Lenna image is explicitly excluded from the publication dataset and
 does not appear in the active benchmark results.
 
-The real-time extension adds public video frames sampled at
-1280$\times$720 and 1920$\times$1080 so that latency variation can be
-reported over frame sequences rather than still images alone. One
-literature-comparable image-encryption set, such as USC-SIPI with Lena/Lenna
-excluded, can be added only to connect the results to prior image-encryption
-studies. Domain datasets such as medical, surveillance, satellite, or
-industrial imagery should be added only if the manuscript claims that
-deployment domain.
+The video frames allow latency variation to be reported over frame sequences
+rather than still images alone. No domain-specific medical, surveillance,
+satellite, or industrial dataset is used because the manuscript does not claim
+deployment performance for those domains.
 
 \subsection{Experiment Matrix}
-Every executed configuration is repeated ten times. Slow full schemes and
-intentionally slow stage baselines are limited to images no larger than
-1024$\times$1024. Fast stage alternatives continue to 4096$\times$4096. Slow
-candidate pipelines continue to 2048$\times$2048, and fast candidates continue
-to 4096$\times$4096.
+The still-image x86-64 benchmark repeats each executed configuration ten
+times. Slow full schemes and intentionally slow stage baselines are limited to
+images no larger than 1024$\times$1024. Fast stage alternatives continue to
+4096$\times$4096. Slow candidate pipelines continue to 2048$\times$2048, and
+fast candidates continue to 4096$\times$4096.
 
 The final dataset contains 3,300 full-scheme performance records, 3,300
 full-scheme security records, 9,000 isolated-stage performance records, and
 2,430 candidate-pipeline performance records. Reported aggregate throughput
-values are arithmetic means. The 95\% confidence interval is
+values are arithmetic means. The real-time video extension reports 36
+measurements per selected scheme, resolution, and architecture. The matched
+cross-architecture stage check uses three repetitions, one warm-up iteration,
+and four timed iterations. The 95\% confidence interval is
 \begin{equation}
 \mathrm{CI}_{95} =
 \frac{1.96s}{\sqrt{n}},
@@ -367,10 +379,10 @@ where $s$ is the sample standard deviation. No outlier removal is applied.
 
 \subsection{Real-Time Metrics}
 The primary real-time unit is milliseconds per frame. For each scheme,
-dataset, resolution, and architecture, the benchmark should report mean
-latency, 95\% confidence interval, FPS-equivalent throughput, and stage share
-for keystream generation, permutation, diffusion, and total execution. For
-video-frame workloads, the journal-ready table should also report p95 latency.
+dataset, resolution, and architecture, the benchmark reports mean latency,
+95\% confidence interval, FPS-equivalent throughput, and stage share for
+keystream generation, permutation, diffusion, and total execution. For
+video-frame workloads, the results table also reports p95 latency.
 FPS-equivalent throughput is computed as
 \begin{equation}
 \mathrm{FPS}_{eq} =
@@ -378,7 +390,7 @@ FPS-equivalent throughput is computed as
 \label{eq:fps}
 \end{equation}
 
-The real-time feasibility table should mark whether each configuration meets
+The real-time feasibility table marks whether each configuration meets
 30-frame/s and 60-frame/s budgets. The 30-frame/s budget is 33.3 ms/frame and
 the 60-frame/s budget is 16.7 ms/frame. These thresholds are intentionally
 reported as feasibility checks rather than deployment guarantees because a
@@ -684,11 +696,10 @@ frames \cite{jiang2023}, a medical-imagery permutation-diffusion design
 \end{tabular}
 \end{table*}
 
-This is not a substitute for a full peer-reviewed 2022--2026 survey matrix.
-It is the manuscript-level positioning needed to show that the present work is
-about measured implementation cost and reproducibility, not a new claim of
-cryptographic superiority. The companion notes retain the fuller matrix
-template for later journal-specific expansion.
+These selected works illustrate the measurement gap addressed here: recent
+papers continue to emphasize cipher structure and image-domain statistics,
+whereas the present study focuses on measured implementation cost,
+stage-level attribution, and cross-architecture reproducibility.
 
 \subsection{Full-Scheme Security Diagnostics}
 All complete schemes decrypt correctly. Several also produce near-eight-bit
@@ -702,7 +713,7 @@ positive metrics are insufficient to establish security.
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrr}
 \toprule
-\textbf{Scheme} & \textbf{Entropy} & $\boldsymbol{\chi^2}$ & \textbf{Abs. corr.} & \textbf{NPCR} & \textbf{Key sens.} & \textbf{KPA} \\
+\textbf{Scheme} & \textbf{Entropy} & $\boldsymbol{\chi^2}$ & \textbf{Abs. corr.} & \textbf{Flip NPCR} & \textbf{Key sens.} & \textbf{KPA} \\
 \midrule
 ChaCha20 & 7.999845 & 258.874 & 0.001216 & 0.000084\% & 99.619\% & 1.000 \\
 AES-256-CTR & 7.999843 & 259.125 & 0.001148 & 0.000084\% & 99.611\% & 1.000 \\
@@ -714,7 +725,9 @@ Coupled-lattice-XOR & 7.971770 & 45857.479 & 0.137337 & 0.000084\% & 99.410\% & 
 \end{tabular}
 \end{table*}
 
-The KPA recovery score of 1.0 for AES-CTR, ChaCha20, BLAKE3-XOR, and the
+Here, \emph{Flip NPCR} denotes a one-bit plaintext-flip diagnostic measured
+under a fixed key/nonce. The KPA recovery score of 1.0 for AES-CTR, ChaCha20,
+BLAKE3-XOR, and the
 stream-XOR chaotic variants is expected because the experiment deliberately
 reuses the same key/nonce. It demonstrates misuse sensitivity, not a break of
 the underlying standardized primitive. The negligible plaintext NPCR is also
@@ -747,7 +760,7 @@ under keystream reuse, and the missing finite-precision analysis.
 Reused key/nonce & KPA recovery score is 1.000 for ChaCha20, AES-CTR, BLAKE3-XOR, Tent-XOR, Logistic-XOR, and Coupled-lattice-XOR. & This is a misuse probe. It shows deterministic recovery under repeated keystream, not a break of the underlying primitive. \\
 One-bit plaintext flip & NPCR is 0.000084\% for the same full-scheme controls. & Stream and CTR-style constructions do not provide plaintext avalanche under keystream reuse; this is the expected control result. \\
 One-bit key flip & Key sensitivity stays in the 99.387--99.623\% range across the measured full schemes. & Sensitivity is high but still only a diagnostic, not a security proof. \\
-Finite precision orbit collapse & Exact double logistic orbits showed no repeat within $10^6$ steps across 16 seeds. The 16-bit quantized logistic stress test repeated in all 16 seeds after 35--549 steps (median 161; cycle length 5--245, median 60). The current fixed-point tent probe also showed no repeat within $10^6$ steps. & Finite precision clearly changes effective orbit length; the exact implementation still needs a longer-horizon orbit-length or state-space study before any stronger claim. \\
+Finite precision orbit collapse & Exact double logistic orbits showed no repeat within $10^6$ steps across 16 seeds. The 16-bit quantized logistic stress test repeated in all 16 seeds after 35--549 steps (median 161; cycle length 5--245, median 60). The fixed-point tent probe also showed no repeat within $10^6$ steps. & Finite precision clearly changes effective orbit length; the exact implementation still needs a longer-horizon orbit-length or state-space study before any stronger claim. \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -755,7 +768,7 @@ Finite precision orbit collapse & Exact double logistic orbits showed no repeat 
 The finite-precision row is deliberate: it now records a reduced-precision
 stress test instead of leaving the analysis blank. The exact double orbit
 still only gives a lower bound on repeat length, which is the correct level of
-claim for the current harness.
+claim for this harness.
 
 \begin{figure}[t]
 \centering
@@ -789,7 +802,7 @@ The CA generator is fast, but its rule-30-like output has not been established
 as a cryptographically secure pseudorandom stream. Tree XOR and linear
 multi-lane diffusion are also structurally analyzable.
 
-A deployment-oriented design should use a standard cryptographic primitive to
+A deployment-oriented design requires a standard cryptographic primitive to
 derive independent subkeys and masks, make every permutation key-derived,
 include unique nonces, and provide authentication. A practical research
 direction is to retain image-domain transforms only as a format-aware
@@ -797,7 +810,7 @@ preprocessing or selective-encryption layer, then protect the result with an
 authenticated standard cipher.
 
 \subsection{Implications for Future Studies}
-Future evaluations should report isolated stage execution time; include AES
+Future evaluations need to report isolated stage execution time; include AES
 and ChaCha through optimized libraries; compare algorithmic complexity before
 attributing speedup to SIMD; test real images, controlled synthetic inputs,
 and public video-frame workloads; report repeated measurements with confidence
@@ -807,15 +820,16 @@ chosen plaintext.
 
 \section{Threats to Validity and Limitations}
 \label{sec:limitations}
-Most measurements were collected on one older x86-64 server CPU and one ARM64
-cloud host, and may differ on newer AVX2/AVX-512 processors, ARM NEON/SVE
-systems, GPUs, or embedded devices. The current JRTIP extension includes a
-matched x86/ARM real-time video-frame run, but a stronger submission package
-would add a modern x86 host and more detailed platform controls. CPU
-frequency, virtualization noise, memory allocation, and cache state were not
-controlled through hardware performance counters or processor pinning. The
-benchmark reports wall-clock stage time and throughput, but not cycles per
-byte, energy, cache misses, branch misses, or instruction counts.
+Measurements were collected on one older x86-64 server CPU and one ARM64 cloud
+host, and may differ on newer AVX2/AVX-512 processors, ARM NEON/SVE systems,
+GPUs, or embedded devices. The reported x86/ARM video-frame run checks whether
+the main ranking survives across two CPU families, but it is not a full
+hardware survey. The ARM64 metadata does not retain cloud instance type, memory
+size, or frequency-governor state. CPU frequency, virtualization noise, memory
+allocation, and cache state were not controlled through hardware performance
+counters or processor pinning. The benchmark reports wall-clock stage time and
+throughput, but not cycles per byte, energy, cache misses, branch misses, or
+instruction counts.
 
 The prefix-XOR helper is only partially vectorized because its intra-vector
 scan is scalar. BLAKE3 is compiled without architecture-specific SIMD
@@ -824,8 +838,8 @@ not secure key-derived permutations. Candidate pipelines do not yet implement
 inverse transforms or undergo the full cryptanalysis suite. Image-domain
 diagnostics are reported only for full schemes and do not constitute proofs of
 security. AES-CTR and ChaCha20 are confidentiality-only baselines; deployment
-should use authenticated encryption. Finite-precision state-collapse is now
-covered only as a reduced-precision stress test, and a longer-horizon exact
+requires authenticated encryption. Finite-precision state-collapse is covered
+only as a reduced-precision stress test, and a longer-horizon exact
 orbit-length study is still needed before any stronger claim about the chaotic
 maps themselves.
 
@@ -835,14 +849,14 @@ permutation and global dependencies are major implementation bottlenecks.
 
 \section{Reproducibility}
 \label{sec:reproducibility}
-The public research artifact is maintained at
-\url{https://github.com/ravikanthreddy89/chaotic-encryption-survey}. The
-repository includes the benchmark implementation, dataset generators, Kodak
+The public research artifact is maintained on GitHub as
+\texttt{chaotic-encryption-survey}. The repository includes the benchmark
+implementation, dataset generators, Kodak
 downloader, experiment harness, raw outputs, aggregate CSV files,
-figure-generation scripts, and manuscript source. A clean checkout can be
-built and the final experiment reproduced with:
+figure-generation scripts, and manuscript source. After cloning the public
+artifact repository, a clean checkout can be built and the final experiment
+reproduced with:
 \begin{verbatim}
-git clone <repository-url>
 cd chaotic-encryption-survey
 cmake -S . -B build \
   -DCMAKE_BUILD_TYPE=Release
@@ -883,7 +897,7 @@ faster and have substantially stronger security foundations.
 For a real-time image-processing venue, the central implementation lesson is
 that stage-level timing must be converted into frame-level feasibility:
 milliseconds per frame, FPS-equivalent throughput, p95 video-frame latency,
-and pass/fail status against 30/60 FPS budgets. The current results include a
+and pass/fail status against 30/60 FPS budgets. The results include a
 public 720p/1080p video-frame workload on both x86-64 and ARM64. They show
 that Checkerboard-CA-ARX meets 30 FPS at both resolutions on both measured
 hosts, while optimized AES-GCM and ChaCha20 remain faster and meet both
@@ -891,8 +905,8 @@ hosts, while optimized AES-GCM and ChaCha20 remain faster and meet both
 
 The security experiments reinforce an equally important conclusion:
 image-domain statistics must not be presented as cryptographic proof. The
-current XOR-based full schemes show favorable entropy and key sensitivity but
-fail differential-avalanche and reused-keystream recovery controls. The
+XOR-based full schemes show favorable entropy and key sensitivity but fail
+differential-avalanche and reused-keystream recovery controls. The
 benchmark-informed candidates are therefore performance prototypes, not secure
 ciphers.
 
@@ -912,7 +926,7 @@ Not applicable. The study uses public image/video benchmark data and synthetic i
 Not applicable.
 
 \subsection*{Data availability}
-The benchmark source code, experiment scripts, raw measurements, aggregate tables, manuscript source, and reproduction instructions are available at \url{https://github.com/ravikanthreddy89/chaotic-encryption-survey}. The committed JRTIP result directories contain CSV and Markdown measurements only; generated ciphertext images and downloaded datasets are excluded from version control.
+The benchmark source code, experiment scripts, raw measurements, aggregate tables, manuscript source, and reproduction instructions are available in the public GitHub repository \texttt{chaotic-encryption-survey}. The committed JRTIP result directories contain CSV and Markdown measurements only; generated ciphertext images and downloaded datasets are excluded from version control.
 
 \subsection*{Code availability}
 The benchmark implementation and scripts are available in the same public repository.
@@ -921,7 +935,7 @@ The benchmark implementation and scripts are available in the same public reposi
 Ravikanth Reddy Gudipati conceived the study, implemented the benchmark, conducted the experiments, analyzed the results, and prepared the manuscript.
 
 \subsection*{Use of generative AI and AI-assisted technologies}
-Generative-AI and large-language-model tools were used for editorial and engineering assistance during preparation of this manuscript and research artifact. The assistance included prose reorganization, claim-boundary review, LaTeX-template conversion support, and suggestions for reproducibility documentation and small automation scripts. The author reviewed all generated text and code suggestions, ran or inspected the reported experiments, verified numerical claims against committed result files, and takes full responsibility for the final manuscript and artifact.
+Generative-AI and large-language-model tools were used for editorial and engineering assistance during preparation of this manuscript and research artifact. The assistance included prose reorganization, claim-boundary review, LaTeX macro-package conversion support, and suggestions for reproducibility documentation and small automation scripts. The author reviewed all generated text and code suggestions, ran or inspected the reported experiments, verified numerical claims against committed result files, and takes full responsibility for the final manuscript and artifact.
 
 \begin{thebibliography}{00}
 \bibitem{shannon1949} C. E. Shannon, ``Communication theory of secrecy
