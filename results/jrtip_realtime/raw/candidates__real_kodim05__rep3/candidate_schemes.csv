@@ -1,0 +1,8 @@
+image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
+images/datasets/real/kodak/kodim05.png,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,768,512,3,1179648,2.7319,17.4872,1.56882,21.7922,51.6239,6954498042322341093
+images/datasets/real/kodak/kodim05.png,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,768,512,3,1179648,2.43237,0.965007,1.12177,4.52424,248.661,329147272346205406
+images/datasets/real/kodak/kodim05.png,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,768,512,3,1179648,2.41045,16.2534,6.8223,25.4901,44.1347,8447728408660617105
+images/datasets/real/kodak/kodim05.png,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,768,512,3,1179648,2.57759,1.13006,1.97561,5.68691,197.823,2951433945885406825
+images/datasets/real/kodak/kodim05.png,CML-Feistel-Stencil,cml,feistel_index,stencil,768,512,3,1179648,17.9412,17.3239,4.81477,40.0838,28.0662,8242947318805138069
+images/datasets/real/kodak/kodim05.png,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,768,512,3,1179648,102.86,17.8192,5.56029,126.244,8.91129,5015796982729256934
+images/datasets/real/kodak/kodim05.png,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,768,512,3,1179648,17.5194,16.6922,2.40548,36.6205,30.7205,11447312292534639252

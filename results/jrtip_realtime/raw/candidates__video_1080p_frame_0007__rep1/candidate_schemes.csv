@@ -1,0 +1,8 @@
+image,scheme,keystream,permutation,diffusion,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,checksum
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,CA-Feistel-ARX,cellular_automata,feistel_index,arx_block,1920,1080,3,6220800,14.9433,55.9336,7.10502,77.9898,76.0691,9251440223164761018
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,Checkerboard-CA-ARX,cellular_automata,checkerboard_swaps,arx_block,1920,1080,3,6220800,15.9881,6.26477,7.54005,29.8169,198.968,6427170572204637235
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,Affine-CA-PrefixTree,cellular_automata,affine_bitplane,prefix_tree_reverse,1920,1080,3,6220800,15.4052,91.8688,36.1562,143.439,41.3598,11197077392868063837
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,Checkerboard-CA-MultilaneTree,cellular_automata,checkerboard_swaps,multilane_tree,1920,1080,3,6220800,14.0223,6.41445,13.5981,34.0414,174.277,824304262713729453
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,CML-Feistel-Stencil,cml,feistel_index,stencil,1920,1080,3,6220800,96.0653,53.8384,25.7251,175.636,33.7778,4596576482275699231
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,Hamiltonian-Block-Stencil,hamiltonian,block_feistel,stencil,1920,1080,3,6220800,523.739,54.9889,26.3634,605.099,9.80437,2147138450214494976
+images/datasets/real/video_xiph_ducks/1080p/frame_0007.ppm,Affine-CML-Bitplane,cml,affine_bitplane,bitplane,1920,1080,3,6220800,94.2476,92.1119,14.9956,201.362,29.4624,7683821018704079281

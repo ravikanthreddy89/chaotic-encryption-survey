@@ -1,0 +1,14 @@
+image,cipher,variant,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,correct
+images/datasets/real/kodak/kodim09.png,logistic_xor,scalar_avx2,512,768,3,1179648,4.69451,0.000624,2.014,8.5729,131.227,1
+images/datasets/real/kodak/kodim09.png,logistic_permute_xor,scalar_avx2,512,768,3,1179648,3.89433,75.9348,1.39705,82.6428,13.6128,1
+images/datasets/real/kodak/kodim09.png,arnold_xor,scalar_avx2,512,768,3,1179648,3.99236,5.63937,0.362933,10.4541,107.613,1
+images/datasets/real/kodak/kodim09.png,tiled_arnold_xor,scalar_avx2,512,768,3,1179648,4.1374,6.95765,1.96223,14.6567,76.7569,1
+images/datasets/real/kodak/kodim09.png,tent_block_xor,scalar_avx2,512,768,3,1179648,11.0183,0.000653,1.94676,14.4912,77.6334,1
+images/datasets/real/kodak/kodim09.png,sine_xor,scalar_avx2,512,768,3,1179648,53.3075,0.00068,0.931598,54.7322,20.5546,1
+images/datasets/real/kodak/kodim09.png,coupled_lattice_xor,scalar_avx2,512,768,3,1179648,14.8345,0.000592,0.636143,15.9526,70.5213,1
+images/datasets/real/kodak/kodim09.png,hamiltonian_lattice_xor,scalar_avx2,512,768,3,1179648,104.622,0.000868,1.05818,106.293,10.5839,1
+images/datasets/real/kodak/kodim09.png,chaotic_seed_blake3_xor,scalar_avx2,512,768,3,1179648,2.74597,0.000758,0.596378,3.70295,303.812,1
+images/datasets/real/kodak/kodim09.png,aes_ctr,openssl_evp,512,768,3,1179648,0,0,3.32908,3.95736,284.28,1
+images/datasets/real/kodak/kodim09.png,chacha20,openssl_evp,512,768,3,1179648,0,0,0.666368,1.46329,768.813,1
+images/datasets/real/kodak/kodim09.png,aes_256_gcm,openssl_evp_aead,512,768,3,1179648,0,0,0.601195,1.15208,976.497,1
+images/datasets/real/kodak/kodim09.png,chacha20_poly1305,openssl_evp_aead,512,768,3,1179648,0,0,1.14415,1.75863,639.701,1

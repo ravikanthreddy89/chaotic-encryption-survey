@@ -1,0 +1,14 @@
+image,cipher,variant,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,correct
+images/datasets/synthetic/noise_1024x1024.ppm,logistic_xor,scalar_avx2,1024,1024,3,3145728,12.462,0.000725,4.95132,22.0328,136.16,1
+images/datasets/synthetic/noise_1024x1024.ppm,logistic_permute_xor,scalar_avx2,1024,1024,3,3145728,11.2845,232.561,4.93602,253.326,11.8425,1
+images/datasets/synthetic/noise_1024x1024.ppm,arnold_xor,scalar_avx2,1024,1024,3,3145728,10.4956,15.707,2.03701,29.7831,100.728,1
+images/datasets/synthetic/noise_1024x1024.ppm,tiled_arnold_xor,scalar_avx2,1024,1024,3,3145728,10.6957,16.8984,5.12268,37.3246,80.376,1
+images/datasets/synthetic/noise_1024x1024.ppm,tent_block_xor,scalar_avx2,1024,1024,3,3145728,29.9559,0.000772,5.4655,40.0715,74.8661,1
+images/datasets/synthetic/noise_1024x1024.ppm,sine_xor,scalar_avx2,1024,1024,3,3145728,126.583,0.000795,2.32415,130.175,23.0458,1
+images/datasets/synthetic/noise_1024x1024.ppm,coupled_lattice_xor,scalar_avx2,1024,1024,3,3145728,40.3012,0.000839,2.28712,43.9036,68.3315,1
+images/datasets/synthetic/noise_1024x1024.ppm,hamiltonian_lattice_xor,scalar_avx2,1024,1024,3,3145728,278.479,0.000874,2.14852,281.851,10.6439,1
+images/datasets/synthetic/noise_1024x1024.ppm,chaotic_seed_blake3_xor,scalar_avx2,1024,1024,3,3145728,7.28895,0.000787,2.33261,11.1567,268.898,1
+images/datasets/synthetic/noise_1024x1024.ppm,aes_ctr,openssl_evp,1024,1024,3,3145728,0,0,3.99755,5.7026,526.076,1
+images/datasets/synthetic/noise_1024x1024.ppm,chacha20,openssl_evp,1024,1024,3,3145728,0,0,1.76307,3.46676,865.362,1
+images/datasets/synthetic/noise_1024x1024.ppm,aes_256_gcm,openssl_evp_aead,1024,1024,3,3145728,0,0,1.53534,3.56657,841.144,1
+images/datasets/synthetic/noise_1024x1024.ppm,chacha20_poly1305,openssl_evp_aead,1024,1024,3,3145728,0,0,2.74435,4.72815,634.497,1

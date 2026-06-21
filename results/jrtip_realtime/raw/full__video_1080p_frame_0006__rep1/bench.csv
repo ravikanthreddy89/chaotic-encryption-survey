@@ -1,0 +1,14 @@
+image,cipher,variant,width,height,channels,bytes,keygen_ms,permutation_ms,diffusion_ms,total_ms,MBps,correct
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,logistic_xor,scalar_avx2,1920,1080,3,6220800,28.142,0.000881,12.4997,51.7881,114.556,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,logistic_permute_xor,scalar_avx2,1920,1080,3,6220800,22.7015,585.188,11.2687,628.92,9.43302,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,arnold_xor,scalar_avx2,1920,1080,3,6220800,21.0904,33.5493,5.13679,63.0686,94.0662,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,tiled_arnold_xor,scalar_avx2,1920,1080,3,6220800,22.4156,35.5539,11.8184,79.8527,74.2945,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,tent_block_xor,scalar_avx2,1920,1080,3,6220800,58.3523,0.000689,12.1095,79.7575,74.3832,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,sine_xor,scalar_avx2,1920,1080,3,6220800,244.783,0.001094,4.7758,252.954,23.4533,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,coupled_lattice_xor,scalar_avx2,1920,1080,3,6220800,83.0962,0.00068,5.27216,91.8435,64.5948,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,hamiltonian_lattice_xor,scalar_avx2,1920,1080,3,6220800,532.628,0.001751,5.24188,541.261,10.9607,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,chaotic_seed_blake3_xor,scalar_avx2,1920,1080,3,6220800,15.1574,0.001488,4.93877,23.5496,251.92,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,aes_ctr,openssl_evp,1920,1080,3,6220800,0,0,5.33087,9.46705,626.659,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,chacha20,openssl_evp,1920,1080,3,6220800,0,0,3.73526,8.73631,679.076,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,aes_256_gcm,openssl_evp_aead,1920,1080,3,6220800,0,0,3.22353,8.05282,736.713,1
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,chacha20_poly1305,openssl_evp_aead,1920,1080,3,6220800,0,0,5.62373,10.6002,559.668,1

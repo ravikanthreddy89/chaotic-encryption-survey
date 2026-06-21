@@ -1,0 +1,27 @@
+image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,logistic_double,slow,baseline,1024,1024,3,3145728,18.4745,162.386,1393323055710729083
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,sine_map,very slow,bad baseline,1024,1024,3,3145728,132.051,22.7184,4148837386759025803
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,fixed_point_tent,high,useful,1024,1024,3,3145728,24.7666,121.131,17828801109085825904
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,cml,medium-high,chaos-native SIMD,1024,1024,3,3145728,52.2173,57.4522,7300071053647123909
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,cellular_automata,very high,fastest,1024,1024,3,3145728,10.639,281.983,16155639928818468039
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,hamiltonian,medium,physics novelty,1024,1024,3,3145728,270.001,11.1111,8933758949333043982
+images/datasets/synthetic/texture_1024x1024.ppm,keystream,reaction_diffusion,low-medium,physics novelty,1024,1024,3,3145728,65.2935,45.9464,7835021245437358895
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,chaotic_sort,O(N log N),poor,1024,1024,3,3145728,853.471,3.51506,16363260921507837801
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,random_walk,O(N) sequential,poor,1024,1024,3,3145728,56.0893,53.4862,109986810141315697
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,arnold_cat_map,O(N),good,1024,1024,3,3145728,18.2672,164.229,16293613811973799205
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,affine_modular,O(N),excellent,1024,1024,3,3145728,44.4752,67.4533,18359127581040289573
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,feistel_index,O(rN),excellent,1024,1024,3,3145728,29.4973,101.704,3130053325920024065
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,block_permutation,O(N),excellent,1024,1024,3,3145728,6.82315,439.68,6258436789537627429
+images/datasets/synthetic/texture_1024x1024.ppm,permutation,checkerboard_swaps,O(rN),excellent,1024,1024,3,3145728,16.207,185.105,5702328504181922171
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,global_chain,sequential,poor,1024,1024,3,3145728,13.25,226.414,4271946256757641350
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,block_local_chain,block-level,good,1024,1024,3,3145728,10.4255,287.756,7441677127214328906
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,parallel_prefix,reduced,medium,1024,1024,3,3145728,10.9596,273.733,3392303449115634650
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,stencil_diffusion,none per round,high,1024,1024,3,3145728,17.1807,174.614,7842210833196427539
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,arx_block_diffusion,none,excellent,1024,1024,3,3145728,7.27062,412.619,12928897658597319683
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,bitplane_diffusion,none,excellent,1024,1024,3,3145728,10.9338,274.378,6903064076166523575
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,1024,1024,3,3145728,9.08511,330.211,4271946256757641350
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,1024,1024,3,3145728,11.0951,270.389,13666562409822644864
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,1024,1024,3,3145728,6.54511,458.357,13655665274455422114
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,1024,1024,3,3145728,6.9072,434.329,6092161430975310393
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,1024,1024,3,3145728,18.2494,164.389,2959024956269643196
+images/datasets/synthetic/texture_1024x1024.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,1024,1024,3,3145728,13.505,222.139,12872475290757752187

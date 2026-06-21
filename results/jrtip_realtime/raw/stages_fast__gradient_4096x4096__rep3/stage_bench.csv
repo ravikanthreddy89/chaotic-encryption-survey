@@ -1,0 +1,21 @@
+image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
+images/datasets/synthetic/gradient_4096x4096.ppm,keystream,fixed_point_tent,high,useful,4096,4096,3,50331648,408.116,117.614,8750984382815305012
+images/datasets/synthetic/gradient_4096x4096.ppm,keystream,cml,medium-high,chaos-native SIMD,4096,4096,3,50331648,866.697,55.3827,1281355382643370342
+images/datasets/synthetic/gradient_4096x4096.ppm,keystream,cellular_automata,very high,fastest,4096,4096,3,50331648,206.925,231.969,7093055502049179837
+images/datasets/synthetic/gradient_4096x4096.ppm,permutation,arnold_cat_map,O(N),good,4096,4096,3,50331648,665.789,72.0949,12142211283384017701
+images/datasets/synthetic/gradient_4096x4096.ppm,permutation,affine_modular,O(N),excellent,4096,4096,3,50331648,954.228,50.3024,831636672791405349
+images/datasets/synthetic/gradient_4096x4096.ppm,permutation,feistel_index,O(rN),excellent,4096,4096,3,50331648,1158.95,41.4166,139514138465698511
+images/datasets/synthetic/gradient_4096x4096.ppm,permutation,block_permutation,O(N),excellent,4096,4096,3,50331648,151.279,317.295,13311812038642512677
+images/datasets/synthetic/gradient_4096x4096.ppm,permutation,checkerboard_swaps,O(rN),excellent,4096,4096,3,50331648,295.873,162.232,4389970842684815545
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,global_chain,sequential,poor,4096,4096,3,50331648,224.309,213.99,11848952463134990776
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,block_local_chain,block-level,good,4096,4096,3,50331648,208.133,230.622,14313415881705817096
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,parallel_prefix,reduced,medium,4096,4096,3,50331648,225.678,212.692,16241651645977080504
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,stencil_diffusion,none per round,high,4096,4096,3,50331648,311.82,153.935,13065320066001131677
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,arx_block_diffusion,none,excellent,4096,4096,3,50331648,153.209,313.298,4878014691682394720
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,bitplane_diffusion,none,excellent,4096,4096,3,50331648,218.512,219.668,6299867935442689561
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,4096,4096,3,50331648,180.773,265.526,11848952463134990776
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,4096,4096,3,50331648,212.848,225.513,12849323251501995240
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,4096,4096,3,50331648,145.466,329.974,10359879629278977945
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,4096,4096,3,50331648,156.712,306.295,6393343767008083153
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,4096,4096,3,50331648,371.349,129.258,5254861164105585460
+images/datasets/synthetic/gradient_4096x4096.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,4096,4096,3,50331648,247.917,193.613,1108177230841749768

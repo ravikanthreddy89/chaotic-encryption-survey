@@ -1,0 +1,27 @@
+image,category,stage,expected_speed,research_value,width,height,channels,bytes,ms,MBps,checksum
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,logistic_double,slow,baseline,1920,1080,3,6220800,20.9457,283.238,9166918675787841943
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,sine_map,very slow,bad baseline,1920,1080,3,6220800,172.697,34.3528,6450972342814459141
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,fixed_point_tent,high,useful,1920,1080,3,6220800,24.5081,242.068,1546837657110261137
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,cml,medium-high,chaos-native SIMD,1920,1080,3,6220800,61.8081,95.9844,2420874392157248670
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,cellular_automata,very high,fastest,1920,1080,3,6220800,7.68234,772.241,2069806489814679481
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,hamiltonian,medium,physics novelty,1920,1080,3,6220800,398.172,14.8996,707265548565391301
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,keystream,reaction_diffusion,low-medium,physics novelty,1920,1080,3,6220800,66.6503,89.0111,8993733018621087535
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,chaotic_sort,O(N log N),poor,1920,1080,3,6220800,1358.53,4.36695,7884161238573064313
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,random_walk,O(N) sequential,poor,1920,1080,3,6220800,62.6725,94.6606,205523015280402235
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,arnold_cat_map,O(N),good,1920,1080,3,6220800,13.1296,451.851,7520161653892096382
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,affine_modular,O(N),excellent,1920,1080,3,6220800,30.4053,195.118,11267561594331813303
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,feistel_index,O(rN),excellent,1920,1080,3,6220800,38.965,152.255,3621137049537834011
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,block_permutation,O(N),excellent,1920,1080,3,6220800,1.55606,3812.59,16709826896093166483
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,permutation,checkerboard_swaps,O(rN),excellent,1920,1080,3,6220800,16.5241,359.028,1256201327321389101
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,global_chain,sequential,poor,1920,1080,3,6220800,10.6756,555.717,13965842820110789945
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,block_local_chain,block-level,good,1920,1080,3,6220800,8.91803,665.239,5007258513120957977
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,parallel_prefix,reduced,medium,1920,1080,3,6220800,6.25712,948.139,9151389860229900193
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,stencil_diffusion,none per round,high,1920,1080,3,6220800,17.1585,345.754,6119019078987279065
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,arx_block_diffusion,none,excellent,1920,1080,3,6220800,2.64668,2241.53,7214221526637984749
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,bitplane_diffusion,none,excellent,1920,1080,3,6220800,10.9959,539.531,15001057048050414904
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,prefix_xor_avx2,associative scan,excellent,1920,1080,3,6220800,11.0865,535.121,13965842820110789945
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,reverse_prefix_xor_avx2,associative scan,excellent,1920,1080,3,6220800,9.10523,651.561,12169564737455205959
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,multilane_chain_avx2,lane-local,excellent,1920,1080,3,6220800,11.918,497.785,11065349981230873121
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,tree_xor_avx2,logarithmic,excellent,1920,1080,3,6220800,46.6647,127.133,7980381104531222744
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,prefix_tree_reverse,multi-pass associative,excellent,1920,1080,3,6220800,53.2696,111.37,8667338113585356130
+images/datasets/real/video_xiph_ducks/1080p/frame_0006.ppm,diffusion,arx_prefix_mod256,prefix sum mod 256,medium-high,1920,1080,3,6220800,14.8186,400.348,15558483227230078660

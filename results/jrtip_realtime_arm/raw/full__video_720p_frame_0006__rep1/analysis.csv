@@ -1,0 +1,14 @@
+image,cipher,entropy,chi_square,corr_h,corr_v,corr_d,npcr,uaci,key_sensitivity,kpa_score,cpa_score
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,logistic_xor,7.99531,17676.3,-0.0538425,0.00727277,0.00771934,3.6169e-05,1.41839e-07,99.4018,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,logistic_permute_xor,7.99525,17889.1,-0.00589099,-0.000352383,-0.00154099,3.6169e-05,1.41839e-07,99.606,0.999999,0.00672888
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,arnold_xor,7.99526,17863.6,-0.0481403,0.00783355,0.00837201,3.6169e-05,1.41839e-07,99.4018,1,0.103236
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,tiled_arnold_xor,7.9952,18099.3,-0.0485723,0.00778079,0.00796911,3.6169e-05,1.41839e-07,99.4018,1,0.0247081
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,tent_block_xor,7.99993,285.135,-0.00454244,-0.000374487,-0.000323781,3.6169e-05,1.41839e-07,99.6182,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,sine_xor,7.99793,7819.62,0.0488958,0.0837393,0.0830218,3.6169e-05,1.41839e-07,99.3062,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,coupled_lattice_xor,7.99846,5893.34,0.169117,0.171814,0.172171,3.6169e-05,1.41839e-07,99.4157,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,hamiltonian_lattice_xor,7.99749,9464.12,-0.0170899,0.00271524,0.00403498,3.6169e-05,1.41839e-07,99.5373,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,chaotic_seed_blake3_xor,7.99993,260.604,-0.000705129,0.00106472,-0.0009463,3.6169e-05,1.41839e-07,99.6064,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,aes_ctr,7.99994,248.06,0.000923625,-2.07654e-05,0.00140236,3.6169e-05,1.41839e-07,99.6155,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,chacha20,7.99993,251.144,0.000584807,-0.000993193,-0.000327762,3.6169e-05,1.41839e-07,99.6122,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,aes_256_gcm,7.99992,287.74,-0.000583,0.000601206,-0.00164801,3.6169e-05,1.41839e-07,99.6059,1,1
+images/datasets/real/video_xiph_ducks/720p/frame_0006.ppm,chacha20_poly1305,7.99993,250.141,-0.00198897,-0.000269548,-0.000355194,3.6169e-05,1.41839e-07,99.607,1,1
