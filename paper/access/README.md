@@ -1,10 +1,12 @@
-# IEEE Access LaTeX Manuscript
+# Springer Nature / JRTIP LaTeX Manuscript
 
-`access_paper.tex` is the IEEE Access conversion of the maintained
-`paper_draft.md` manuscript.
+`access_paper.tex` is the Springer Nature journal-template version of the
+manuscript prepared for a Journal of Real-Time Image Processing attempt.
 
-The required IEEE Access class, style, logo, and font assets are included in
-this directory from the parent `ACCESS_latex_template_20260513` template.
+The required Springer Nature class file is `sn-jnl.cls`. Bibliography style
+files from the December 2024 Springer Nature journal article template are kept
+under `bst/` for upload compatibility, although the current manuscript keeps
+references inline in the `.tex` file.
 
 The generated review PDF is `access_paper.pdf`.
 
@@ -23,5 +25,6 @@ pdflatex access_paper.tex
 pdflatex access_paper.tex
 ```
 
-IEEE supplies the final publication history and DOI. Replace those placeholders
-before submission if the submission system requires different values.
+The manuscript includes Springer-style declarations, including funding,
+competing interests, data/code availability, and use of generative AI and
+AI-assisted technologies.
