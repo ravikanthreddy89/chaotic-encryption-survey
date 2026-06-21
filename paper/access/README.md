@@ -1,12 +1,13 @@
-# Springer Nature / JRTIP LaTeX Manuscript
+# Springer / JRTIP LaTeX Manuscript
 
-`access_paper.tex` is the Springer Nature journal-template version of the
-manuscript prepared for a Journal of Real-Time Image Processing attempt.
+`access_paper.tex` is the Springer journal-template version of the manuscript
+prepared for a Journal of Real-Time Image Processing attempt.
 
-The required Springer Nature class file is `sn-jnl.cls`. Bibliography style
-files from the December 2024 Springer Nature journal article template are kept
-under `bst/` for upload compatibility, although the current manuscript keeps
-references inline in the `.tex` file.
+The source package uses the Springer macro package supplied by the journal
+guidelines: `svjour3.cls`, `svglov3.clo`, and the `sp*.bst` bibliography style
+files under `bst/`. The manuscript is built in two-column mode to match the
+JRTIP LaTeX guidance and keep the first submission within the 12-page target.
+References are currently kept inline in the `.tex` file.
 
 The generated review PDF is `access_paper.pdf`.
 
@@ -21,8 +22,8 @@ Build with a TeX distribution that provides `pdflatex`:
 
 ```bash
 cd paper/access
-pdflatex access_paper.tex
-pdflatex access_paper.tex
+pdflatex -interaction=nonstopmode access_paper.tex
+pdflatex -interaction=nonstopmode access_paper.tex
 ```
 
 The manuscript includes Springer-style declarations, including funding,

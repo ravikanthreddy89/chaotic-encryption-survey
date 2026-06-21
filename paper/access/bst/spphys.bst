@@ -1,23 +1,32 @@
 %%
-%% This is file `sn-aps.bst',
+%% This is file `spphys.bst',
 %% generated with the docstrip utility.
 %%
-%% The original source files were: merlin.mbs
-%% ------------------------------------------
+%% The original source files were:
+%%
+%% merlin.mbs  (with options: `seq-no,vonx,nm-init,ed-au,yr-par,xmth,jtit-x,jttl-rm,thtit-a,vol-bf,volp-com,jpg-1,pgsep-c,num-xser,ser-vol,ser-ed,jnm-x,pub-date,pre-pub,doi,edpar,edby,fin-bare,pp,ed,abr,ord,jabr,xand,url,url-blk,nfss,')
+%% ----------------------------------------
 %%********************************************************************************%%
+%%                                                                                %%
 %% For Springer physics publications. Based on the APS reference style.           %%
+%% Report bugs and improvements to: Joylene Vette-Guillaume or Frank Holzwarth    %%
+%%                                              Springer-Verlag 2004/10/15        %%
+%%                                                                                %%
 %%********************************************************************************%%
 %%
+%% Copyright 1994-2004 Patrick W Daly
  % ===============================================================
  % IMPORTANT NOTICE:
  % This bibliographic style (bst) file has been generated from one or
  % more master bibliographic style (mbs) files, listed above.
  %
- % This file can be redistributed and/or modified under the terms
+ % This generated file can be redistributed and/or modified under the terms
  % of the LaTeX Project Public License Distributed from CTAN
  % archives in directory macros/latex/base/lppl.txt; either
  % version 1 of the License, or any later version.
  % ===============================================================
+ % Name and version information of the main mbs file:
+ % \ProvidesFile{merlin.mbs}[2004/02/09 4.13 (PWD, AO, DPC)]
  %   For use with BibTeX version 0.99a or later
  %-------------------------------------------------------------------
  % This bibliography style file is intended for texts in ENGLISH
@@ -33,13 +42,6 @@
  %   cited in the text, or that in the database.
  %---------------------------------------------------------------------
 
-FUNCTION {identify.aps.version}
-{ % Put identifying string in the .blg file
-  "sn-aps.bst"
-  " [2024/07/19 v1.1 APS bibliography style]"
-  * top$
-}
-
 ENTRY
   { address
     author
@@ -53,7 +55,6 @@ ENTRY
     institution
     journal
     key
-    keywords
     month
     note
     number
@@ -67,13 +68,6 @@ ENTRY
     url
     volume
     year
-    eprint
-    archive
-    archivePrefix
-    primaryClass
-    adsurl
-    adsnote
-    version
   }
   {}
   { label }
@@ -586,7 +580,7 @@ FUNCTION {n.separate}
 }
 FUNCTION {n.dashify}
 {
-%%  n.separate
+  n.separate
   't :=
   ""
     { t empty$ not }
@@ -810,7 +804,7 @@ FUNCTION {format.journal.pages}
         {
           ", " *
           swap$
-          n.dashify
+          first.page
           "pages" bibinfo.check
           *
         }
@@ -879,9 +873,8 @@ FUNCTION {format.booktitle}
   booktitle "booktitle" bibinfo.check
   emphasize
 }
-
 FUNCTION {format.in.ed.booktitle}
-{format.booktitle duplicate$ empty$ 'skip$
+{ format.booktitle duplicate$ empty$ 'skip$
     {
       format.bvolume duplicate$ empty$ 'pop$
         { ", " swap$ * * }
@@ -1063,62 +1056,10 @@ FUNCTION {format.organization.address}
 { organization "organization" bibinfo.check format.org.or.pub
 }
 
-FUNCTION {format.softmisc.archive}
-{
-  archivePrefix empty$
-      { "" }
-      { "" }
-  if$           
-}
-
-FUNCTION {format.archive}
-{
-  archivePrefix empty$
-      { "" }
-      { archivePrefix ":" *}
-  if$           
-}
-
-FUNCTION {format.primaryClass}
-{
-  primaryClass empty$
-      { "" }
-      { "{[" primaryClass * "]}" *}
-  if$           
-}
-
-FUNCTION {format.eprint}
-{ eprint empty$
-     { ""}
-     { archive empty$
-          {"{\href{https://arxiv.org/abs/" eprint * "}" *
-             "{{" * format.archive * eprint * "}}}" *}
-          {"{\href{https://arxiv.org/abs/" eprint * "}" *
-             "{{" * format.archive * eprint * "}}}" *}
-       if$
-     }
-     if$
-}
-
-FUNCTION {format.softmisc.eprint}
-{ eprint empty$
-     { ""}
-     { archive empty$
-          {"{\href{https://ascl.net/" format.softmisc.archive * eprint * "}" *
-             "{{" * format.archive * eprint * "}}}" *}
-          {"{\href{https://ascl.net/" format.softmisc.archive * eprint * "}" *
-             "{{" * format.archive * eprint * "}}}" *}
-       if$
-     }
-     if$
-}
-
 FUNCTION {article}
 { output.bibitem
   format.authors "author" output.check
   add.comma
-  format.title "title" output.check
-  new.block
   crossref missing$
     {
       journal
@@ -1137,13 +1078,8 @@ FUNCTION {article}
   format.url output
   new.block
   format.note output
-  new.block
-  format.eprint output
-  add.blank
-  format.primaryClass output
   fin.entry
 }
-
 FUNCTION {book}
 { output.bibitem
   author empty$
@@ -1165,7 +1101,6 @@ FUNCTION {book}
       format.number.series output
       new.sentence
       format.publisher.address output
-      format.pages output
     }
     {
       new.block
@@ -1259,13 +1194,11 @@ FUNCTION {incollection}
   format.note output
   fin.entry
 }
-
 FUNCTION {inproceedings}
 { output.bibitem
   format.authors "author" output.check
   add.comma
-  format.btitle "title" output.check
-   crossref missing$
+  crossref missing$
     { format.in.ed.booktitle "booktitle" output.check
       new.sentence
       publisher empty$
@@ -1274,6 +1207,7 @@ FUNCTION {inproceedings}
           format.publisher.address output
         }
       if$
+      format.bvolume output
       format.number.series output
       format.pages output
     }
@@ -1363,27 +1297,6 @@ FUNCTION {misc}
   fin.entry
   empty.misc.check
 }
-
-FUNCTION {softmisc}
-{ output.bibitem
-  format.authors output
-  title howpublished new.block.checkb
-  format.title output
-  version output
-  howpublished new.block.checka
-  howpublished "howpublished" bibinfo.check output
-  format.date output
-  format.doi output
-  new.block
-  format.url output
-  new.block
-  format.note output
-  new.block
-  format.softmisc.eprint output
-  fin.entry
-  empty.misc.check
-}
-
 FUNCTION {phdthesis}
 { output.bibitem
   format.authors "author" output.check
@@ -1478,7 +1391,6 @@ FUNCTION {unpublished}
 
 FUNCTION {default.type} { misc }
 READ
-EXECUTE {identify.aps.version}
 STRINGS { longest.label }
 INTEGERS { number.label longest.label.width }
 FUNCTION {initialize.longest.label}
@@ -1509,14 +1421,12 @@ FUNCTION {begin.bib}
   write$ newline$
   "\providecommand{\urlprefix}{URL }"
   write$ newline$
-  %%"\expandafter\ifx\csname urlstyle\endcsname\relax"
-  %% write$ newline$
-  %%"  \providecommand{\doi}[1]{\discretionary{}{}{}#1}\else"
-  %%write$ newline$
-  %%"  \providecommand{\doi}{\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi"
-  "\providecommand{\doi}[1]{\url{https://doi.org/#1}}"
+  "\expandafter\ifx\csname urlstyle\endcsname\relax"
   write$ newline$
-  "" write$ newline$
+  "  \providecommand{\doi}[1]{DOI \discretionary{}{}{}#1}\else"
+  write$ newline$
+  "  \providecommand{\doi}{DOI \discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi"
+  write$ newline$
 }
 EXECUTE {begin.bib}
 EXECUTE {init.state.consts}
@@ -1526,6 +1436,7 @@ FUNCTION {end.bib}
   "\end{thebibliography}" write$ newline$
 }
 EXECUTE {end.bib}
+%% End of customized bst file
 %%
-%% End of file `sn-aps.bst'.
+%% End of file `spphys.bst'.
 

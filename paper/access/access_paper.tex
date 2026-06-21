@@ -1,6 +1,9 @@
-%Version converted from Springer Nature journal article template, December 2024
-\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
-
+\RequirePackage{fix-cm}
+\makeatletter
+\def\@journalname{Journal of Real-Time Image Processing}
+\makeatother
+\documentclass[twocolumn]{svjour3}
+\smartqed
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{textcomp}
@@ -9,21 +12,48 @@
 \usepackage{url}
 \graphicspath{{figures/}}
 
-\raggedbottom
+\journalname{Journal of Real-Time Image Processing}
 
 \begin{document}
 
-\title[Real-Time Evaluation of Chaos-Based Image Encryption]{Real-Time Stage-Level Evaluation of SIMD-Native Chaos-Based Image Encryption Pipelines}
+\title{Real-Time Stage-Level Evaluation of SIMD-Native Chaos-Based Image Encryption Pipelines}
+\titlerunning{Real-Time Evaluation of Chaos-Based Image Encryption}
 
-\author*[1]{\fnm{Ravikanth Reddy} \sur{Gudipati}}\email{ravikanthreddy@ieee.org}
+\author{Ravikanth Reddy Gudipati}
+\authorrunning{R. R. Gudipati}
 
-\affil*[1]{\orgname{University at Buffalo}, \orgaddress{\city{Buffalo}, \state{NY}, \country{USA}}}
+\institute{Ravikanth Reddy Gudipati \at
+University at Buffalo, Buffalo, NY, USA \\
+\email{ravikanthreddy@ieee.org}}
 
-\abstract{Chaos-based image-encryption studies commonly report aggregate running time and image-domain statistics, but often do not show whether the proposed pipeline can satisfy real-time image-processing budgets or which stage prevents it from doing so. This work presents a reproducible C++17 benchmark that decomposes representative chaotic image-encryption methods into keystream generation, pixel permutation, and diffusion, then evaluates end-to-end latency, throughput, and stage share against frame-rate-oriented constraints. Traditional components are compared with SIMD-oriented replacements on 12 deterministic synthetic images, the 24-image Kodak PhotoCD dataset, and a public 720p/1080p video-frame workload. The still-image evaluation contains 14,730 performance observations and 3,300 full-scheme security observations, with ten repetitions per configuration; the real-time extension adds matched x86-64 and ARM64 video-frame measurements with mean latency, p95 latency, FPS-equivalent throughput, and 30/60 FPS feasibility labels. Replacing chaotic sort permutation with a linear block permutation improves mean permutation throughput by 100.6--131.9 times. Replacing a global feedback chain with AVX2 multi-lane or tree diffusion improves mean diffusion throughput by approximately 1.8--2.1 times. The fastest benchmark-informed candidate, Checkerboard-CA-ARX, sustains 259.1 MiB/s on Kodak images and 200.0 MiB/s at 4096$\times$4096, while ChaCha20 remains substantially faster. Security experiments show that favorable entropy, histogram, correlation, and key-sensitivity values do not imply resistance to differential or known-plaintext attacks. The candidate pipelines are therefore presented as real-time performance templates rather than deployment-ready ciphers.}
-
-\keywords{chaotic image encryption, real-time image processing, SIMD, stage-level benchmarking, permutation-diffusion, image cryptanalysis, latency}
+\date{Received: date / Accepted: date}
 
 \maketitle
+
+\begin{abstract}
+Chaos-based image-encryption studies commonly report aggregate running time
+and image-domain statistics, but often do not show whether the proposed
+pipeline can satisfy real-time image-processing budgets or which stage prevents
+it from doing so. This work presents a reproducible C++17 benchmark that
+decomposes representative chaotic image-encryption methods into keystream
+generation, pixel permutation, and diffusion, then evaluates end-to-end
+latency, throughput, and stage share against frame-rate constraints.
+Traditional components are compared with SIMD-oriented replacements on
+synthetic images, Kodak PhotoCD images, and a public 720p/1080p video-frame
+workload. The real-time extension adds matched x86-64 and ARM64 video-frame
+measurements with mean latency, p95 latency, FPS-equivalent throughput, and
+30/60 FPS feasibility labels. Replacing chaotic sort permutation with a linear
+block permutation improves mean permutation throughput by 100.6--131.9 times.
+Replacing a global feedback chain with AVX2 multi-lane or tree diffusion
+improves mean diffusion throughput by approximately 1.8--2.1 times. The
+fastest benchmark-informed candidate, Checkerboard-CA-ARX, sustains 259.1
+MiB/s on Kodak images and 200.0 MiB/s at 4096$\times$4096, while ChaCha20
+remains substantially faster. Security experiments show that favorable
+entropy, histogram, correlation, and key-sensitivity values do not imply
+resistance to differential or known-plaintext attacks.
+\keywords{chaotic image encryption \and real-time image processing \and SIMD
+\and stage-level benchmarking \and permutation-diffusion \and latency}
+\end{abstract}
 
 \section{Introduction}
 \label{sec:introduction}
@@ -228,7 +258,7 @@ tree variants contain the clearest AVX2-native data paths.
 Seven candidate combinations test whether isolated improvements survive
 composition. Table~\ref{tab:candidates} summarizes their stages.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Benchmark-Informed Candidate Pipelines}
 \label{tab:candidates}
 \centering
@@ -247,7 +277,7 @@ Hamiltonian-Block-Stencil & Hamiltonian lattice & Block-Feistel mapping & Stenci
 Affine-CML-Bitplane & CML & Affine mapping & Bit-plane transform \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 These pipelines currently produce checksums for performance validation but do
 not implement complete decryptors or equivalent security probes. They are
@@ -376,7 +406,7 @@ AES-256-CTR is second among the standard baselines. BLAKE3-XOR is the fastest
 non-OpenSSL full scheme, but its portable-only BLAKE3 build makes this a
 conservative measurement.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Selected Aggregate Full-Scheme Throughput}
 \label{tab:full}
 \centering
@@ -393,7 +423,7 @@ BLAKE3-XOR & 768$\times$512 & 180 & 315.714 & 2.750 & 2.252$\times$ \\
 BLAKE3-XOR & 1024$\times$1024 & 30 & 294.142 & 4.023 & 2.127$\times$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 The results do not support a claim that chaotic-image pipelines outperform
 standard ciphers. Instead, they show the cost of common chaotic components and
@@ -401,7 +431,7 @@ provide a performance target for alternative stage designs.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{full_scheme_throughput.pdf}
+\includegraphics[width=\columnwidth]{full_scheme_throughput.pdf}
 \caption{Selected full-scheme throughput on the 24-image Kodak dataset. Error
 bars show 95\% confidence intervals. Standard cryptographic baselines remain
 substantially faster than the evaluated chaotic full schemes.}
@@ -414,7 +444,7 @@ Permutation produces the largest stage-level improvement. At
 faster than chaotic sort. At 1024$\times$1024 it reaches 497.839 MiB/s and is
 131.861 times faster.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Block-Permutation Performance Relative to Chaotic Sort}
 \label{tab:permutation}
 \centering
@@ -429,7 +459,7 @@ faster than chaotic sort. At 1024$\times$1024 it reaches 497.839 MiB/s and is
 1024$\times$1024 & 30 & 497.839 & 5.289 & 131.861$\times$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 This result answers RQ1 and RQ2: chaotic sort is implementation-hostile, and
 replacing it with a regular linear-time transform changes the performance
@@ -440,7 +470,7 @@ and cryptographically analyzed before use in a cipher.
 The fastest diffusion alternatives are multi-lane chaining and tree XOR.
 Their mean speedups over the global chain are approximately twofold.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Selected Aggregate Diffusion Performance}
 \label{tab:diffusion}
 \centering
@@ -457,7 +487,7 @@ Tree XOR AVX2 & 1024$\times$1024 & 30 & 464.386 & 8.035 & 1.935$\times$ \\
 ARX block diffusion & 768$\times$512 & 180 & 426.568 & 2.540 & 1.791$\times$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Removing a global byte-to-byte dependency creates a measurable SIMD
 opportunity. It also explains why adding SIMD only to XOR inside a traditional
@@ -466,7 +496,7 @@ and permutation costs dominate.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{stage_throughput_1024.pdf}
+\includegraphics[width=\columnwidth]{stage_throughput_1024.pdf}
 \caption{Representative replaceable-stage throughput at
 1024$\times$1024. The largest gain is algorithmic: replacing chaotic sort with
 a regular linear-time permutation. AVX2-native multi-lane and tree diffusion
@@ -476,7 +506,7 @@ also outperform the sequential global chain.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{diffusion_speedup.pdf}
+\includegraphics[width=\columnwidth]{diffusion_speedup.pdf}
 \caption{Diffusion speedup relative to the global chain on square images.
 AVX2 multi-lane and tree diffusion retain a positive advantage at all measured
 sizes, although the advantage narrows at 4096$\times$4096.}
@@ -489,7 +519,7 @@ achieves 259.138 MiB/s, while Checkerboard-CA-MultilaneTree achieves
 232.142 MiB/s. Both remain slower than AES-256-CTR and ChaCha20 on the same
 image dimensions.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Aggregate Candidate-Pipeline Throughput}
 \label{tab:candidate-throughput}
 \centering
@@ -506,7 +536,7 @@ Checkerboard-CA-MultilaneTree & 768$\times$512 & 180 & 232.142 & 2.111 \\
 Checkerboard-CA-MultilaneTree & 4096$\times$4096 & 30 & 159.392 & 3.931 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Table~\ref{tab:shares} shows that the fast checkerboard candidates distribute
 work across all three stages, whereas Feistel indexing dominates
@@ -516,14 +546,14 @@ remain visible after composition.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{candidate_scaling.pdf}
+\includegraphics[width=\columnwidth]{candidate_scaling.pdf}
 \caption{Candidate-pipeline throughput across square image sizes. The
 checkerboard candidates remain fastest, but all candidates lose throughput as
 working sets grow. Error bars show 95\% confidence intervals.}
 \label{fig:candidate-scaling}
 \end{figure}
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Mean Candidate Stage Shares}
 \label{tab:shares}
 \centering
@@ -538,11 +568,11 @@ CA-Feistel-ARX & 11.69\% & 82.32\% & 5.99\% \\
 Hamiltonian-Block-Stencil & 83.78\% & 11.97\% & 4.24\% \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{candidate_stage_shares.pdf}
+\includegraphics[width=\columnwidth]{candidate_stage_shares.pdf}
 \caption{Mean runtime composition of the candidate pipelines. The plot exposes
 the dominant bottleneck in each composition and shows why isolated stage
 measurements remain necessary.}
@@ -559,7 +589,7 @@ feasibility check rather than a deployment guarantee because complete
 real-time systems must also budget capture, transport, display, storage,
 authentication, and downstream processing.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Video-Frame Real-Time Feasibility on x86-64 and ARM64}
 \label{tab:realtime-video}
 \centering
@@ -586,7 +616,7 @@ ARM64 & ChaCha20 & 1920$\times$1080 & 7.01 & 7.20 & 142.71 & yes & yes \\
 \bottomrule
 \end{tabular}
 \footnotetext{Ckbd-CA-ARX denotes Checkerboard-CA-ARX. Mean and p95 are in milliseconds per frame.}
-\end{table}
+\end{table*}
 
 These results answer RQ4 for the measured hosts. The fastest chaotic candidate
 meets 30 FPS at both video resolutions on both architectures. It meets 60 FPS
@@ -606,7 +636,7 @@ ordering on both systems: \texttt{scan\_exact} consistently beat the scalar
 chain for the map and symbolic families, while \texttt{sort\_logistic}
 remained near parity.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Representative Cross-Architecture Paired Speedups}
 \label{tab:cross-arch}
 \centering
@@ -621,7 +651,7 @@ Bitplane + scan exact & 1.101$\times$ / 0.933$\times$ & 1.249$\times$ / 1.068$\t
 Sort logistic + scan exact & 1.032$\times$ / 1.012$\times$ & 1.042$\times$ / 1.016$\times$ \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 These paired runs support the claim that the main throughput ranking is not an
 artifact of the Xeon server alone. The exact-scan variant is the most robust
@@ -637,7 +667,7 @@ frames \cite{jiang2023}, a medical-imagery permutation-diffusion design
 \cite{sanaboina2024}, geometric block permutation with dynamic substitution
 \cite{ali2025}, and data-identified discrete chaotic maps \cite{li2026}.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Representative Recent Works and the Remaining Measurement Gap}
 \label{tab:recent-work}
 \centering
@@ -652,7 +682,7 @@ frames \cite{jiang2023}, a medical-imagery permutation-diffusion design
 2026 & \cite{li2026} & Data-identified discrete chaotic maps & Explores a newer map family, but still centers on cipher statistics rather than stage timing. \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 This is not a substitute for a full peer-reviewed 2022--2026 survey matrix.
 It is the manuscript-level positioning needed to show that the present work is
@@ -665,7 +695,7 @@ All complete schemes decrypt correctly. Several also produce near-eight-bit
 entropy, low adjacent-pixel correlation, and strong key sensitivity. These
 positive metrics are insufficient to establish security.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Mean Security Diagnostics Across 300 Observations per Scheme}
 \label{tab:security}
 \centering
@@ -682,7 +712,7 @@ Logistic-XOR & 7.984321 & 26641.399 & 0.020440 & 0.000084\% & 99.387\% & 1.000 \
 Coupled-lattice-XOR & 7.971770 & 45857.479 & 0.137337 & 0.000084\% & 99.410\% & 1.000 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 The KPA recovery score of 1.0 for AES-CTR, ChaCha20, BLAKE3-XOR, and the
 stream-XOR chaotic variants is expected because the experiment deliberately
@@ -705,7 +735,7 @@ paper leans too hard on image statistics. They are useful precisely because
 they do not prove security: they expose misuse sensitivity, limited avalanche
 under keystream reuse, and the missing finite-precision analysis.
 
-\begin{table}[t]
+\begin{table*}[t]
 \caption{Negative-Control Outcomes}
 \label{tab:negative-controls}
 \centering
@@ -720,7 +750,7 @@ One-bit key flip & Key sensitivity stays in the 99.387--99.623\% range across th
 Finite precision orbit collapse & Exact double logistic orbits showed no repeat within $10^6$ steps across 16 seeds. The 16-bit quantized logistic stress test repeated in all 16 seeds after 35--549 steps (median 161; cycle length 5--245, median 60). The current fixed-point tent probe also showed no repeat within $10^6$ steps. & Finite precision clearly changes effective orbit length; the exact implementation still needs a longer-horizon orbit-length or state-space study before any stronger claim. \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 The finite-precision row is deliberate: it now records a reduced-precision
 stress test instead of leaving the analysis blank. The exact double orbit
@@ -729,7 +759,7 @@ claim for the current harness.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{security_diagnostics.pdf}
+\includegraphics[width=\columnwidth]{security_diagnostics.pdf}
 \caption{Selected security diagnostics averaged over the full-scheme
 experiments. Near-ideal entropy, correlation, and key sensitivity coexist with
 complete recovery in the deliberately reused-keystream known-plaintext probe.}
