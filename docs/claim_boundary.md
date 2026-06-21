@@ -16,6 +16,14 @@
 - Treat finite-precision results as a lower bound or stress test, not a proof of randomness or security.
 - Treat any new family additions as benchmark proxies unless they are fully key-derived, decryptable, and cryptanalytically validated.
 
+## JRTIP real-time framing
+
+- Make real-time latency the first-class contribution, not just raw throughput.
+- Report `ms/frame`, FPS equivalent, p95 latency for video frames, and 30/60 FPS pass/fail status.
+- Treat Kodak and synthetic images as still-image controls; add a public video-frame workload before submission.
+- Require at least x86-64 SIMD and ARM64 NEON measurements for cross-architecture real-time claims.
+- Do not claim GPU, FPGA, embedded, or production real-time deployment unless those platforms are measured.
+
 ## Not supported
 
 - The proxy families reproduce a cited scheme unless every algorithmic detail has been matched and documented.

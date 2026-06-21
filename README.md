@@ -14,10 +14,11 @@ main research question is whether chaotic image transforms become more
 efficient when sequential, irregular operations are replaced with
 SIMD-friendly designs.
 
-The suite includes scalar and AVX2 implementations, OpenSSL AES-256-CTR and
-ChaCha20 baselines, image-domain security diagnostics, public dataset tooling,
-CSV output, publication plots, a finite-precision orbit probe, and an IEEE
-Access manuscript.
+The suite includes scalar, AVX2, and portable ARM/NEON-compatible paths,
+OpenSSL AES-256-CTR and ChaCha20 baselines, image-domain security diagnostics,
+public dataset tooling, CSV output, publication plots, a finite-precision
+orbit probe, and a manuscript now being reframed for the Journal of Real-Time
+Image Processing.
 
 > **Security notice:** The experimental chaotic and candidate pipelines are
 > research prototypes. They have not received the cryptanalysis required for
@@ -36,7 +37,9 @@ Access manuscript.
   sensitivity, known-plaintext, chosen-plaintext, and finite-precision orbit
   diagnostics
 - Synthetic and Kodak PhotoCD dataset support
-- Reproducible CSV aggregation, confidence intervals, plots, and manuscript
+- Public video-frame workload support for 720p/1080p real-time latency checks
+- Reproducible CSV aggregation, confidence intervals, real-time metrics,
+  plots, and manuscript
 
 ## Requirements
 
@@ -162,8 +165,8 @@ documents an exact reproduction of a cited algorithm.
 ## Reproduce the Paper Experiments
 
 The publication harness generates deterministic synthetic images, optionally
-downloads the public Kodak PhotoCD dataset, runs repeated experiments, and
-aggregates the results.
+downloads the public Kodak PhotoCD and video-frame datasets, runs repeated
+experiments, and aggregates the results.
 
 Standard run:
 
@@ -171,6 +174,26 @@ Standard run:
 REPS=10 REAL_REPS=10 SIZES="512 1024 2048 4096" \
   ./scripts/run_paper_ready_experiments.sh
 ```
+
+JRTIP real-time run with video frames:
+
+```bash
+CLEAN_RESULTS=1 RUN_SYNTHETIC=1 RUN_REAL=1 RUN_VIDEO=1 \
+  DOWNLOAD_REAL=0 DOWNLOAD_VIDEO=0 REPS=3 REAL_REPS=3 \
+  SIZES="512 1024 2048 4096" \
+  ./scripts/run_paper_ready_experiments.sh
+```
+
+The current JRTIP result-data commit keeps CSV/Markdown outputs only:
+
+- `results/jrtip_realtime/`: x86-64 run with synthetic, Kodak, and 24
+  720p/1080p video frames
+- `results/jrtip_realtime_arm/`: ARM64 run with the same workload
+- `real_time_metrics.csv`: mean ms/frame, p95 ms/frame, FPS equivalent, and
+  30/60 FPS pass/fail status
+
+Encrypted output PNGs, histogram PNGs, generated review PNGs, and downloaded
+datasets are local artifacts and are intentionally not versioned.
 
 For the revised cross-architecture study, run the same command on the x86 and
 ARM hosts with different output directories:
@@ -222,11 +245,15 @@ python3 scripts/generate_publication_plots.py
 
 The script reads the aggregated files in `results/final` and writes vector PDF
 figures plus high-resolution PNG review copies to `paper/access/figures`.
+Review PNGs are generated artifacts and should not be committed with result
+data.
 
 ## Build the Manuscript
 
-The maintained IEEE Access LaTeX manuscript and generated review PDF are under
-`paper/access`.
+The maintained LaTeX manuscript and generated review PDF are under
+`paper/access`. The current branch reframes the work for the Journal of
+Real-Time Image Processing by emphasizing frame latency, video-frame
+workloads, and x86/ARM reproducibility.
 
 ```bash
 cd paper/access
@@ -275,8 +302,10 @@ src/crypto/             OpenSSL and BLAKE3 baselines
 src/analysis/           Security metrics and reporting
 scripts/                Dataset, benchmark, aggregation, and plotting tools
 images/datasets/        Synthetic and public real-image datasets
-results/final/          Aggregated publication results
-paper/access/           IEEE Access manuscript and figures
+results/final/          Baseline aggregated publication results
+results/jrtip_realtime/ x86 JRTIP real-time CSV/Markdown result data
+results/jrtip_realtime_arm/ ARM JRTIP real-time CSV/Markdown result data
+paper/access/           Manuscript and figures
 archive/                Earlier reference implementation
 ```
 
@@ -288,6 +317,8 @@ The benchmark supports three main conclusions:
   linear-time permutation.
 - SIMD-friendly multi-lane and tree diffusion improve throughput by removing
   global byte-to-byte dependencies.
+- Real-time feasibility should be reported as ms/frame, p95 latency, FPS
+  equivalent, and 30/60 FPS pass/fail status on both x86-64 and ARM64.
 - Favorable image statistics do not establish cryptographic security. In
   particular, reused stream-cipher keystreams remain vulnerable even when
   entropy and correlation metrics look strong.

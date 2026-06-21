@@ -14,7 +14,7 @@
 \history{Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.}
 \doi{10.1109/ACCESS.XXXX.XXXXXXX}
 
-\title{From Chaotic Maps to SIMD-Native Image Transforms: A Stage-Level Performance and Security Evaluation}
+\title{Real-Time Stage-Level Evaluation of SIMD-Native Chaos-Based Image Encryption Pipelines}
 
 \author{\uppercase{Ravikanth Reddy Gudipati}\authorrefmark{1},
 \IEEEmembership{Senior Member, IEEE}}
@@ -23,35 +23,40 @@
 (e-mail: ravikanthreddy@ieee.org).}
 
 \markboth
-{Gudipati: From Chaotic Maps to SIMD-Native Image Transforms}
-{Gudipati: From Chaotic Maps to SIMD-Native Image Transforms}
+{Gudipati: Real-Time Stage-Level Evaluation of Chaos-Based Image Encryption}
+{Gudipati: Real-Time Stage-Level Evaluation of Chaos-Based Image Encryption}
 
 \begin{abstract}
-Chaos-based image-encryption studies commonly evaluate complete schemes and
-image-domain statistics, making it difficult to identify which design choices
-actually determine encryption throughput and whether favorable image statistics
-correspond to meaningful cryptographic resistance. This work presents a
-reproducible C++17 benchmark that decomposes representative chaotic
-image-encryption methods into keystream generation, pixel permutation, and
-diffusion. Traditional components are compared with SIMD-oriented replacements
-on 12 deterministic synthetic images and the 24-image Kodak PhotoCD dataset.
-The evaluation contains 14,730 performance observations and 3,300 full-scheme
-security observations, with ten repetitions per configuration. Replacing
-chaotic sort permutation with a linear block permutation improves mean
-permutation throughput by 100.6--131.9 times. Replacing a global feedback chain
-with AVX2 multi-lane or tree diffusion improves mean diffusion throughput by
-approximately 1.8--2.1 times. The fastest benchmark-informed candidate,
-Checkerboard-CA-ARX, sustains 259.1 MiB/s on Kodak images and 200.0 MiB/s at
-4096$\times$4096, while ChaCha20 remains substantially faster. Security
-experiments show that favorable entropy, histogram, correlation, and
-key-sensitivity values do not imply resistance to differential or
-known-plaintext attacks. The candidate pipelines are therefore presented as
-performance templates rather than deployment-ready ciphers.
+Chaos-based image-encryption studies commonly report aggregate running time
+and image-domain statistics, but often do not show whether the proposed
+pipeline can satisfy real-time image-processing budgets or which stage prevents
+it from doing so. This work presents a reproducible C++17 benchmark that
+decomposes representative chaotic image-encryption methods into keystream
+generation, pixel permutation, and diffusion, then evaluates end-to-end
+latency, throughput, and stage share against frame-rate-oriented constraints.
+Traditional components are compared with SIMD-oriented replacements on 12
+deterministic synthetic images, the 24-image Kodak PhotoCD dataset, and a
+public 720p/1080p video-frame workload. The still-image evaluation contains
+14,730 performance observations and 3,300 full-scheme security observations,
+with ten repetitions per configuration; the real-time extension adds matched
+x86-64 and ARM64 video-frame measurements with mean latency, p95 latency,
+FPS-equivalent throughput, and 30/60 FPS feasibility labels. Replacing chaotic sort permutation with a linear block
+permutation improves mean permutation throughput by 100.6--131.9 times.
+Replacing a global feedback chain with AVX2 multi-lane or tree diffusion
+improves mean diffusion throughput by approximately 1.8--2.1 times. The
+fastest benchmark-informed candidate, Checkerboard-CA-ARX, sustains 259.1
+MiB/s on Kodak images and 200.0 MiB/s at 4096$\times$4096, while ChaCha20
+remains substantially faster. Security experiments show that favorable
+entropy, histogram, correlation, and key-sensitivity values do not imply
+resistance to differential or known-plaintext attacks. The candidate pipelines
+are therefore presented as real-time performance templates rather than
+deployment-ready ciphers.
 \end{abstract}
 
 \begin{keywords}
 AVX2, cellular automata, chaotic image encryption, image cryptanalysis,
-permutation-diffusion, SIMD, stage-level benchmarking.
+latency, permutation-diffusion, real-time image processing, SIMD,
+stage-level benchmarking.
 \end{keywords}
 
 \titlepgskip=-21pt
@@ -69,23 +74,34 @@ permutation-diffusion, SIMD, stage-level benchmarking.
 
 \section{Introduction}
 \label{sec:introduction}
-\PARstart{T}{he} permutation-diffusion architecture is a recurring structure
-in chaos-based image encryption. A permutation stage rearranges pixel
-positions, and a diffusion stage modifies pixel values using a key-dependent
-sequence. The architecture maps naturally to common image statistics:
-permutation reduces adjacent-pixel correlation, while diffusion can flatten
-histograms and increase sensitivity to key changes.
+\PARstart{R}{eal-time} image-processing systems need predictable latency, not
+only visually plausible ciphertexts or high aggregate throughput. A
+30-frame/s pipeline has about 33.3 ms to process each frame, while a
+60-frame/s pipeline has about 16.7 ms before accounting for capture,
+transport, display, storage, or downstream analytics. Chaos-based
+image-encryption papers often report image-domain statistics and a single
+running time, but that evidence rarely shows whether a design can satisfy
+these frame budgets on commodity CPU architectures.
 
-However, two problems complicate performance and security claims in this
+The permutation-diffusion architecture is a recurring structure in
+chaos-based image encryption. A permutation stage rearranges pixel positions,
+and a diffusion stage modifies pixel values using a key-dependent sequence.
+The architecture maps naturally to common image statistics: permutation
+reduces adjacent-pixel correlation, while diffusion can flatten histograms and
+increase sensitivity to key changes.
+
+However, three problems complicate real-time and security claims in this
 literature. First, complete-scheme timing hides the contribution of individual
 stages. A proposed SIMD diffusion kernel may be fast while an
 $O(N\log N)$ chaotic sort still dominates total execution time. Conversely, a
 sequential chaotic generator may prevent a pipeline from benefiting from an
-otherwise parallel permutation. Second, image-domain metrics such as entropy,
-correlation, NPCR, and UACI are diagnostic measurements rather than proofs of
-cryptographic security. A deterministic stream-XOR construction can produce a
-uniform-looking ciphertext while remaining vulnerable when a key/nonce pair is
-reused.
+otherwise parallel permutation. Second, throughput alone can mask missed
+frame deadlines: a high mean MiB/s value is less useful without per-frame
+latency, p95 latency on frame sequences, and pass/fail status against 30/60
+FPS budgets. Third, image-domain metrics such as entropy, correlation, NPCR,
+and UACI are diagnostic measurements rather than proofs of cryptographic
+security. A deterministic stream-XOR construction can produce a uniform-looking
+ciphertext while remaining vulnerable when a key/nonce pair is reused.
 
 This study investigates how implementation-friendly stages affect the
 performance of chaotic image-encryption methods without conflating that
@@ -95,7 +111,7 @@ are implemented within one benchmark suite. The experiments isolate keystream,
 permutation, and diffusion execution time before composing selected components
 into benchmark-informed candidate pipelines.
 
-The study answers four research questions:
+The study answers five research questions:
 \begin{itemize}
 \item \textbf{RQ1:} Which stages dominate representative chaotic
 image-encryption pipelines?
@@ -103,7 +119,10 @@ image-encryption pipelines?
 linear-time and SIMD-oriented restructuring?
 \item \textbf{RQ3:} Do stage-level improvements remain visible in composed
 candidate pipelines and at larger image sizes?
-\item \textbf{RQ4:} Which security conclusions are, and are not, supported by
+\item \textbf{RQ4:} Which candidates meet 30-frame/s and 60-frame/s latency
+budgets at common image and video-frame resolutions on measured CPU
+architectures?
+\item \textbf{RQ5:} Which security conclusions are, and are not, supported by
 common image-domain metrics?
 \end{itemize}
 
@@ -111,9 +130,12 @@ The contributions are:
 \begin{enumerate}
 \item A reproducible C++17/OpenCV/OpenSSL benchmark with a common cipher
 interface and separate keystream, permutation, diffusion, and total timing.
+\item A real-time evaluation protocol that reports milliseconds per frame,
+FPS-equivalent throughput, stage shares, and pass/fail status against 30/60
+FPS budgets.
 \item A controlled comparison of traditional components and SIMD-oriented
-replacements across synthetic images, real natural images, and resolutions up
-to 4096$\times$4096.
+replacements across synthetic images, real natural images, video frames, and
+resolutions up to 4096$\times$4096.
 \item Evidence that linear block permutation and lane/tree diffusion remove
 major implementation bottlenecks, while scalar floating-point maps and
 sort-based permutation remain expensive.
@@ -294,8 +316,16 @@ include optional architecture-specific SIMD dispatch. Candidate and stage
 measurements are single-process measurements; this paper does not claim
 multicore scaling.
 
+For a Journal of Real-Time Image Processing submission, the same harness is
+reported on two CPU architectures: an x86-64 SIMD host and an ARM64 host. The
+preferred final matrix can add a third modern x86 host so that the current
+older Xeon result is not the only x86 data point. Each platform report should
+include processor model, core or vCPU count, memory, operating system,
+compiler version, compiler flags, SIMD capability, warm-up count, timed
+repetitions, and whether CPU frequency or affinity was controlled.
+
 \subsection{Datasets}
-Two dataset classes are used:
+Two dataset classes are used in the current results:
 \begin{itemize}
 \item \textbf{Synthetic controls:} deterministic gradient, texture, and noise
 images at 512$\times$512, 1024$\times$1024, 2048$\times$2048, and
@@ -308,6 +338,15 @@ Synthetic images provide controlled size and content variation. Kodak images
 provide natural-image diversity while retaining a stable public benchmark.
 The Lena/Lenna image is explicitly excluded from the publication dataset and
 does not appear in the active benchmark results.
+
+The real-time extension adds public video frames sampled at
+1280$\times$720 and 1920$\times$1080 so that latency variation can be
+reported over frame sequences rather than still images alone. One
+literature-comparable image-encryption set, such as USC-SIPI with Lena/Lenna
+excluded, can be added only to connect the results to prior image-encryption
+studies. Domain datasets such as medical, surveillance, satellite, or
+industrial imagery should be added only if the manuscript claims that
+deployment domain.
 
 \subsection{Experiment Matrix}
 Every executed configuration is repeated ten times. Slow full schemes and
@@ -326,6 +365,26 @@ values are arithmetic means. The 95\% confidence interval is
 \label{eq:ci}
 \end{equation}
 where $s$ is the sample standard deviation. No outlier removal is applied.
+
+\subsection{Real-Time Metrics}
+The primary real-time unit is milliseconds per frame. For each scheme,
+dataset, resolution, and architecture, the benchmark should report mean
+latency, 95\% confidence interval, FPS-equivalent throughput, and stage share
+for keystream generation, permutation, diffusion, and total execution. For
+video-frame workloads, the journal-ready table should also report p95 latency.
+FPS-equivalent throughput is computed as
+\begin{equation}
+\mathrm{FPS}_{eq} =
+\frac{1000}{\mathrm{ms/frame}}.
+\label{eq:fps}
+\end{equation}
+
+The real-time feasibility table should mark whether each configuration meets
+30-frame/s and 60-frame/s budgets. The 30-frame/s budget is 33.3 ms/frame and
+the 60-frame/s budget is 16.7 ms/frame. These thresholds are intentionally
+reported as feasibility checks rather than deployment guarantees because a
+complete real-time system also includes acquisition, transport, display,
+storage, authentication, and application-specific processing.
 
 \subsection{Security Metrics}
 For full schemes, the suite records Shannon entropy, the 256-bin chi-square
@@ -521,10 +580,54 @@ measurements remain necessary.}
 \label{fig:candidate-shares}
 \end{figure*}
 
+\subsection{Video-Frame Real-Time Feasibility}
+The JRTIP-oriented extension reruns the benchmark on a public video-frame
+workload at 1280$\times$720 and 1920$\times$1080. Each row in
+Table~\ref{tab:realtime-video} summarizes 36 measurements for the corresponding
+scheme, resolution, and architecture. The x86-64 run used the local Xeon host;
+the ARM64 run used an AWS aarch64 host. The table is intentionally a
+feasibility check rather than a deployment guarantee because complete
+real-time systems must also budget capture, transport, display, storage,
+authentication, and downstream processing.
+
+\begin{table*}[t]
+\caption{Video-Frame Real-Time Feasibility on x86-64 and ARM64}
+\label{tab:realtime-video}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrrcc}
+\toprule
+\textbf{Architecture} & \textbf{Scheme} & \textbf{Resolution} &
+\textbf{Mean ms} & \textbf{p95 ms} & $\boldsymbol{\mathrm{FPS}_{eq}}$ &
+\textbf{30 FPS} & \textbf{60 FPS} \\
+\midrule
+x86-64 & Checkerboard-CA-ARX & 1280$\times$720 & 12.77 & 14.06 & 78.30 & yes & yes \\
+x86-64 & Checkerboard-CA-ARX & 1920$\times$1080 & 28.99 & 31.06 & 34.49 & yes & no \\
+x86-64 & AES-256-GCM & 1280$\times$720 & 3.02 & 3.44 & 330.59 & yes & yes \\
+x86-64 & AES-256-GCM & 1920$\times$1080 & 7.82 & 8.43 & 127.82 & yes & yes \\
+x86-64 & ChaCha20 & 1280$\times$720 & 3.28 & 3.56 & 304.72 & yes & yes \\
+x86-64 & ChaCha20 & 1920$\times$1080 & 8.44 & 9.39 & 118.55 & yes & yes \\
+ARM64 & Checkerboard-CA-ARX & 1280$\times$720 & 5.44 & 5.87 & 183.85 & yes & yes \\
+ARM64 & Checkerboard-CA-ARX & 1920$\times$1080 & 12.01 & 12.84 & 83.24 & yes & yes \\
+ARM64 & AES-256-GCM & 1280$\times$720 & 1.88 & 2.06 & 531.20 & yes & yes \\
+ARM64 & AES-256-GCM & 1920$\times$1080 & 4.06 & 4.12 & 246.59 & yes & yes \\
+ARM64 & ChaCha20 & 1280$\times$720 & 3.19 & 3.39 & 313.92 & yes & yes \\
+ARM64 & ChaCha20 & 1920$\times$1080 & 7.01 & 7.20 & 142.71 & yes & yes \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+These results answer RQ4 for the measured hosts. The fastest chaotic candidate
+meets 30 FPS at both video resolutions on both architectures. It meets 60 FPS
+at 720p on x86-64 and at both resolutions on the measured ARM64 host, but it
+misses the 60 FPS threshold at 1080p on the x86-64 host. The standardized
+cryptographic baselines remain faster and meet both frame-rate thresholds in
+all measured video-frame cases.
+
 \subsection{Cross-Architecture Reproducibility}
 To check whether the conclusions depend on one CPU family, the publication
 harness was rerun on the local Intel Xeon E5-2620 v4 host with AVX2 and on an
-AWS Neoverse-N1 instance with NEON. The matched run used synthetic sizes
+AWS aarch64 host. The matched run used synthetic sizes
 256, 512, and 1024, three repetitions, one warm-up, four timed iterations, and
 the Kodak pair \texttt{kodim01.png} and \texttt{kodim02.png}. The paired
 geometric-mean analysis over five images preserved the same qualitative
@@ -617,7 +720,7 @@ the underlying standardized primitive. The negligible plaintext NPCR is also
 expected for CTR- or stream-XOR encryption: changing one plaintext bit changes
 only the corresponding ciphertext bit when the keystream is unchanged.
 
-This result answers RQ4. Entropy, correlation, and key sensitivity can look
+This result answers RQ5. Entropy, correlation, and key sensitivity can look
 excellent while a construction still lacks plaintext avalanche and fails
 under reused keystream. NPCR is not an appropriate requirement for all secure
 encryption modes; standard stream ciphers intentionally do not provide
@@ -695,18 +798,22 @@ authenticated standard cipher.
 \subsection{Implications for Future Studies}
 Future evaluations should report isolated stage execution time; include AES
 and ChaCha through optimized libraries; compare algorithmic complexity before
-attributing speedup to SIMD; test real images and controlled synthetic inputs;
-report repeated measurements with confidence intervals; separate image
-statistics from cryptographic claims; and include negative controls for nonce
-reuse, known plaintext, and chosen plaintext.
+attributing speedup to SIMD; test real images, controlled synthetic inputs,
+and public video-frame workloads; report repeated measurements with confidence
+intervals and p95 frame latency; separate image statistics from cryptographic
+claims; and include negative controls for nonce reuse, known plaintext, and
+chosen plaintext.
 
 \section{Threats to Validity and Limitations}
 \label{sec:limitations}
-Measurements were collected on one older x86-64 server CPU and may differ on
-newer AVX2/AVX-512 processors, ARM NEON/SVE systems, GPUs, or embedded devices.
-CPU frequency, virtualization noise, memory allocation, and cache state were
-not controlled through hardware performance counters or processor pinning.
-The benchmark reports wall-clock stage time and throughput, but not cycles per
+Most measurements were collected on one older x86-64 server CPU and one ARM64
+cloud host, and may differ on newer AVX2/AVX-512 processors, ARM NEON/SVE
+systems, GPUs, or embedded devices. The current JRTIP extension includes a
+matched x86/ARM real-time video-frame run, but a stronger submission package
+would add a modern x86 host and more detailed platform controls. CPU
+frequency, virtualization noise, memory allocation, and cache state were not
+controlled through hardware performance counters or processor pinning. The
+benchmark reports wall-clock stage time and throughput, but not cycles per
 byte, energy, cache misses, branch misses, or instruction counts.
 
 The prefix-XOR helper is only partially vectorized because its intra-vector
@@ -750,13 +857,20 @@ README documents dependencies, quick-start commands, plot generation, and
 manuscript compilation. The complete source revision used by each experiment
 is retained in the generated metadata.
 
+The JRTIP real-time extension is reproduced with \texttt{RUN\_VIDEO=1} and
+separate output directories for the x86-64 and ARM64 hosts. The committed
+result-data directories are \path{results/jrtip_realtime} and
+\path{results/jrtip_realtime_arm}; they contain CSV and Markdown measurements
+only, not generated ciphertext images or downloaded datasets.
+
 \section{Conclusion}
 \label{sec:conclusion}
 This work decomposed chaotic image-encryption pipelines into replaceable
 keystream, permutation, and diffusion stages and evaluated traditional and
-SIMD-oriented alternatives. Implementation-hostile components, especially
-chaotic sort and global feedback dependencies, determine encryption throughput
-more strongly than the mere use of SIMD instructions.
+SIMD-oriented alternatives under a real-time-oriented measurement model.
+Implementation-hostile components, especially chaotic sort and global feedback
+dependencies, determine encryption latency and throughput more strongly than
+the mere use of SIMD instructions.
 
 Linear block permutation improves throughput by more than two orders of
 magnitude relative to chaotic sort. AVX2 multi-lane and tree diffusion
@@ -764,6 +878,15 @@ approximately double throughput relative to a global chain. These improvements
 remain visible in composed candidate pipelines and at resolutions up to
 4096$\times$4096. Nevertheless, optimized ChaCha20 and AES-256-CTR remain
 faster and have substantially stronger security foundations.
+
+For a real-time image-processing venue, the central implementation lesson is
+that stage-level timing must be converted into frame-level feasibility:
+milliseconds per frame, FPS-equivalent throughput, p95 video-frame latency,
+and pass/fail status against 30/60 FPS budgets. The current results include a
+public 720p/1080p video-frame workload on both x86-64 and ARM64. They show
+that Checkerboard-CA-ARX meets 30 FPS at both resolutions on both measured
+hosts, while optimized AES-GCM and ChaCha20 remain faster and meet both
+30 FPS and 60 FPS thresholds in the measured video-frame cases.
 
 The security experiments reinforce an equally important conclusion:
 image-domain statistics must not be presented as cryptographic proof. The

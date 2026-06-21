@@ -9,10 +9,15 @@ RESULTS_ROOT="${RESULTS_ROOT:-results/final}"
 CLEAN_RESULTS="${CLEAN_RESULTS:-1}"
 DATASET_DIR="${DATASET_DIR:-images/datasets/synthetic}"
 REAL_DATASET_DIR="${REAL_DATASET_DIR:-images/datasets/real/kodak}"
+VIDEO_DATASET_DIR="${VIDEO_DATASET_DIR:-images/datasets/real/video_xiph_ducks}"
 DOWNLOAD_REAL="${DOWNLOAD_REAL:-1}"
+DOWNLOAD_VIDEO="${DOWNLOAD_VIDEO:-1}"
 REAL_LIMIT="${REAL_LIMIT:-24}"
+VIDEO_LIMIT="${VIDEO_LIMIT:-12}"
+VIDEO_STRIDE="${VIDEO_STRIDE:-10}"
 RUN_SYNTHETIC="${RUN_SYNTHETIC:-1}"
 RUN_REAL="${RUN_REAL:-1}"
+RUN_VIDEO="${RUN_VIDEO:-0}"
 SIZES="${SIZES:-512 1024 2048 4096}"
 KINDS="${KINDS:-gradient texture noise}"
 REPS="${REPS:-5}"
@@ -36,6 +41,10 @@ fi
 
 if [[ "$RUN_REAL" == "1" && "$DOWNLOAD_REAL" == "1" ]]; then
   python3 scripts/download_real_datasets.py --out "$REAL_DATASET_DIR" --limit "$REAL_LIMIT"
+fi
+
+if [[ "$RUN_VIDEO" == "1" && "$DOWNLOAD_VIDEO" == "1" ]]; then
+  python3 scripts/download_video_frames.py --out "$VIDEO_DATASET_DIR" --limit "$VIDEO_LIMIT" --stride "$VIDEO_STRIDE"
 fi
 
 if [[ "$CLEAN_RESULTS" == "1" ]]; then
@@ -104,6 +113,17 @@ if [[ "$RUN_REAL" == "1" ]]; then
     run_one_image "$image" "real_${stem}" "$FULL_MAX_SIZE" "$REAL_REPS"
   done
   shopt -u nullglob
+fi
+
+if [[ "$RUN_VIDEO" == "1" ]]; then
+  shopt -s globstar nullglob
+  for image in "$VIDEO_DATASET_DIR"/**/*.ppm; do
+    rel="${image#"$VIDEO_DATASET_DIR"/}"
+    label="video_${rel%.*}"
+    label="${label//\//_}"
+    run_one_image "$image" "$label" "$FULL_MAX_SIZE" "$REAL_REPS"
+  done
+  shopt -u globstar nullglob
 fi
 
 python3 scripts/make_paper_outputs.py --root "$RESULTS_ROOT"

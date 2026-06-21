@@ -39,6 +39,17 @@ def parse_image_meta(image: str) -> tuple[str, str]:
     return stem, ""
 
 
+def classify_dataset(image: str) -> str:
+    lower = image.lower()
+    if "/real/kodak/" in lower:
+        return "kodak_photocd"
+    if "/real/video_" in lower:
+        return "video_frame_workload"
+    if "/real/" in lower:
+        return "real_image_workload"
+    return "synthetic_control"
+
+
 def load_kind(root: Path, file_name: str) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for path in sorted((root / "raw").glob(f"*/{file_name}")):
@@ -54,11 +65,15 @@ def load_kind(root: Path, file_name: str) -> list[dict[str, object]]:
                 size = f"{width}x{height}"
             if kind.startswith("real_") or "/real/" in row.get("image", ""):
                 kind = "real_" + Path(row.get("image", "")).stem
+            if "/real/video_" in row.get("image", ""):
+                parts_path = Path(row.get("image", ""))
+                kind = "video_" + parts_path.parent.name + "_" + parts_path.stem
             row["run_id"] = run_id
             row["mode"] = mode
             row["repeat"] = repeat
             row["image_kind"] = kind
             row["image_size"] = size
+            row["dataset"] = classify_dataset(row.get("image", ""))
             rows.append(row)
     return rows
 
@@ -91,6 +106,64 @@ def aggregate(rows: list[dict[str, object]], group_fields: list[str], metric: st
                 f"{metric}_max": max(values),
                 f"{metric}_stddev": stddev,
                 f"{metric}_ci95": ci95,
+            }
+        )
+        out.append(item)
+    return out
+
+
+def percentile(values: list[float], pct: float) -> float:
+    if not values:
+        return math.nan
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    pos = (len(ordered) - 1) * pct
+    lo = math.floor(pos)
+    hi = math.ceil(pos)
+    if lo == hi:
+        return ordered[lo]
+    return ordered[lo] + (ordered[hi] - ordered[lo]) * (pos - lo)
+
+
+def real_time_summary(bench: list[dict[str, object]], candidates: list[dict[str, object]]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for row in bench:
+        item = dict(row)
+        item["family"] = "full_scheme"
+        item["name"] = row.get("cipher", "")
+        rows.append(item)
+    for row in candidates:
+        item = dict(row)
+        item["family"] = "candidate"
+        item["name"] = row.get("scheme", "")
+        rows.append(item)
+
+    groups: dict[tuple[object, ...], list[dict[str, object]]] = defaultdict(list)
+    fields = ["family", "name", "dataset", "image_size"]
+    for row in rows:
+        total = fnum(row.get("total_ms"))
+        if total > 0.0:
+            groups[tuple(row.get(k, "") for k in fields)].append(row)
+
+    out: list[dict[str, object]] = []
+    for key, group_rows in sorted(groups.items()):
+        ms_values = [fnum(r.get("total_ms")) for r in group_rows if fnum(r.get("total_ms")) > 0.0]
+        mbps_values = [fnum(r.get("MBps")) for r in group_rows if not math.isnan(fnum(r.get("MBps")))]
+        mean_ms = statistics.fmean(ms_values)
+        stddev = statistics.stdev(ms_values) if len(ms_values) > 1 else 0.0
+        ci95 = 1.96 * stddev / math.sqrt(len(ms_values)) if len(ms_values) > 1 else 0.0
+        item = {k: v for k, v in zip(fields, key)}
+        item.update(
+            {
+                "n": len(ms_values),
+                "ms_mean": mean_ms,
+                "ms_ci95": ci95,
+                "ms_p95": percentile(ms_values, 0.95),
+                "fps_eq_mean": 1000.0 / mean_ms if mean_ms > 0.0 else math.nan,
+                "meets_30fps": "yes" if mean_ms <= 33.333333 else "no",
+                "meets_60fps": "yes" if mean_ms <= 16.666667 else "no",
+                "MBps_mean": statistics.fmean(mbps_values) if mbps_values else math.nan,
             }
         )
         out.append(item)
@@ -240,7 +313,7 @@ def write_dataset_manifest(root: Path, *collections: list[dict[str, object]]) ->
                 "image": image,
                 "image_kind": row.get("image_kind", ""),
                 "image_size": row.get("image_size", ""),
-                "dataset": "kodak_photocd" if "/real/kodak/" in image else "synthetic_control",
+                "dataset": classify_dataset(image),
             }
     manifest = sorted(images.values(), key=lambda row: str(row["image"]))
     write_csv(root / "dataset_manifest.csv", manifest, ["dataset", "image_kind", "image_size", "image"])
@@ -250,6 +323,7 @@ def write_dataset_manifest(root: Path, *collections: list[dict[str, object]]) ->
 def write_metadata(root: Path, manifest: list[dict[str, object]]) -> None:
     synthetic_count = sum(row["dataset"] == "synthetic_control" for row in manifest)
     kodak_count = sum(row["dataset"] == "kodak_photocd" for row in manifest)
+    video_count = sum(row["dataset"] == "video_frame_workload" for row in manifest)
     text = [
         "# Experiment Metadata",
         "",
@@ -263,6 +337,7 @@ def write_metadata(root: Path, manifest: list[dict[str, object]]) -> None:
         f"dataset_manifest: {root / 'dataset_manifest.csv'}",
         f"synthetic_images: {synthetic_count}",
         f"kodak_photocd_images: {kodak_count}",
+        f"video_frame_workload_images: {video_count}",
         "restricted_images_excluded: Lena, Lenna",
         "",
     ]
@@ -333,6 +408,7 @@ def main() -> int:
     bench_agg = aggregate(bench, ["cipher", "variant", "image_size"], "MBps")
     stage_agg = aggregate(stages, ["category", "stage", "image_size"], "MBps")
     cand_agg = aggregate(candidates, ["scheme", "keystream", "permutation", "diffusion", "image_size"], "MBps")
+    rt_summary = real_time_summary(bench, candidates)
     add_speedups(bench_agg, ["image_size"], "cipher", "MBps_mean", ["logistic_xor"])
     add_speedups(stage_agg, ["category", "image_size"], "stage", "MBps_mean",
                  ["logistic_double", "chaotic_sort", "global_chain"])
@@ -340,6 +416,7 @@ def main() -> int:
     write_csv(root / "bench_stats.csv", bench_agg, sorted({k for r in bench_agg for k in r}))
     write_csv(root / "stage_stats.csv", stage_agg, sorted({k for r in stage_agg for k in r}))
     write_csv(root / "candidate_stats.csv", cand_agg, sorted({k for r in cand_agg for k in r}))
+    write_csv(root / "real_time_metrics.csv", rt_summary, sorted({k for r in rt_summary for k in r}))
 
     plot_note = make_plots(root, candidates, stages)
     write_metadata(root, manifest)
@@ -371,6 +448,10 @@ def main() -> int:
         "## Aggregated Candidate Statistics",
         markdown_table(sorted(cand_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:12],
                        ["scheme", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
+        "",
+        "## Real-Time Feasibility Summary",
+        markdown_table(sorted(rt_summary, key=lambda r: (str(r.get("dataset")), str(r.get("image_size")), fnum(r.get("ms_mean"))))[:20],
+                       ["family", "name", "dataset", "image_size", "n", "ms_mean", "ms_p95", "fps_eq_mean", "meets_30fps", "meets_60fps"]),
         "",
     ]
     (root / "tables.md").write_text("\n".join(tables), encoding="utf-8")
@@ -406,6 +487,10 @@ def main() -> int:
         "## Aggregated Candidate Statistics",
         markdown_table(sorted(cand_agg, key=lambda r: fnum(r.get("MBps_mean")), reverse=True)[:8],
                        ["scheme", "image_size", "n", "MBps_mean", "MBps_ci95", "MBps_mean_speedup_vs_baseline"]),
+        "",
+        "## Real-Time Feasibility Summary",
+        markdown_table(sorted(rt_summary, key=lambda r: (str(r.get("dataset")), str(r.get("image_size")), fnum(r.get("ms_mean"))))[:16],
+                       ["family", "name", "dataset", "image_size", "n", "ms_mean", "ms_p95", "fps_eq_mean", "meets_30fps", "meets_60fps"]),
         "",
         "## Security Caveats",
         "",
@@ -457,7 +542,7 @@ def main() -> int:
         "",
         "## Results",
         "",
-        "See `results/final/tables.md`, `results/final/performance_summary.md`, and `results/final/figures/`.",
+        "See `results/final/tables.md`, `results/final/performance_summary.md`, `results/final/real_time_metrics.csv`, and `results/final/figures/`.",
         "",
         "## Limitations",
         "",
